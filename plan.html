@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vybrané slová PWA plan</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #fffdf7;
+    --ink: #24221e;
+    --muted: #686257;
+    --line: #ded7ca;
+    --accent: #3268c9;
+    --soft-blue: #eaf1ff;
+    --soft-green: #edf8ef;
+    --soft-gold: #fff4cf;
+    --side-i: #d9edff;
+    --side-y: #ffe4c6;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #f4efe6;
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.55;
+  }
+
+  body { padding: 32px 18px; }
+
+  main {
+    width: min(980px, 100%);
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 18px 45px rgba(42, 34, 20, 0.08);
+    overflow: hidden;
+  }
+
+  header {
+    padding: 34px 34px 24px;
+    border-bottom: 1px solid var(--line);
+    background:
+      linear-gradient(135deg, rgba(50, 104, 201, 0.09), rgba(255, 190, 96, 0.16)),
+      var(--paper);
+  }
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.04;
+    letter-spacing: 0;
+  }
+
+  .subtitle {
+    margin: 0;
+    max-width: 720px;
+    color: var(--muted);
+    font-size: 17px;
+  }
+
+  section {
+    padding: 28px 34px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  section:last-child { border-bottom: 0; }
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 22px;
+    letter-spacing: 0;
+  }
+
+  h3 {
+    margin: 20px 0 8px;
+    font-size: 16px;
+  }
+
+  p { margin: 0 0 12px; }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol {
+    margin: 10px 0 0;
+    padding-left: 22px;
+  }
+
+  li { margin: 7px 0; }
+
+  code {
+    background: rgba(36, 34, 30, 0.06);
+    border: 1px solid rgba(36, 34, 30, 0.08);
+    border-radius: 5px;
+    padding: 1px 5px;
+    font-size: 0.94em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+  }
+
+  .panel h3 { margin-top: 0; }
+
+  .flow {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr);
+    gap: 14px;
+    align-items: stretch;
+    margin-top: 18px;
+  }
+
+  .pile {
+    min-height: 170px;
+    border: 2px solid rgba(36, 34, 30, 0.1);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .pile.left { background: var(--side-i); }
+  .pile.middle { background: #fff; }
+  .pile.right { background: var(--side-y); }
+
+  .pile-title {
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .pile-label {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .card-stack {
+    position: relative;
+    height: 96px;
+    margin-top: 8px;
+  }
+
+  .word-card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(170px, 92%);
+    min-height: 74px;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(36, 34, 30, 0.16);
+    border-radius: 8px;
+    background: #fffdf8;
+    box-shadow: 0 8px 18px rgba(42, 34, 20, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .word-card.behind {
+    transform: translate(-50%, -42%) rotate(-2deg);
+    opacity: 0.55;
+  }
+
+  .word-card.front {
+    transform: translate(-50%, -54%) rotate(2deg);
+  }
+
+  .motion-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--soft-gold);
+    border: 1px solid rgba(170, 125, 32, 0.25);
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin: 12px 0 0;
+    list-style: none;
+  }
+
+  .tag-list li {
+    margin: 0;
+    padding: 5px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .reuse-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+
+  .reuse-table th,
+  .reuse-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 10px;
+    border-top: 1px solid var(--line);
+  }
+
+  .reuse-table th {
+    width: 210px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--soft-blue);
+    padding: 14px 16px;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .phase-list {
+    counter-reset: phase;
+    list-style: none;
+    padding: 0;
+  }
+
+  .phase-list li {
+    counter-increment: phase;
+    margin: 12px 0;
+    padding: 14px 14px 14px 52px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    position: relative;
+  }
+
+  .phase-list li::before {
+    content: counter(phase);
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--soft-green);
+    border: 1px solid rgba(55, 133, 74, 0.25);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+  }
+
+  @media (max-width: 760px) {
+    body { padding: 0; background: var(--paper); }
+    main { border: 0; border-radius: 0; box-shadow: none; }
+    header, section { padding-left: 20px; padding-right: 20px; }
+    .grid, .flow { grid-template-columns: 1fr; }
+    .pile { min-height: 120px; }
+    .reuse-table, .reuse-table tbody, .reuse-table tr, .reuse-table th, .reuse-table td {
+      display: block;
+      width: 100%;
+    }
+    .reuse-table th { padding-bottom: 2px; }
+    .reuse-table td { padding-top: 2px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Vybrané slová PWA plan</h1>
+    <p class="subtitle">A practice app for children around ages 7-10 choosing <strong>i/í</strong> or <strong>y/ý</strong>, designed as a sorting game with installable offline PWA behavior.</p>
+  </header>
+
+  <section>
+    <h2>Target Audience</h2>
+    <p>The app is for children around ages 7-10, with parents or teachers likely nearby. The experience should feel like a clear school-friendly game: playful, calm, readable, and forgiving.</p>
+    <div class="grid">
+      <div class="panel">
+        <h3>Reading level</h3>
+        <p>Use short Slovak labels, concrete words, and minimal instructions. Show the task through motion and layout instead of long explanatory copy.</p>
+      </div>
+      <div class="panel">
+        <h3>Motor skills</h3>
+        <p>Use large tap targets and generous hit areas. Dragging should be forgiving, with tap always available as the reliable default.</p>
+      </div>
+      <div class="panel">
+        <h3>Feedback tone</h3>
+        <p>Celebrate correct answers briefly and correct mistakes gently. Avoid shame, pressure, streak loss drama, or anything that makes practice feel punitive.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Core Interaction</h2>
+    <p>The app starts with three piles of cards: an empty <strong>i/í</strong> pile on the left, a full word-card pile in the middle, and an empty <strong>y/ý</strong> pile on the right.</p>
+    <p>The first-run tutorial should zoom into the middle pile, lift the top card, and show it moving from the middle pile to the correct side pile. After that, every question repeats the same mental model: move the top card from the middle pile to one of the side piles.</p>
+
+    <div class="flow" aria-label="Three-pile card sorting model">
+      <div class="pile left">
+        <div>
+          <div class="pile-title">i / í</div>
+          <div class="pile-label">Left answer pile</div>
+        </div>
+        <div class="pile-label">Cards land here when the missing letter is i or í.</div>
+      </div>
+
+      <div class="pile middle">
+        <div>
+          <div class="pile-title">Word cards</div>
+          <div class="pile-label">Middle source pile</div>
+        </div>
+        <div class="card-stack" aria-hidden="true">
+          <div class="word-card behind">slovo _</div>
+          <div class="word-card front">karta _</div>
+        </div>
+      </div>
+
+      <div class="pile right">
+        <div>
+          <div class="pile-title">y / ý</div>
+          <div class="pile-label">Right answer pile</div>
+        </div>
+        <div class="pile-label">Cards land here when the missing letter is y or ý.</div>
+      </div>
+    </div>
+
+    <div class="motion-note">
+      Keep the language as <strong>sorting</strong>, <strong>moving</strong>, and <strong>choosing a pile</strong>. Avoid copy such as "swipe left", "swipe right", "like", "reject", "match", or "nope".
+    </div>
+  </section>
+
+  <section>
+    <h2>Expected Controls</h2>
+    <div class="grid">
+      <div class="panel">
+        <h3>Primary input</h3>
+        <p>Tap the left or right pile. This is discoverable for kids, reliable on desktop, and works even before they understand gestures.</p>
+      </div>
+      <div class="panel">
+        <h3>Gesture input</h3>
+        <p>Drag or flick the top card into a side pile. The card should visibly follow the finger, then settle into the selected pile.</p>
+      </div>
+      <div class="panel">
+        <h3>Keyboard input</h3>
+        <p>Support left and right arrows for accessibility, quick testing, and desktop play.</p>
+      </div>
+    </div>
+    <ul class="tag-list" aria-label="Interaction tags">
+      <li>tap-first</li>
+      <li>drag-friendly</li>
+      <li>keyboard-ready</li>
+      <li>sorting-game framing</li>
+      <li>no dating-app wording</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Game Loop</h2>
+    <ol>
+      <li>Choose a lesson or continue the current practice set.</li>
+      <li>Show the next word card in the middle pile with the target letter blanked out.</li>
+      <li>The child sends the card to <strong>i/í</strong> or <strong>y/ý</strong>.</li>
+      <li>Animate the card into the chosen side pile.</li>
+      <li>Give short feedback, then reveal or emphasize the correct full word.</li>
+      <li>Advance until the round is complete, then show score, streak, and next-step recommendation.</li>
+    </ol>
+    <p>The middle pile should visibly shrink during a round while the side piles fill up. That makes progress obvious without extra instructional text.</p>
+  </section>
+
+  <section>
+    <h2>Content Model</h2>
+    <p>Use contrast pairs first. Skip unpaired selected words in the first version, because the app should teach the choice between two meaningful spellings, not only ask for memorized isolated words.</p>
+
+    <h3>Picture-friendly starter pairs</h3>
+    <table class="reuse-table">
+      <tbody>
+        <tr>
+          <th><code>výr</code> / <code>vír</code></th>
+          <td>Owl on a tree versus water whirl. Strong first-pack picture contrast.</td>
+        </tr>
+        <tr>
+          <th><code>syr</code> / <code>síra</code></th>
+          <td>Use <strong>kus syra</strong> for <code>syr</code>. For <code>síra</code>, use a match, a yellow sulfur rock, or a simple atom/molecule drawing so the concept is visible.</td>
+        </tr>
+        <tr>
+          <th><code>ryža</code> / <code>ríša</code></th>
+          <td>Bowl of rice versus castle, crown, or fairy-tale kingdom.</td>
+        </tr>
+        <tr>
+          <th><code>vyje</code> / <code>vije</code></th>
+          <td>Dog or wolf howling versus weaving a wreath or braid.</td>
+        </tr>
+        <tr>
+          <th><code>vyla</code> / <code>víla</code></th>
+          <td>Howling animal or character versus fairy. Needs sentence context but can still be visual.</td>
+        </tr>
+        <tr>
+          <th><code>pichá</code> / <code>pýcha</code></th>
+          <td>Needle, thorn, or cactus pricking versus a proud pose. Keep the <code>pýcha</code> sentence gentle.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Context-first pairs</h3>
+    <p>Pairs such as <code>my</code> / <code>mi</code>, <code>milý</code> / <code>mýli</code>, <code>byť</code> / <code>biť</code>, and <code>odbyť</code> / <code>odbiť</code> need sentence context more than pictures. They can appear after the visual pairs.</p>
+
+    <h3>Current count</h3>
+    <p>The documented starter set currently has <strong>10 contrast pairs</strong>, or <strong>20 surface-form cards</strong>: 6 picture-friendly pairs (12 cards) and 4 context-first pairs (8 cards). Because each pair has one <code>y/ý</code> form and one <code>i/í</code> form, the current set is balanced at 10 <code>y/ý</code> cards and 10 <code>i/í</code> cards.</p>
+    <p>Future packs must include enough <code>i/í</code> cards that children cannot learn "this app usually wants y". Prefer balanced packs, or packs with more <code>i/í</code> controls than selected-word <code>y/ý</code> cards when adding unpaired drill content.</p>
+
+    <h3>Excluded for v1</h3>
+    <p>Skip uncommon or fringe contrasts such as <code>pýtať sa</code> / <code>pita</code>. The first version should use words a 7-10-year-old is likely to know or can understand from a simple sentence or picture.</p>
+
+    <h3>Reviewable source format</h3>
+    <p>Create a source list that is easy to review in a spreadsheet or diff. Keep it pair-based, with one row per surface form, and tag which words need disambiguation because both spellings exist.</p>
+    <p>Suggested columns: <code>pair_id</code>, <code>surface</code>, <code>answer_group</code>, <code>contrast_surface</code>, <code>needs_disambiguation</code>, <code>disambiguation_mode</code>, <code>picture_role</code>, <code>sentence</code>, <code>image_prompt</code>, <code>source</code>, and <code>status</code>.</p>
+    <p>Use <code>disambiguation_mode</code> values such as <code>picture</code>, <code>sentence</code>, or <code>both</code>. Use <code>picture_role</code> to say whether the image works for <code>both_sides</code>, <code>this_side_only</code>, <code>contrast_side_only</code>, or <code>none</code>. It is fine when only one word from a pair has a useful picture; the other side can rely on a sentence fragment.</p>
+    <p>Keep word lists separate per selected-letter group. Multiple files are probably clearest, for example <code>data/words/b.tsv</code>, <code>data/words/m.tsv</code>, <code>data/words/p.tsv</code>, <code>data/words/r.tsv</code>, <code>data/words/s.tsv</code>, <code>data/words/v.tsv</code>, and <code>data/words/z.tsv</code>. Every file should use the same standard header and the same allowed tag values.</p>
+    <p>Add a simple validator test before using the lists in the app. It should fail on missing required columns, unknown <code>answer_group</code>, unknown <code>disambiguation_mode</code>, unknown <code>picture_role</code>, duplicate card IDs, broken pair references, and packs whose <code>i/í</code> versus <code>y/ý</code> distribution violates the balance rule.</p>
+  </section>
+
+  <section>
+    <h2>What To Reuse From Clockwork</h2>
+    <p>Clockwork is a good model because it keeps the app small, static, installable, and testable. Reuse these ideas as product architecture, while replacing all clock-specific logic and visuals.</p>
+
+    <table class="reuse-table">
+      <tbody>
+        <tr>
+          <th>One folder to ship</th>
+          <td>Put the runtime app in <code>web/</code> and make that folder the deployable website artifact. No npm install, no build step, no CDN dependency required for the first version.</td>
+        </tr>
+        <tr>
+          <th>Installable PWA shell</th>
+          <td>Start from Clockwork's <code>index.html</code> PWA shape: mobile viewport, <code>viewport-fit=cover</code>, theme color, Apple home-screen meta tags, manifest link, icon links, local scripts, and service-worker registration.</td>
+        </tr>
+        <tr>
+          <th>Relative manifest paths</th>
+          <td>Use Clockwork's manifest pattern so it works wherever it is hosted on the website: <code>start_url: "./index.html"</code>, <code>scope: "./"</code>, <code>display: "standalone"</code>, portrait orientation, theme/background colors, and 192/512 PNG icons.</td>
+        </tr>
+        <tr>
+          <th>Offline app shell</th>
+          <td>Reuse the small <code>sw.js</code> strategy: precache the app shell, cache same-origin GET requests, fall back to <code>index.html</code> for navigation, and bump a named cache version when shipped assets change.</td>
+        </tr>
+        <tr>
+          <th>Local runtime files</th>
+          <td>If the UI uses React like Clockwork, commit the <code>web/vendor/</code> runtime files and load them locally. That keeps the installed app reliable offline and avoids third-party runtime fetches.</td>
+        </tr>
+        <tr>
+          <th>Pure <code>engine.js</code></th>
+          <td>Keep word data, answer-checking, lesson generation, scoring, mastery, and localStorage helpers in <code>engine.js</code>. The UI should ask the engine questions, not contain spelling rules.</td>
+        </tr>
+        <tr>
+          <th>Data-driven lessons</th>
+          <td>Model lessons as data with stable keys, similar to Clockwork's level table. Adding or reordering a lesson should be a data edit, and stored progress should survive display-order changes.</td>
+        </tr>
+        <tr>
+          <th>Browser tests</th>
+          <td>Reuse the <code>tests.html</code> pattern. Tests should load <code>engine.js</code> directly and cover word data, accepted answers, lesson selection, scoring thresholds, localStorage migration, and progress reset.</td>
+        </tr>
+        <tr>
+          <th>Headless-friendly checks</th>
+          <td>Copy the idea of a simple test summary in the document title or DOM. It makes local automation easy because a script can open <code>tests.html</code> and read pass/fail without a full test framework.</td>
+        </tr>
+        <tr>
+          <th>Namespaced storage</th>
+          <td>Use versioned localStorage keys such as <code>vybrane-slova.progress.v1</code>, <code>vybrane-slova.settings.v1</code>, and <code>vybrane-slova.lesson</code>. Plan migrations up front so word-set changes do not strand old progress.</td>
+        </tr>
+        <tr>
+          <th>Dev-only phone preview</th>
+          <td>Reuse <code>preview.html</code> as a phone-frame wrapper for visual checks, but keep the shipped app unframed and full-screen.</td>
+        </tr>
+        <tr>
+          <th>Generated app icons</th>
+          <td>Reuse the icon-generation workflow from <code>tools/build_icon.py</code>, but generate a new identity around word cards, answer piles, or Slovak spelling practice.</td>
+        </tr>
+        <tr>
+          <th>Installed-mobile polish</th>
+          <td>Reuse <code>100dvh</code>, safe-area padding with <code>env(safe-area-inset-*)</code>, tap-highlight removal, and overscroll control so the installed app feels native on phones.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>What Not To Reuse Directly</h2>
+    <ul>
+      <li>Do not reuse Clockwork's clock engine, time curriculum, dandelion assets, or clock icon.</li>
+      <li>Do not carry over a visual theme just because it exists; this app should feel like a focused Slovak spelling practice game.</li>
+      <li>Do not depend on hidden gestures as the only input. The side piles should always be tappable.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Implementation Phases</h2>
+    <ol class="phase-list">
+      <li><strong>Static PWA skeleton.</strong> Add <code>web/index.html</code>, <code>web/manifest.webmanifest</code>, <code>web/sw.js</code>, icons, and optional <code>web/preview.html</code>.</li>
+      <li><strong>Word engine.</strong> Build <code>web/engine.js</code> with lesson data, answer checking, randomization, round scoring, and localStorage helpers.</li>
+      <li><strong>Three-pile UI.</strong> Build the center pile and the two answer piles, including tap, drag/flick, keyboard, and the card movement animation.</li>
+      <li><strong>Feedback and progression.</strong> Add correct/incorrect feedback, round summaries, streaks, mastery tracking, and a gentle reset flow.</li>
+      <li><strong>Offline and install polish.</strong> Finish service-worker caching, icon generation, safe-area behavior, tests, and deployment notes.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Open Decisions</h2>
+    <div class="callout">
+      <p>The main product decision still needed is the curriculum shape: whether the first version practices only binary <strong>i/í</strong> vs <strong>y/ý</strong>, or whether later lessons distinguish short vs long letters too. The UI can support both, but the word data should be modeled deliberately before implementation.</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>
