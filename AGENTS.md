@@ -44,14 +44,18 @@ explicitly asks for one.
 - Skip uncommon or fringe contrasts such as `pýtať sa` / `pita`; first-pack
   words should be familiar to children ages 7-10 or easy to explain with a
   simple sentence or picture.
+- For broad selected-word coverage, start with basic dictionary forms only.
+  Do not add generated declensions, cases, plural forms, or conjugated verb
+  forms until the base list is reviewed and the app flow is working.
 - Mark cards as `picture` or `context`. Picture cards should have a strong
   visual contrast; context cards rely mainly on the sentence.
 - Treat `syr` / `síra` as picture-friendly: show `kus syra` for `syr`, and a
   match, yellow sulfur rock, or simple atom/molecule drawing for `síra`.
 - Store source content pair-first and reviewably, with one row per surface
-  form and explicit `pair_id`, `surface`, `answer_group`, `contrast_surface`,
-  `needs_disambiguation`, `disambiguation_mode`, `picture_role`, `sentence`,
-  `image_prompt`, `source`, and `status`.
+  form and explicit `id`, `pack`, `pair_id`, `selected_letter`, `surface`,
+  `answer_group`, `contrast_surface`, `needs_disambiguation`,
+  `disambiguation_mode`, `picture_role`, `sentence`, `image_prompt`, `source`,
+  `status`, and `notes`.
 - Tag which words need disambiguation because both spellings exist. Use
   `disambiguation_mode` values such as `picture`, `sentence`, or `both`.
 - Use `picture_role` to show whether a picture works for `both_sides`,
@@ -61,6 +65,18 @@ explicitly asks for one.
 - Track answer distribution per pack. Do not let packs become mostly
   selected-word `y/ý` drills; include at least as many `i/í` cards as `y/ý`
   cards, and prefer extra `i/í` controls when adding unpaired drill content.
+- Add declined and conjugated forms later as a separate expansion pack with
+  its own review pass and validator coverage.
+- Keep word-list definition as its own task. It owns TSV rows, sources,
+  review status, `i/í` controls, disambiguation tags, picture prompts,
+  sentence fragments, and validator behavior.
+- Keep app-building as a separate task. It owns the PWA shell, data loader,
+  engine, three-pile UI, animation, scoring, persistence, tests, preview,
+  manifest, service worker, and icons.
+- Do not hide content decisions in app code. If a card needs a better sentence,
+  picture, source, or review status, change the TSV data and validator.
+- The app must ignore unreviewed `candidate` rows by default and consume only
+  intentionally enabled packs/statuses.
 
 ## Working principles
 

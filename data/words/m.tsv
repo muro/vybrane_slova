@@ -1,0 +1,40 @@
+id	pack	pair_id	selected_letter	surface	answer_group	contrast_surface	needs_disambiguation	disambiguation_mode	picture_role	sentence	image_prompt	source	status	notes
+m-my-y	starter-context	my-mi	m	my	y	mi	true	sentence	none	{target} ideme na výlet.		https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	ready	pronoun we
+m-mi-i	starter-context	my-mi	m	mi	i	my	true	sentence	none	Podaj {target} zošit.		manual-review	ready	pronoun to me
+m-mily-i	starter-context	mily-myli	m	milý	i	mýli	true	sentence	this_side_only	Náš pes je {target}.	friendly dog	https://slovnik.juls.savba.sk/?w=mil%C3%BD	ready	nice
+m-myli-y	starter-context	mily-myli	m	mýli	y	milý	true	sentence	contrast_side_only	Katka sa v príklade {target}.	child looking at a wrong math answer	https://slovnik.juls.savba.sk/?w=m%C3%BDli%C5%A5	ready	is mistaken
+m-base-mykat-y	base-selected		m	mykať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-myknut-y	base-selected		m	myknúť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-zamykat-y	base-selected		m	zamykať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-odmykat-y	base-selected		m	odmykať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-pomykov-y	base-selected		m	pomykov	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mylit-sa-y	base-selected		m	mýliť sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mylny-y	base-selected		m	mylný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-omyl-y	base-selected		m	omyl	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mysliet-y	base-selected		m	myslieť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-myslienka-y	base-selected		m	myšlienka	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mysel-y	base-selected		m	myseľ	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-premyslat-y	base-selected		m	premýšľať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-zmysel-y	base-selected		m	zmysel	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-umysel-y	base-selected		m	úmysel	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-vymysel-y	base-selected		m	výmysel	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-priemysel-y	base-selected		m	priemysel	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mys-y	base-selected		m	mys	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mys-2-y	base-selected		m	myš	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-umyt-y	base-selected		m	umyť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-umyvat-y	base-selected		m	umývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-pomyje-y	base-selected		m	pomyje	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mydlo-y	base-selected		m	mydlo	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-myjava-y	base-selected		m	Myjava	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-myto-y	base-selected		m	mýto	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-mytnik-y	base-selected		m	mýtnik	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-cmyrit-sa-y	base-selected		m	čmýriť sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-hmyrit-sa-y	base-selected		m	hmýriť sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-hmyz-y	base-selected		m	hmyz	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-smyk-y	base-selected		m	smyk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-priesmyk-y	base-selected		m	priesmyk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-smykat-sa-y	base-selected		m	šmýkať sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-smyknut-sa-y	base-selected		m	šmyknúť sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-smyk-2-y	base-selected		m	šmyk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-smyklavka-y	base-selected		m	šmykľavka	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+m-base-zmykat-y	base-selected		m	žmýkať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word

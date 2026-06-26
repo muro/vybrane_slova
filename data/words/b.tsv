@@ -1,0 +1,46 @@
+id	pack	pair_id	selected_letter	surface	answer_group	contrast_surface	needs_disambiguation	disambiguation_mode	picture_role	sentence	image_prompt	source	status	notes
+b-byt-y	starter-context	byt-bit	b	byť	y	biť	true	sentence	none	Chcem {target} dobrým kamarátom.		https://slovnik.juls.savba.sk/?w=by%C5%A5	ready	to be
+b-bit-i	starter-context	byt-bit	b	biť	i	byť	true	sentence	this_side_only	Srdce začne {target} rýchlo.	heart beating	https://slovnik.juls.savba.sk/?w=bi%C5%A5	ready	to beat
+b-dobyt-y	starter-context	dobyt-dobit	b	dobyť	y	dobiť	true	sentence	this_side_only	Rytier chce {target} hrad.	knight at a castle gate	https://slovnik.juls.savba.sk/?w=doby%C5%A5	review	teacher-review wording
+b-dobit-i	starter-context	dobyt-dobit	b	dobiť	i	dobyť	true	sentence	this_side_only	Treba {target} baterku v telefóne.	phone battery charging	https://slovnik.juls.savba.sk/?w=dobi%C5%A5	review	teacher-review wording
+b-base-by-y	base-selected		b	by	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-aby-y	base-selected		b	aby	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-keby-y	base-selected		b	keby	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byk-y	base-selected		b	býk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byci-y	base-selected		b	býčí	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byvol-y	base-selected		b	byvol	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byl-y	base-selected		b	byľ	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bylina-y	base-selected		b	bylina	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bystry-y	base-selected		b	bystrý	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bystrina-y	base-selected		b	bystrina	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bystrica-y	base-selected		b	Bystrica	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bytca-y	base-selected		b	Bytča	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-zivobytie-y	base-selected		b	živobytie	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bytost-y	base-selected		b	bytosť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bytostny-y	base-selected		b	bytostný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byvaly-y	base-selected		b	bývalý	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byvat-y	base-selected		b	bývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-obyvat-y	base-selected		b	obývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-obyvatel-y	base-selected		b	obyvateľ	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-prebyvat-y	base-selected		b	prebývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bydlo-y	base-selected		b	bydlo	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bydlisko-y	base-selected		b	bydlisko	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-byt-y	base-selected		b	byt	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-bytna-y	base-selected		b	bytná	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-pribytok-y	base-selected		b	príbytok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-vydobyt-y	base-selected		b	vydobyť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-vydobytok-y	base-selected		b	výdobytok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-dobyvat-y	base-selected		b	dobývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-dobyjat-y	base-selected		b	dobýjať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-dobytok-y	base-selected		b	dobytok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-nabytok-y	base-selected		b	nábytok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-zbytocny-y	base-selected		b	zbytočný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-nadbytocny-y	base-selected		b	nadbytočný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-prebytok-y	base-selected		b	prebytok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-ubytok-y	base-selected		b	úbytok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-odbyt-y	base-selected		b	odbyt	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-neodbytny-y	base-selected		b	neodbytný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-prvobytny-y	base-selected		b	prvobytný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-kobyla-y	base-selected		b	kobyla	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-obycaj-y	base-selected		b	obyčaj	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+b-base-obycajny-y	base-selected		b	obyčajný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word

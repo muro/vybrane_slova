@@ -1,0 +1,20 @@
+id	pack	pair_id	selected_letter	surface	answer_group	contrast_surface	needs_disambiguation	disambiguation_mode	picture_role	sentence	image_prompt	source	status	notes
+s-syr-y	starter-picture	syr-sira	s	syr	y	síra	true	picture	both_sides	Na stole je kus {target}.	piece of cheese	https://slovnik.juls.savba.sk/?w=syr	ready	use "kus syra" idea in picture
+s-sira-i	starter-picture	syr-sira	s	síra	i	syr	true	picture	both_sides	{target} je žltá látka.	yellow sulfur rock, match, or simple atom drawing	https://slovnik.juls.savba.sk/?w=s%C3%ADra	ready	science concept
+s-base-sychravy-y	base-selected		s	sychravý	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sycat-y	base-selected		s	syčať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sykat-y	base-selected		s	sykať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sykavy-y	base-selected		s	sykavý	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sykot-y	base-selected		s	sykot	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sykorka-y	base-selected		s	sýkorka	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-syn-y	base-selected		s	syn	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sypat-y	base-selected		s	sypať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sypka-y	base-selected		s	sýpka	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-osypky-y	base-selected		s	osýpky	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sypky-y	base-selected		s	sypký	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-syrovnik-y	base-selected		s	syrovník	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-sysel-y	base-selected		s	syseľ	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-syty-y	base-selected		s	sýty	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-nasytit-y	base-selected		s	nasýtiť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-nenasytny-y	base-selected		s	nenásytný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+s-base-vysychat-y	base-selected		s	vysychať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word

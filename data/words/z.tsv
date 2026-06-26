@@ -1,0 +1,11 @@
+id	pack	pair_id	selected_letter	surface	answer_group	contrast_surface	needs_disambiguation	disambiguation_mode	picture_role	sentence	image_prompt	source	status	notes
+z-base-jazyk-y	base-selected		z	jazyk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-jazycny-y	base-selected		z	jazyčný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-jazycnica-y	base-selected		z	jazyčnica	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-nazyvat-y	base-selected		z	nazývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-pozyvat-y	base-selected		z	pozývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-vyzyvat-y	base-selected		z	vyzývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-prezyvat-y	base-selected		z	prezývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-vzyvat-y	base-selected		z	vzývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-ozyvat-sa-y	base-selected		z	ozývať sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+z-base-prizyvat-y	base-selected		z	prizývať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word

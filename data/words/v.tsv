@@ -1,0 +1,29 @@
+id	pack	pair_id	selected_letter	surface	answer_group	contrast_surface	needs_disambiguation	disambiguation_mode	picture_role	sentence	image_prompt	source	status	notes
+v-vyr-y	starter-picture	vyr-vir	v	výr	y	vír	true	picture	both_sides	Na strome sedí veľký {target}.	large owl sitting on a tree	https://slovnik.juls.savba.sk/?w=v%C3%BDr	ready	owl
+v-vir-i	starter-picture	vyr-vir	v	vír	i	výr	true	picture	both_sides	V potoku sa točí {target}.	water whirl in a stream	https://slovnik.juls.savba.sk/?w=v%C3%ADr	ready	whirl
+v-vyje-y	starter-picture	vyje-vije	v	vyje	y	vije	true	picture	both_sides	Pes v noci {target}.	dog howling at night	https://slovnik.juls.savba.sk/?w=vy%C5%A5	ready	howls
+v-vije-i	starter-picture	vyje-vije	v	vije	i	vyje	true	picture	both_sides	Babka {target} veniec z kvetov.	hands weaving a flower wreath	https://slovnik.juls.savba.sk/?w=vi%C5%A5	ready	weaves
+v-vyla-y	starter-picture	vyla-vila	v	vyla	y	víla	true	both	both_sides	Vlčica v noci {target}.	wolf howling at night	https://slovnik.juls.savba.sk/?w=vy%C5%A5	ready	she howled
+v-vila-i	starter-picture	vyla-vila	v	víla	i	vyla	true	both	both_sides	V rozprávke lieta {target}.	fairy in a storybook	https://slovnik.juls.savba.sk/?w=v%C3%ADla	ready	fairy
+v-base-vy-y	base-selected		v	vy	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vykat-y	base-selected		v	vykať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vydra-y	base-selected		v	vydra	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyhna-y	base-selected		v	vyhňa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyskat-y	base-selected		v	výskať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyskot-y	base-selected		v	výskot	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vysoky-y	base-selected		v	vysoký	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyska-y	base-selected		v	výška	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vysina-y	base-selected		v	výšina	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vysehrad-y	base-selected		v	Vyšehrad	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyse-y	base-selected		v	vyše	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyt-y	base-selected		v	vyť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zavyjat-y	base-selected		v	zavýjať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-vyzla-y	base-selected		v	vyžla	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvysit-sa-y	base-selected		v	zvýšiť sa	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvysovat-y	base-selected		v	zvyšovať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvysok-y	base-selected		v	zvyšok	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvyk-y	base-selected		v	zvyk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvykat-y	base-selected		v	zvykať	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvyknut-y	base-selected		v	zvyknúť	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-zvycajny-y	base-selected		v	zvyčajný	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
+v-base-navyk-y	base-selected		v	návyk	y		false	none	none			https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	candidate	basic-form selected word
