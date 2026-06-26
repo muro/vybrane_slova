@@ -426,7 +426,7 @@
 
     <h3>Current count</h3>
     <p>The documented starter set currently has <strong>10 contrast pairs</strong>, or <strong>20 surface-form cards</strong>: 6 picture-friendly pairs (12 cards) and 4 context-first pairs (8 cards). Because each pair has one <code>y/ý</code> form and one <code>i/í</code> form, the current set is balanced at 10 <code>y/ý</code> cards and 10 <code>i/í</code> cards.</p>
-    <p>The base selected-word list now covers all <strong>196</strong> Slovak selected-word entries from the reference list as basic forms. Rows in <code>base-selected</code> are marked <code>candidate</code> until sentences, controls, pictures, and review status are added.</p>
+    <p>The ordinary selected-word list is now a compact simple list with <strong>188 candidate rows</strong>. Words that need context or picture disambiguation live separately in the rich disambiguation list, which currently has <strong>22 rows</strong>: 20 ready starter cards and 2 review cards for <code>by</code> / <code>bi</code>.</p>
     <p>Future packs must include enough <code>i/í</code> cards that children cannot learn "this app usually wants y". Prefer balanced packs, or packs with more <code>i/í</code> controls than selected-word <code>y/ý</code> cards when adding unpaired drill content.</p>
 
     <h3>Form scope</h3>
@@ -437,11 +437,10 @@
     <p>Skip uncommon or fringe contrasts such as <code>pýtať sa</code> / <code>pita</code>. The first version should use words a 7-10-year-old is likely to know or can understand from a simple sentence or picture.</p>
 
     <h3>Reviewable source format</h3>
-    <p>Create a source list that is easy to review in a spreadsheet or diff. Keep it pair-based, with one row per surface form, and tag which words need disambiguation because both spellings exist.</p>
-    <p>Suggested columns: <code>id</code>, <code>pack</code>, <code>pair_id</code>, <code>selected_letter</code>, <code>surface</code>, <code>answer_group</code>, <code>contrast_surface</code>, <code>needs_disambiguation</code>, <code>disambiguation_mode</code>, <code>picture_role</code>, <code>sentence</code>, <code>image_prompt</code>, <code>source</code>, <code>status</code>, and <code>notes</code>.</p>
+    <p>Create source lists that are easy to review in a spreadsheet or diff. Keep ordinary selected words in <code>data/words/selected.tsv</code> with simple columns: <code>id</code>, <code>selected_letter</code>, <code>surface</code>, <code>status</code>, <code>source</code>, and <code>notes</code>.</p>
+    <p>Keep the richer pair format only in <code>data/words/disambiguation.tsv</code>, with one row per surface form for words where both spellings/forms exist. Columns: <code>id</code>, <code>pack</code>, <code>pair_id</code>, <code>selected_letter</code>, <code>surface</code>, <code>answer_group</code>, <code>contrast_surface</code>, <code>needs_disambiguation</code>, <code>disambiguation_mode</code>, <code>picture_role</code>, <code>sentence</code>, <code>image_prompt</code>, <code>source</code>, <code>status</code>, and <code>notes</code>.</p>
     <p>Use <code>disambiguation_mode</code> values such as <code>picture</code>, <code>sentence</code>, or <code>both</code>. Use <code>picture_role</code> to say whether the image works for <code>both_sides</code>, <code>this_side_only</code>, <code>contrast_side_only</code>, or <code>none</code>. It is fine when only one word from a pair has a useful picture; the other side can rely on a sentence fragment.</p>
-    <p>Keep word lists separate per selected-letter group. Multiple files are probably clearest, for example <code>data/words/b.tsv</code>, <code>data/words/m.tsv</code>, <code>data/words/p.tsv</code>, <code>data/words/r.tsv</code>, <code>data/words/s.tsv</code>, <code>data/words/v.tsv</code>, and <code>data/words/z.tsv</code>. Every file should use the same standard header and the same allowed tag values.</p>
-    <p>Add a simple validator test before using the lists in the app. It should fail on missing required columns, unknown <code>answer_group</code>, unknown <code>disambiguation_mode</code>, unknown <code>picture_role</code>, duplicate card IDs, broken pair references, and packs whose <code>i/í</code> versus <code>y/ý</code> distribution violates the balance rule.</p>
+    <p>Add a simple validator test before using the lists in the app. It should fail on missing required columns, unknown <code>answer_group</code>, unknown <code>disambiguation_mode</code>, unknown <code>picture_role</code>, duplicate card IDs, broken pair references, simple-list words that also appear in the disambiguation file, and packs whose <code>i/í</code> versus <code>y/ý</code> distribution violates the balance rule.</p>
   </section>
 
   <section>
@@ -449,7 +448,7 @@
     <div class="grid">
       <div class="panel">
         <h3>Task 1: Define Word Lists</h3>
-        <p>Owns the reviewable TSV files, sources, starter packs, base selected-word candidates, <code>i/í</code> control words, disambiguation tags, picture prompts, sentence fragments, and validator rules.</p>
+        <p>Owns the reviewable TSV files, sources, starter packs, simple selected-word candidates, <code>i/í</code> control words, disambiguation tags, picture prompts, sentence fragments, and validator rules.</p>
         <p>Done means the selected pack has clear review status, balanced answers, age-appropriate sentences, and enough metadata for the app to load without guessing.</p>
       </div>
       <div class="panel">

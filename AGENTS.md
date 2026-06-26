@@ -51,13 +51,15 @@ explicitly asks for one.
   visual contrast; context cards rely mainly on the sentence.
 - Treat `syr` / `síra` as picture-friendly: show `kus syra` for `syr`, and a
   match, yellow sulfur rock, or simple atom/molecule drawing for `síra`.
-- Store source content pair-first and reviewably, with one row per surface
-  form and explicit `id`, `pack`, `pair_id`, `selected_letter`, `surface`,
-  `answer_group`, `contrast_surface`, `needs_disambiguation`,
-  `disambiguation_mode`, `picture_role`, `sentence`, `image_prompt`, `source`,
-  `status`, and `notes`.
-- Tag which words need disambiguation because both spellings exist. Use
-  `disambiguation_mode` values such as `picture`, `sentence`, or `both`.
+- Store ordinary selected words in `data/words/selected.tsv` with a compact
+  simple-list format. Do not force non-disambiguation words to carry sentence,
+  picture, pair, or answer metadata.
+- Store words that need disambiguation because both spellings/forms exist in
+  `data/words/disambiguation.tsv`, with one row per surface form and explicit
+  `id`, `pack`, `pair_id`, `selected_letter`, `surface`, `answer_group`,
+  `contrast_surface`, `needs_disambiguation`, `disambiguation_mode`,
+  `picture_role`, `sentence`, `image_prompt`, `source`, `status`, and `notes`.
+  Use `disambiguation_mode` values such as `picture`, `sentence`, or `both`.
 - Use `picture_role` to show whether a picture works for `both_sides`,
   `this_side_only`, `contrast_side_only`, or `none`. It is OK when only one
   word from a pair has a good picture; the other side can rely on a sentence
@@ -68,8 +70,8 @@ explicitly asks for one.
 - Add declined and conjugated forms later as a separate expansion pack with
   its own review pass and validator coverage.
 - Keep word-list definition as its own task. It owns TSV rows, sources,
-  review status, `i/í` controls, disambiguation tags, picture prompts,
-  sentence fragments, and validator behavior.
+  review status, simple selected words, `i/í` controls, disambiguation tags,
+  picture prompts, sentence fragments, and validator behavior.
 - Keep app-building as a separate task. It owns the PWA shell, data loader,
   engine, three-pile UI, animation, scoring, persistence, tests, preview,
   manifest, service worker, and icons.
