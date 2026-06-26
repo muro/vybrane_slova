@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vybrane-slova-v1';
+const CACHE_NAME = 'vybrane-slova-v2';
 const APP_SHELL = [
   './',
   './index.html',

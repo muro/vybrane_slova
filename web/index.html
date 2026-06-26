@@ -133,6 +133,12 @@
     background: var(--gold);
   }
 
+  .answer-pile.drop-target {
+    transform: translateY(-2px);
+    border-color: rgba(37, 34, 29, 0.34);
+    box-shadow: 0 12px 28px rgba(58, 43, 22, 0.16);
+  }
+
   .source-pile {
     position: relative;
     overflow: hidden;
@@ -194,7 +200,16 @@
     align-content: center;
     gap: 14px;
     text-align: center;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg));
     transition: transform 260ms ease, opacity 260ms ease;
+  }
+
+  .word-card.dragging {
+    cursor: grabbing;
+    transition: none;
   }
 
   .word-card.move-left {
@@ -432,6 +447,16 @@ const elements = {
   resetProgress: document.querySelector('#reset-progress'),
 };
 
+function getStorage() {
+  try {
+    return window.localStorage;
+  } catch (_error) {
+    return null;
+  }
+}
+
+const appStorage = getStorage();
+
 const state = {
   cards: [],
   round: [],
@@ -440,7 +465,20 @@ const state = {
   chosenI: 0,
   chosenY: 0,
   locked: false,
-  progress: Engine.loadProgress(window.localStorage),
+  progress: Engine.loadProgress(appStorage),
+};
+
+const drag = {
+  active: false,
+  pointerId: null,
+  source: null,
+  startX: 0,
+  startY: 0,
+  lastX: 0,
+  lastY: 0,
+  startTime: 0,
+  moved: false,
+  lastPointerAt: 0,
 };
 
 function currentCard() {
@@ -479,6 +517,7 @@ function render() {
   elements.answerI.disabled = state.locked;
   elements.answerY.disabled = state.locked;
   elements.card.classList.remove('move-left', 'move-right');
+  clearDragStyles();
   elements.maskedWord.textContent = card.masked_surface;
   elements.sentence.textContent = card.prompt_sentence;
   elements.fullWord.textContent = '';
@@ -497,6 +536,10 @@ function choose(answerGroup) {
   if (!card) return;
 
   state.locked = true;
+  drag.active = false;
+  drag.source = null;
+  clearTargetPile();
+  elements.card.classList.remove('dragging');
   elements.answerI.disabled = true;
   elements.answerY.disabled = true;
   const isCorrect = Engine.checkAnswer(card, answerGroup);
@@ -505,13 +548,205 @@ function choose(answerGroup) {
   if (isCorrect) state.correct++;
 
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
-  Engine.saveProgress(state.progress, window.localStorage);
+  Engine.saveProgress(state.progress, appStorage);
 
   elements.card.classList.add(answerGroup === 'i' ? 'move-left' : 'move-right');
   elements.fullWord.textContent = card.full_sentence;
   setFeedback(isCorrect ? `Správne: ${card.surface}` : `Patrí do ${card.answer_group === 'i' ? 'i/í' : 'y/ý'}: ${card.surface}`, isCorrect ? 'good' : 'needs-work');
   renderStats();
   window.setTimeout(nextCard, 980);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function setCardDrag(dx, dy) {
+  const rotation = clamp(dx / 18, -10, 10);
+  elements.card.style.setProperty('--drag-x', `${dx}px`);
+  elements.card.style.setProperty('--drag-y', `${dy}px`);
+  elements.card.style.setProperty('--drag-rotate', `${rotation}deg`);
+}
+
+function clearDragStyles() {
+  elements.card.classList.remove('dragging');
+  elements.card.style.removeProperty('--drag-x');
+  elements.card.style.removeProperty('--drag-y');
+  elements.card.style.removeProperty('--drag-rotate');
+}
+
+function clearTargetPile() {
+  elements.answerI.classList.remove('drop-target');
+  elements.answerY.classList.remove('drop-target');
+}
+
+function setTargetPile(answerGroup) {
+  elements.answerI.classList.toggle('drop-target', answerGroup === 'i');
+  elements.answerY.classList.toggle('drop-target', answerGroup === 'y');
+}
+
+function targetFromPoint(clientX, clientY) {
+  const element = document.elementFromPoint(clientX, clientY);
+  if (element && elements.answerI.contains(element)) return 'i';
+  if (element && elements.answerY.contains(element)) return 'y';
+  return null;
+}
+
+function targetFromDrag(clientX, clientY, dx) {
+  const overPile = targetFromPoint(clientX, clientY);
+  if (overPile) return overPile;
+
+  const elapsed = Math.max(1, performance.now() - drag.startTime);
+  const velocityX = dx / elapsed;
+  const threshold = Math.max(70, elements.card.offsetWidth * 0.34);
+  const flickDistance = Math.max(46, elements.card.offsetWidth * 0.2);
+  if (dx <= -threshold || (dx <= -flickDistance && velocityX <= -0.7)) return 'i';
+  if (dx >= threshold || (dx >= flickDistance && velocityX >= 0.7)) return 'y';
+  return null;
+}
+
+function snapCardBack() {
+  drag.active = false;
+  drag.source = null;
+  clearTargetPile();
+  elements.card.classList.remove('dragging');
+  setCardDrag(0, 0);
+  window.setTimeout(() => {
+    if (!drag.active && !state.locked) clearDragStyles();
+  }, 280);
+}
+
+function beginDrag(source, id, clientX, clientY) {
+  drag.active = true;
+  drag.pointerId = id;
+  drag.source = source;
+  drag.startX = clientX;
+  drag.startY = clientY;
+  drag.lastX = clientX;
+  drag.lastY = clientY;
+  drag.startTime = performance.now();
+  drag.moved = false;
+  elements.card.classList.add('dragging');
+}
+
+function updateDrag(clientX, clientY) {
+  if (!drag.active || state.locked) return;
+
+  drag.lastX = clientX;
+  drag.lastY = clientY;
+  const dx = clientX - drag.startX;
+  const dy = clientY - drag.startY;
+  if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+  setCardDrag(dx, dy);
+  setTargetPile(targetFromDrag(clientX, clientY, dx));
+}
+
+function finishDrag(clientX, clientY) {
+  const dx = clientX - drag.startX;
+  const answerGroup = drag.moved ? targetFromDrag(clientX, clientY, dx) : null;
+  if (answerGroup) {
+    choose(answerGroup);
+  } else {
+    snapCardBack();
+  }
+}
+
+function onPointerDown(event) {
+  if (state.locked || drag.active || !currentCard()) return;
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+  drag.lastPointerAt = performance.now();
+  beginDrag('pointer', event.pointerId, event.clientX, event.clientY);
+  elements.card.setPointerCapture(event.pointerId);
+  event.preventDefault();
+}
+
+function onPointerMove(event) {
+  if (!drag.active || drag.source !== 'pointer' || event.pointerId !== drag.pointerId || state.locked) return;
+
+  drag.lastPointerAt = performance.now();
+  updateDrag(event.clientX, event.clientY);
+  event.preventDefault();
+}
+
+function onPointerUp(event) {
+  if (!drag.active || drag.source !== 'pointer' || event.pointerId !== drag.pointerId) return;
+
+  drag.lastPointerAt = performance.now();
+  if (elements.card.hasPointerCapture(event.pointerId)) {
+    elements.card.releasePointerCapture(event.pointerId);
+  }
+  finishDrag(event.clientX, event.clientY);
+  event.preventDefault();
+}
+
+function onPointerCancel(event) {
+  if (!drag.active || drag.source !== 'pointer' || event.pointerId !== drag.pointerId) return;
+  drag.lastPointerAt = performance.now();
+  if (elements.card.hasPointerCapture(event.pointerId)) {
+    elements.card.releasePointerCapture(event.pointerId);
+  }
+  snapCardBack();
+}
+
+function onMouseDown(event) {
+  if (state.locked || drag.active || !currentCard() || event.button !== 0) return;
+  if (performance.now() - drag.lastPointerAt < 500) return;
+
+  beginDrag('mouse', 'mouse', event.clientX, event.clientY);
+  event.preventDefault();
+}
+
+function onMouseMove(event) {
+  if (!drag.active || drag.source !== 'mouse') return;
+
+  updateDrag(event.clientX, event.clientY);
+  event.preventDefault();
+}
+
+function onMouseUp(event) {
+  if (!drag.active || drag.source !== 'mouse') return;
+
+  finishDrag(event.clientX, event.clientY);
+  event.preventDefault();
+}
+
+function firstTouch(event) {
+  return event.changedTouches && event.changedTouches[0];
+}
+
+function onTouchStart(event) {
+  if (state.locked || !currentCard() || drag.active) return;
+  if (performance.now() - drag.lastPointerAt < 500) return;
+
+  const touch = firstTouch(event);
+  if (!touch) return;
+  beginDrag('touch', touch.identifier, touch.clientX, touch.clientY);
+  event.preventDefault();
+}
+
+function onTouchMove(event) {
+  if (!drag.active || drag.source !== 'touch') return;
+
+  const touch = Array.from(event.changedTouches || []).find(item => item.identifier === drag.pointerId);
+  if (!touch) return;
+  updateDrag(touch.clientX, touch.clientY);
+  event.preventDefault();
+}
+
+function onTouchEnd(event) {
+  if (!drag.active || drag.source !== 'touch') return;
+
+  const touch = Array.from(event.changedTouches || []).find(item => item.identifier === drag.pointerId);
+  if (!touch) return;
+  finishDrag(touch.clientX, touch.clientY);
+  event.preventDefault();
+}
+
+function onTouchCancel(event) {
+  if (!drag.active || drag.source !== 'touch') return;
+  snapCardBack();
+  event.preventDefault();
 }
 
 function resetRound() {
@@ -547,6 +782,17 @@ async function start() {
 elements.answerI.addEventListener('click', () => choose('i'));
 elements.answerY.addEventListener('click', () => choose('y'));
 elements.resetProgress.addEventListener('click', resetRound);
+elements.card.addEventListener('pointerdown', onPointerDown);
+elements.card.addEventListener('pointermove', onPointerMove);
+elements.card.addEventListener('pointerup', onPointerUp);
+elements.card.addEventListener('pointercancel', onPointerCancel);
+elements.card.addEventListener('mousedown', onMouseDown);
+window.addEventListener('mousemove', onMouseMove);
+window.addEventListener('mouseup', onMouseUp);
+elements.card.addEventListener('touchstart', onTouchStart, { passive: false });
+window.addEventListener('touchmove', onTouchMove, { passive: false });
+window.addEventListener('touchend', onTouchEnd, { passive: false });
+window.addEventListener('touchcancel', onTouchCancel, { passive: false });
 window.addEventListener('keydown', event => {
   if (event.key === 'ArrowLeft') choose('i');
   if (event.key === 'ArrowRight') choose('y');
