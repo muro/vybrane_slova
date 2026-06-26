@@ -76,4 +76,6 @@ node tools/validate_words.js
 The validator checks required columns, allowed tag values, duplicate IDs,
 broken pair references, ready-pack answer balance, `{target}` placement,
 picture metadata, whether ready pairs include both answer groups, and whether
-simple-list words also appear in the disambiguation file.
+simple-list words also appear in the disambiguation file. It also checks that
+`web/data/disambiguation.tsv` matches `data/words/disambiguation.tsv`, because
+the PWA ships from `web/`.

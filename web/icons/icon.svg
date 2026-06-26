@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Vybrané slová">
+  <rect width="512" height="512" rx="96" fill="#fffdf7"/>
+  <rect x="54" y="92" width="124" height="328" rx="30" fill="#d9edff" stroke="#2563b8" stroke-width="14"/>
+  <rect x="334" y="92" width="124" height="328" rx="30" fill="#ffe4b8" stroke="#a8550c" stroke-width="14"/>
+  <rect x="146" y="132" width="220" height="248" rx="34" fill="#fffefa" stroke="#25221d" stroke-width="14"/>
+  <path d="M202 274h108" stroke="#25221d" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="222" cy="210" r="20" fill="#2563b8"/>
+  <circle cx="290" cy="210" r="20" fill="#a8550c"/>
+</svg>

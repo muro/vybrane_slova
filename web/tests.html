@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vybrané slová tests</title>
+<style>
+  body {
+    margin: 0;
+    padding: 28px;
+    background: #fffdf7;
+    color: #24221e;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  h1 { margin-top: 0; }
+
+  #summary {
+    display: inline-block;
+    margin: 12px 0 18px;
+    padding: 8px 12px;
+    border: 1px solid #d8d0c3;
+    border-radius: 8px;
+    font-weight: 800;
+  }
+
+  .pass { color: #166534; }
+  .fail { color: #991b1b; }
+  li { margin: 6px 0; }
+</style>
+</head>
+<body>
+<h1>Vybrané slová tests</h1>
+<div id="summary">Running...</div>
+<ol id="results"></ol>
+
+<script src="./engine.js"></script>
+<script>
+const Engine = window.VybraneSlovaEngine;
+const results = document.querySelector('#results');
+const summary = document.querySelector('#summary');
+const tests = [];
+
+function test(name, fn) {
+  tests.push({ name, fn });
+}
+
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+function equal(actual, expected, message) {
+  if (actual !== expected) {
+    throw new Error(`${message}: expected ${expected}, got ${actual}`);
+  }
+}
+
+function makeStorage() {
+  const map = new Map();
+  return {
+    getItem(key) {
+      return map.has(key) ? map.get(key) : null;
+    },
+    setItem(key, value) {
+      map.set(key, String(value));
+    },
+  };
+}
+
+async function run() {
+  const tsv = await fetch('./data/disambiguation.tsv').then(response => response.text());
+  const rows = Engine.parseTsv(tsv);
+  const readyCards = Engine.loadDisambiguationCards(tsv);
+  const allReviewCards = Engine.loadDisambiguationCards(tsv, { statuses: ['review'] });
+
+  test('parses the disambiguation TSV', () => {
+    equal(rows.length, 22, 'row count');
+  });
+
+  test('loads only ready cards by default', () => {
+    equal(readyCards.length, 20, 'ready count');
+    assert(!readyCards.some(card => card.status !== 'ready'), 'non-ready card loaded');
+  });
+
+  test('keeps review rows out of the starter lesson', () => {
+    equal(allReviewCards.length, 2, 'review count');
+    assert(!readyCards.some(card => card.pair_id === 'by-bi'), 'by/bi should stay review-only');
+  });
+
+  test('keeps ready answers balanced', () => {
+    const counts = Engine.answerCounts(readyCards);
+    equal(counts.i, 10, 'i answer count');
+    equal(counts.y, 10, 'y answer count');
+  });
+
+  test('masks the target letter in context', () => {
+    const vyr = readyCards.find(card => card.surface === 'výr');
+    equal(vyr.masked_surface, 'v_r', 'masked surface');
+    equal(vyr.prompt_sentence, 'Na strome sedí veľký v_r.', 'prompt sentence');
+    equal(vyr.full_sentence, 'Na strome sedí veľký výr.', 'full sentence');
+  });
+
+  test('checks answers by side group', () => {
+    const vir = readyCards.find(card => card.surface === 'vír');
+    assert(Engine.checkAnswer(vir, 'i'), 'i should be correct');
+    assert(Engine.checkAnswer(vir, 'í'), 'í should normalize to i');
+    assert(!Engine.checkAnswer(vir, 'y'), 'y should be incorrect');
+  });
+
+  test('creates deterministic rounds when seeded', () => {
+    const first = Engine.createRound(readyCards, { size: 5, seed: 42 }).map(card => card.id).join(',');
+    const second = Engine.createRound(readyCards, { size: 5, seed: 42 }).map(card => card.id).join(',');
+    equal(first, second, 'seeded order');
+  });
+
+  test('records progress with versioned storage', () => {
+    const storage = makeStorage();
+    const card = readyCards[0];
+    let progress = Engine.loadProgress(storage);
+    progress = Engine.recordAnswer(progress, card, true, 1234);
+    Engine.saveProgress(progress, storage);
+    const saved = Engine.loadProgress(storage);
+    equal(saved.version, 1, 'storage version');
+    equal(saved.totalAnswered, 1, 'total answered');
+    equal(saved.totalCorrect, 1, 'total correct');
+    equal(saved.cards[card.id].seen, 1, 'card seen');
+  });
+
+  let passed = 0;
+  for (const item of tests) {
+    const li = document.createElement('li');
+    try {
+      await item.fn();
+      li.className = 'pass';
+      li.textContent = `PASS ${item.name}`;
+      passed++;
+    } catch (error) {
+      li.className = 'fail';
+      li.textContent = `FAIL ${item.name}: ${error.message}`;
+    }
+    results.appendChild(li);
+  }
+
+  const failed = tests.length - passed;
+  summary.textContent = `${passed}/${tests.length} passed`;
+  summary.className = failed ? 'fail' : 'pass';
+  document.title = failed ? `FAIL ${summary.textContent}` : `PASS ${summary.textContent}`;
+}
+
+run().catch(error => {
+  summary.textContent = `Test runner failed: ${error.message}`;
+  summary.className = 'fail';
+  document.title = 'FAIL test runner';
+});
+</script>
+</body>
+</html>

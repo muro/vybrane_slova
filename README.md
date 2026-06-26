@@ -11,3 +11,15 @@ across 10 pairs, plus 2 review cards. Run the validator after editing:
 ```sh
 node tools/validate_words.js
 ```
+
+## App preview
+
+The static PWA lives in `web/` and can be served directly:
+
+```sh
+python3 -m http.server 8765 --directory web
+```
+
+- App: `http://localhost:8765/index.html`
+- Tests: `http://localhost:8765/tests.html`
+- Phone preview: `http://localhost:8765/preview.html`

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vybrané slová preview</title>
+<style>
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: #e8dfd0;
+    color: #25221d;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  body {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+
+  .phone {
+    width: min(390px, 100%);
+    aspect-ratio: 390 / 844;
+    border: 10px solid #25221d;
+    border-radius: 38px;
+    overflow: hidden;
+    background: #fffdf7;
+    box-shadow: 0 22px 60px rgba(37, 34, 29, 0.28);
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+</style>
+</head>
+<body>
+<main class="phone">
+  <iframe src="./index.html" title="Vybrané slová app preview"></iframe>
+</main>
+</body>
+</html>

@@ -1,0 +1,23 @@
+id	pack	pair_id	selected_letter	surface	answer_group	contrast_surface	needs_disambiguation	disambiguation_mode	picture_role	sentence	image_prompt	source	status	notes
+b-byt-y	starter-context	byt-bit	b	byť	y	biť	true	sentence	none	Chcem {target} dobrým kamarátom.		https://slovnik.juls.savba.sk/?w=by%C5%A5	ready	to be
+b-bit-i	starter-context	byt-bit	b	biť	i	byť	true	sentence	this_side_only	Srdce začne {target} rýchlo.	heart beating	https://slovnik.juls.savba.sk/?w=bi%C5%A5	ready	to beat
+b-dobyt-y	starter-context	dobyt-dobit	b	dobyť	y	dobiť	true	sentence	this_side_only	Rytier chce {target} hrad.	knight at a castle gate	https://slovnik.juls.savba.sk/?w=doby%C5%A5	ready	castle conquest
+b-dobit-i	starter-context	dobyt-dobit	b	dobiť	i	dobyť	true	sentence	this_side_only	Treba {target} baterku v telefóne.	phone battery charging	https://slovnik.juls.savba.sk/?w=dobi%C5%A5	ready	battery charging
+b-by-y	contrast-review	by-bi	b	by	y	bi	true	sentence	none	Bodaj {target} bolo zajtra pekne.		manual-review	review	conditional particle
+b-bi-i	contrast-review	by-bi	b	bi	i	by	true	sentence	none	Pri hre na bubon: {target} do bubna jemne.		manual-review	review	imperative of biť; needs teacher review
+m-my-y	starter-context	my-mi	m	my	y	mi	true	sentence	none	{target} ideme na výlet.		https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	ready	pronoun we
+m-mi-i	starter-context	my-mi	m	mi	i	my	true	sentence	none	Podaj {target} zošit.		manual-review	ready	pronoun to me
+m-mily-i	starter-context	mily-myli	m	milý	i	mýli	true	sentence	this_side_only	Náš pes je {target}.	friendly dog	https://slovnik.juls.savba.sk/?w=mil%C3%BD	ready	nice
+m-myli-y	starter-context	mily-myli	m	mýli	y	milý	true	sentence	contrast_side_only	Katka sa v príklade {target}.	child looking at a wrong math answer	https://slovnik.juls.savba.sk/?w=m%C3%BDli%C5%A5	ready	is mistaken
+p-pycha-y	starter-picture	pycha-picha	p	pýcha	y	pichá	true	both	both_sides	Veľká {target} nie je dobrá vlastnosť.	proud child standing above others	https://slovnik.juls.savba.sk/?w=p%C3%BDcha	ready	abstract but drawable
+p-picha-i	starter-picture	pycha-picha	p	pichá	i	pýcha	true	both	both_sides	Tŕň {target} do prsta.	thorn or cactus pricking a finger	https://slovnik.juls.savba.sk/?w=picha%C5%A5	ready	pricks
+r-ryza-y	starter-picture	ryza-risa	r	ryža	y	ríša	true	picture	both_sides	Na tanieri je {target}.	bowl of rice	https://slovnik.juls.savba.sk/?w=ry%C5%BEa	ready	rice
+r-risa-i	starter-picture	ryza-risa	r	ríša	i	ryža	true	picture	both_sides	V rozprávke bola veľká {target}.	fairy-tale kingdom with castle and crown	https://slovnik.juls.savba.sk/?w=r%C3%AD%C5%A1a	ready	kingdom
+s-syr-y	starter-picture	syr-sira	s	syr	y	síra	true	picture	both_sides	Na stole je kus {target}.	piece of cheese	https://slovnik.juls.savba.sk/?w=syr	ready	use "kus syra" idea in picture
+s-sira-i	starter-picture	syr-sira	s	síra	i	syr	true	picture	both_sides	{target} je žltá látka.	yellow sulfur rock, match, or simple atom drawing	https://slovnik.juls.savba.sk/?w=s%C3%ADra	ready	science concept
+v-vyr-y	starter-picture	vyr-vir	v	výr	y	vír	true	picture	both_sides	Na strome sedí veľký {target}.	large owl sitting on a tree	https://slovnik.juls.savba.sk/?w=v%C3%BDr	ready	owl
+v-vir-i	starter-picture	vyr-vir	v	vír	i	výr	true	picture	both_sides	V potoku sa točí {target}.	water whirl in a stream	https://slovnik.juls.savba.sk/?w=v%C3%ADr	ready	whirl
+v-vyje-y	starter-picture	vyje-vije	v	vyje	y	vije	true	picture	both_sides	Pes v noci {target}.	dog howling at night	https://slovnik.juls.savba.sk/?w=vy%C5%A5	ready	howls
+v-vije-i	starter-picture	vyje-vije	v	vije	i	vyje	true	picture	both_sides	Babka {target} veniec z kvetov.	hands weaving a flower wreath	https://slovnik.juls.savba.sk/?w=vi%C5%A5	ready	weaves
+v-vyla-y	starter-picture	vyla-vila	v	vyla	y	víla	true	both	both_sides	Vlčica v noci {target}.	wolf howling at night	https://slovnik.juls.savba.sk/?w=vy%C5%A5	ready	she howled
+v-vila-i	starter-picture	vyla-vila	v	víla	i	vyla	true	both	both_sides	V rozprávke lieta {target}.	fairy in a storybook	https://slovnik.juls.savba.sk/?w=v%C3%ADla	ready	fairy

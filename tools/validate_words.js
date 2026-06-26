@@ -6,6 +6,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const WORD_DIR = path.join(ROOT, 'data', 'words');
 const DISAMBIGUATION_FILE = 'data/words/disambiguation.tsv';
+const RUNTIME_DISAMBIGUATION_FILE = 'web/data/disambiguation.tsv';
 const SELECTED_FILE = 'data/words/selected.tsv';
 const LETTERS = new Set(['b', 'm', 'p', 'r', 's', 'v', 'z']);
 
@@ -213,11 +214,24 @@ function validateSelected(rows, disambiguationRows) {
   }
 }
 
+function validateRuntimeCopy() {
+  const source = path.join(ROOT, DISAMBIGUATION_FILE);
+  const runtime = path.join(ROOT, RUNTIME_DISAMBIGUATION_FILE);
+  if (!fs.existsSync(runtime)) {
+    errors.push(`${RUNTIME_DISAMBIGUATION_FILE}: missing runtime data copy`);
+    return;
+  }
+  if (fs.readFileSync(source, 'utf8') !== fs.readFileSync(runtime, 'utf8')) {
+    errors.push(`${RUNTIME_DISAMBIGUATION_FILE}: must match ${DISAMBIGUATION_FILE}`);
+  }
+}
+
 const disambiguationRows = parseTsv(DISAMBIGUATION_FILE, DISAMBIGUATION_HEADER);
 const selectedRows = parseTsv(SELECTED_FILE, SELECTED_HEADER);
 
 validateDisambiguation(disambiguationRows);
 validateSelected(selectedRows, disambiguationRows);
+validateRuntimeCopy();
 
 const readyByPack = new Map();
 for (const row of disambiguationRows.filter(r => r.status === 'ready')) {
