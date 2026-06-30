@@ -34,7 +34,7 @@
 <div id="summary">Running...</div>
 <ol id="results"></ol>
 
-<script src="./engine.js"></script>
+<script src="./engine.js?v=3"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
 const results = document.querySelector('#results');
@@ -124,6 +124,23 @@ async function run() {
     equal(saved.totalAnswered, 1, 'total answered');
     equal(saved.totalCorrect, 1, 'total correct');
     equal(saved.cards[card.id].seen, 1, 'card seen');
+  });
+
+  test('keeps answering when storage writes fail', () => {
+    const storage = {
+      getItem() {
+        return null;
+      },
+      setItem() {
+        throw new Error('storage blocked');
+      },
+    };
+    const card = readyCards[0];
+    const progress = Engine.recordAnswer(Engine.loadProgress(storage), card, false, 5678);
+    const saved = Engine.saveProgress(progress, storage);
+    equal(saved.totalAnswered, 1, 'total answered after failed save');
+    equal(saved.totalCorrect, 0, 'total correct after failed save');
+    equal(saved.cards[card.id].seen, 1, 'card seen after failed save');
   });
 
   let passed = 0;

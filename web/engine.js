@@ -156,7 +156,11 @@
 
   function saveProgress(progress, storage) {
     if (!storage) return progress;
-    storage.setItem(STORAGE_KEYS.progress, JSON.stringify(progress));
+    try {
+      storage.setItem(STORAGE_KEYS.progress, JSON.stringify(progress));
+    } catch (_error) {
+      return progress;
+    }
     return progress;
   }
 
