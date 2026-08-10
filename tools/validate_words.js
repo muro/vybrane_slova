@@ -4,11 +4,17 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const WORD_DIR = path.join(ROOT, 'data', 'words');
 const DISAMBIGUATION_FILE = 'data/words/disambiguation.tsv';
 const RUNTIME_DISAMBIGUATION_FILE = 'web/data/disambiguation.tsv';
-const SELECTED_FILE = 'data/words/selected.tsv';
-const LETTERS = new Set(['b', 'm', 'p', 'r', 's', 'v', 'z']);
+const LEGACY_SELECTED_FILE = 'data/words/selected.tsv';
+const LEGACY_SELECTED_DIR = 'data/words/selected';
+const SIMPLE_DIR = 'data/words/simple';
+const LETTERS = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
+const LETTER_SET = new Set(LETTERS);
+const SIMPLE_FILES = LETTERS.map(letter => ({
+  letter,
+  file: `${SIMPLE_DIR}/${letter}.txt`,
+}));
 
 const DISAMBIGUATION_HEADER = [
   'id',
@@ -25,15 +31,6 @@ const DISAMBIGUATION_HEADER = [
   'image_prompt',
   'source',
   'status',
-  'notes',
-];
-
-const SELECTED_HEADER = [
-  'id',
-  'selected_letter',
-  'surface',
-  'status',
-  'source',
   'notes',
 ];
 
@@ -96,6 +93,69 @@ function parseTsv(file, header) {
   return rows;
 }
 
+function parseWordList(file, defaults) {
+  const abs = path.join(ROOT, file);
+  if (!fs.existsSync(abs)) {
+    errors.push(`${file}: missing file`);
+    return [];
+  }
+
+  const text = fs.readFileSync(abs, 'utf8');
+  if (!text.endsWith('\n')) {
+    errors.push(`${file}: file must end with a newline`);
+  }
+
+  const lines = text.split(/\r?\n/);
+  if (lines[lines.length - 1] === '') lines.pop();
+
+  const rows = [];
+  const seenSections = new Set();
+  let answerGroup = null;
+  for (let i = 0; i < lines.length; i++) {
+    const lineNo = i + 1;
+    const surface = lines[i].trim();
+    if (!surface || surface.startsWith('#')) continue;
+    const section = surface.match(/^\[(.+)\]$/);
+    if (section) {
+      answerGroup = section[1];
+      if (!ALLOWED.answer_group.has(answerGroup)) {
+        error(file, lineNo, `unknown simple-list section: ${surface}`);
+        answerGroup = null;
+      } else {
+        seenSections.add(answerGroup);
+      }
+      continue;
+    }
+    if (surface.includes('\t')) {
+      error(file, lineNo, 'simple word lists must contain one word or phrase per line, not TSV cells');
+      continue;
+    }
+    if (!answerGroup) {
+      error(file, lineNo, 'word must appear under an [i] or [y] section');
+      continue;
+    }
+    rows.push({
+      ...defaults,
+      answer_group: answerGroup,
+      surface,
+      __file: file,
+      __line: lineNo,
+    });
+  }
+
+  if (rows.length === 0) {
+    errors.push(`${file}: empty word list`);
+  }
+
+  for (const group of ['i', 'y']) {
+    if (!seenSections.has(group)) {
+      errors.push(`${file}: missing [${group}] section`);
+    }
+  }
+
+  return rows;
+}
+
 function checkRequired(row, keys) {
   for (const key of keys) {
     if (!row[key]) error(row.__file, row.__line, `missing required ${key}`);
@@ -119,9 +179,46 @@ function checkStatus(row) {
 }
 
 function checkLetter(row) {
-  if (row.selected_letter && !LETTERS.has(row.selected_letter)) {
+  if (row.selected_letter && !LETTER_SET.has(row.selected_letter)) {
     error(row.__file, row.__line, `unknown selected_letter: ${row.selected_letter}`);
   }
+}
+
+function parseSimpleFiles() {
+  const legacyPath = path.join(ROOT, LEGACY_SELECTED_FILE);
+  if (fs.existsSync(legacyPath)) {
+    errors.push(`${LEGACY_SELECTED_FILE}: use per-letter files in ${SIMPLE_DIR}/`);
+  }
+
+  const legacyDirPath = path.join(ROOT, LEGACY_SELECTED_DIR);
+  if (fs.existsSync(legacyDirPath)) {
+    const legacyFiles = fs.readdirSync(legacyDirPath).filter(name => !name.startsWith('.'));
+    if (legacyFiles.length) {
+      errors.push(`${LEGACY_SELECTED_DIR}: use ${SIMPLE_DIR}/ for simple i/y lists`);
+    }
+  }
+
+  const simpleDirPath = path.join(ROOT, SIMPLE_DIR);
+  if (fs.existsSync(simpleDirPath)) {
+    const expectedNames = new Set(SIMPLE_FILES.map(({ file }) => path.basename(file)));
+    for (const name of fs.readdirSync(simpleDirPath).filter(name => !name.startsWith('.'))) {
+      if (!expectedNames.has(name)) {
+        errors.push(`${SIMPLE_DIR}/${name}: unexpected simple-list file`);
+      }
+    }
+  }
+
+  const rows = [];
+  for (const { letter, file } of SIMPLE_FILES) {
+    rows.push(...parseWordList(file, { selected_letter: letter }));
+  }
+  return rows;
+}
+
+function hasAnswerAfterSelectedLetter(row) {
+  const chars = Array.from(row.surface.toLocaleLowerCase('sk'));
+  const accepted = row.answer_group === 'i' ? new Set(['i', 'í']) : new Set(['y', 'ý']);
+  return chars.some((char, index) => char === row.selected_letter && accepted.has(chars[index + 1]));
 }
 
 function validateDisambiguation(rows) {
@@ -199,17 +296,48 @@ function validateDisambiguation(rows) {
   }
 }
 
-function validateSelected(rows, disambiguationRows) {
+function validateSimple(rows, disambiguationRows) {
   const disambiguationSurfaces = new Set(disambiguationRows.map(row => row.surface));
+  const simpleSurfaces = new Map();
+  const answerCountsByLetter = new Map();
 
   for (const row of rows) {
-    checkRequired(row, ['id', 'selected_letter', 'surface', 'status', 'source']);
-    checkId(row);
-    checkStatus(row);
+    checkRequired(row, ['answer_group', 'surface']);
     checkLetter(row);
+
+    if (row.answer_group && !ALLOWED.answer_group.has(row.answer_group)) {
+      error(row.__file, row.__line, `unknown answer_group: ${row.answer_group}`);
+    }
+
+    if (row.surface && row.answer_group && !hasAnswerAfterSelectedLetter(row)) {
+      const expected = row.answer_group === 'i' ? 'i/í' : 'y/ý';
+      error(row.__file, row.__line, `surface must contain ${row.selected_letter} + ${expected}`);
+    }
+
+    if (row.surface) {
+      const normalizedSurface = row.surface.toLocaleLowerCase('sk');
+      const previous = simpleSurfaces.get(normalizedSurface);
+      if (previous) {
+        error(row.__file, row.__line, `duplicate surface ${row.surface}; first seen at ${previous.__file}:${previous.__line}`);
+      } else {
+        simpleSurfaces.set(normalizedSurface, row);
+      }
+    }
+
+    if (ALLOWED.answer_group.has(row.answer_group)) {
+      const counts = answerCountsByLetter.get(row.selected_letter) || { i: 0, y: 0 };
+      counts[row.answer_group]++;
+      answerCountsByLetter.set(row.selected_letter, counts);
+    }
 
     if (disambiguationSurfaces.has(row.surface)) {
       error(row.__file, row.__line, `surface ${row.surface} belongs in ${DISAMBIGUATION_FILE}`);
+    }
+  }
+
+  for (const [letter, counts] of answerCountsByLetter.entries()) {
+    if (counts.i < counts.y) {
+      errors.push(`${SIMPLE_DIR}/${letter}.txt: needs at least as many i controls as y rows; got i=${counts.i}, y=${counts.y}`);
     }
   }
 }
@@ -227,10 +355,10 @@ function validateRuntimeCopy() {
 }
 
 const disambiguationRows = parseTsv(DISAMBIGUATION_FILE, DISAMBIGUATION_HEADER);
-const selectedRows = parseTsv(SELECTED_FILE, SELECTED_HEADER);
+const simpleRows = parseSimpleFiles();
 
 validateDisambiguation(disambiguationRows);
-validateSelected(selectedRows, disambiguationRows);
+validateSimple(simpleRows, disambiguationRows);
 validateRuntimeCopy();
 
 const readyByPack = new Map();
@@ -260,15 +388,29 @@ function countByStatus(rows) {
 }
 
 const disambiguationCounts = countByStatus(disambiguationRows);
-const selectedCounts = countByStatus(selectedRows);
+const simpleByAnswer = simpleRows.reduce((acc, row) => {
+  acc[row.answer_group] = (acc[row.answer_group] || 0) + 1;
+  return acc;
+}, { i: 0, y: 0 });
+const simpleByLetter = simpleRows.reduce((acc, row) => {
+  const counts = acc[row.selected_letter] || { i: 0, y: 0 };
+  counts[row.answer_group]++;
+  acc[row.selected_letter] = counts;
+  return acc;
+}, {});
 const readyAnswerCounts = disambiguationRows.filter(r => r.status === 'ready').reduce((acc, row) => {
   acc[row.answer_group] = (acc[row.answer_group] || 0) + 1;
   return acc;
 }, {});
 
-console.log(`Validated ${disambiguationRows.length} disambiguation row(s) and ${selectedRows.length} selected-word row(s).`);
+console.log(`Validated ${disambiguationRows.length} disambiguation row(s) and ${simpleRows.length} simple-list row(s) across ${SIMPLE_FILES.length} simple file(s).`);
 console.log(`Disambiguation: ready=${disambiguationCounts.ready || 0}; review=${disambiguationCounts.review || 0}; candidate=${disambiguationCounts.candidate || 0}.`);
-console.log(`Selected words: ready=${selectedCounts.ready || 0}; review=${selectedCounts.review || 0}; candidate=${selectedCounts.candidate || 0}.`);
+console.log(`Simple lists: candidate=${simpleRows.length} by convention.`);
+console.log(`Simple answer counts: i=${simpleByAnswer.i || 0}, y=${simpleByAnswer.y || 0}.`);
+console.log(`Simple by letter: ${LETTERS.map(letter => {
+  const counts = simpleByLetter[letter] || { i: 0, y: 0 };
+  return `${letter}=i${counts.i || 0}/y${counts.y || 0}`;
+}).join(', ')}.`);
 console.log(`Ready disambiguation answer counts: i=${readyAnswerCounts.i || 0}, y=${readyAnswerCounts.y || 0}.`);
 for (const [pack, counts] of [...readyByPack.entries()].sort(([a], [b]) => a.localeCompare(b))) {
   console.log(`Ready pack ${pack}: i=${counts.i || 0}, y=${counts.y || 0}.`);

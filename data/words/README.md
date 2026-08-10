@@ -1,9 +1,9 @@
 # Word List Format
 
-Word lists use two TSV files:
+Word lists use two source shapes:
 
-- `selected.tsv`: simple list for selected words that do not need
-  disambiguation.
+- `simple/*.txt`: simple per-letter word lists for words that do not need
+  disambiguation, including both selected-word `y/ý` rows and `i/í` controls.
 - `disambiguation.tsv`: rich pair list for words where both spellings/forms
   exist and the child needs a sentence or picture to choose correctly.
 
@@ -15,26 +15,43 @@ The current starter contrast pack is in `disambiguation.tsv`: 20 `ready` cards
 across 10 pairs, balanced as 10 `i/í` answers and 10 `y/ý` answers. The
 `by` / `bi` pair is also in `disambiguation.tsv` with `review` status.
 
-The current ordinary selected-word list is in `selected.tsv`: 188 compact
-`candidate` rows. Rows stay `candidate` until they are intentionally reviewed
-or promoted for app use.
+The current ordinary simple-list data is split across the per-letter files in
+`simple/`: 388 candidate words by convention, with 188 `y/ý` selected-word
+rows and 200 `i/í` control rows. These files are review seeds; the app should
+not consume them until a later task intentionally promotes a reviewed pack.
 
-## `selected.tsv`
+## `simple/*.txt`
 
-Use this file for words that do not need sentence or picture disambiguation:
+Use these files for words that do not need sentence or picture
+disambiguation. Use one file per selected-letter group:
 
-```tsv
-id	selected_letter	surface	status	source	notes
+- `simple/b.txt`
+- `simple/m.txt`
+- `simple/p.txt`
+- `simple/r.txt`
+- `simple/s.txt`
+- `simple/v.txt`
+- `simple/z.txt`
+
+Inside each file, put words under `[i]` or `[y]` sections. Each word or short
+phrase goes on its own line:
+
+```text
+[i]
+bicykel
+biely
+robiť
+
+[y]
+aby
+keby
+býk
 ```
 
-Columns:
-
-- `id`: Unique stable ID across all word files.
-- `selected_letter`: One of `b`, `m`, `p`, `r`, `s`, `v`, or `z`.
-- `surface`: Exact basic word form.
-- `status`: `ready`, `review`, `candidate`, or `excluded`.
-- `source`: Review source URL or note.
-- `notes`: Short reviewer note.
+Blank lines and lines starting with `#` are ignored by the validator. Use the
+rich `disambiguation.tsv` format instead of these plain lists whenever a word
+needs a sentence, picture, status, source, note, contrast pair, or other
+per-row metadata.
 
 ## `disambiguation.tsv`
 
@@ -75,7 +92,10 @@ node tools/validate_words.js
 
 The validator checks required columns, allowed tag values, duplicate IDs,
 broken pair references, ready-pack answer balance, `{target}` placement,
-picture metadata, whether ready pairs include both answer groups, and whether
-simple-list words also appear in the disambiguation file. It also checks that
+picture metadata, whether ready pairs include both answer groups, whether
+simple-list words also appear in the disambiguation file, duplicate simple
+surfaces, per-letter simple-list balance, and whether each simple row contains
+the expected `i/í` or `y/ý` after its file letter. It expects the simple lists
+to use sectioned word-only files under `simple/`. It also checks that
 `web/data/disambiguation.tsv` matches `data/words/disambiguation.tsv`, because
 the PWA ships from `web/`.
