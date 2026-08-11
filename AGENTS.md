@@ -18,17 +18,22 @@ explicitly asks for one.
 
 ## Core UX rules
 
-- The main interaction is a three-pile sorting game: full word-card pile in the
-  middle, `i/í` answer pile on the left, and `y/ý` answer pile on the right.
-- Cards move from the middle pile to one of the side piles.
-- Tap is the primary input. Drag/flick gestures are allowed as a convenience,
-  but the side piles must always be visible and tappable.
+- The main interaction is one word card in the middle of an otherwise empty
+  page. The child drags it left for `i/í` or right for `y/ý`.
+- The answer sides are never drawn. No side piles, no destination tiles, no
+  coloured screen edges, no faint letter marks in the margins. Every control
+  and every piece of drag feedback lives inside the card.
+- Because there are no visible targets, the card teaches itself: on load it
+  demonstrates the gesture, and during a drag the blank fills with the
+  answer letter, tinted while short of the submit distance and solid once
+  releasing will answer.
 - Keep the language as sorting, moving, choosing, practicing, and answering.
   Do not use dating-app framing such as "swipe left", "swipe right", "like",
   "reject", "match", or "nope".
-- Design for children ages 7-10 and nearby parents/teachers: clear
-  affordances, readable Slovak text, large tap targets, gentle feedback, no
-  hidden-only controls.
+- Design for children ages 7-10 and nearby parents/teachers: readable Slovak
+  text, generous card size, gentle feedback. Known accepted cost of the
+  no-visible-targets rule: there is no tap or keyboard input. Any fix for that
+  has to work on the card itself.
 - Keep instructional text short and concrete. Prefer showing the task through
   layout, animation, and examples over long explanations.
 - Feedback should be encouraging and corrective without shame, pressure, or
@@ -77,7 +82,7 @@ explicitly asks for one.
   disambiguation tags, picture prompts, sentence fragments, and validator
   behavior.
 - Keep app-building as a separate task. It owns the PWA shell, data loader,
-  engine, three-pile UI, animation, scoring, persistence, tests, preview,
+  engine, card UI, animation, scoring, persistence, tests, preview,
   manifest, service worker, and icons.
 - Do not hide content decisions in app code. If a card needs a better sentence,
   picture, source, or review status, change the TSV data and validator.

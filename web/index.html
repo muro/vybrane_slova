@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fff7e5">
+<meta name="theme-color" content="#f3ebdd">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Vybrané slová">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -11,22 +11,43 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="preload" href="./fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* Nunito variable, subset per Google Fonts unicode-range so Slovak diacritics
+     load from latin-ext without pulling Cyrillic or Vietnamese. */
+  @font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('./fonts/nunito-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('./fonts/nunito-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
   :root {
     color-scheme: light;
-    --paper: #fffdf7;
-    --ink: #25221d;
-    --muted: #6b6256;
-    --line: #ddd3c5;
-    --blue: #d9edff;
+    --paper: #f3ebdd;
+    --paper-top: #fcf7ee;
+    --card: #fffcf5;
+    --ink: #2a251d;
+    --muted: #7b7060;
+    --hairline: rgba(42, 37, 29, 0.1);
     --blue-strong: #2563b8;
-    --gold: #ffe4b8;
     --gold-strong: #a8550c;
-    --green: #dff5e5;
     --green-strong: #177245;
-    --rose: #ffe1e1;
     --rose-strong: #a82f35;
-    --shadow: 0 16px 36px rgba(58, 43, 22, 0.14);
+    --card-w: min(344px, calc(100vw - 64px));
+    --card-h: clamp(242px, 38dvh, 302px);
+    --card-radius: 26px;
   }
 
   * { box-sizing: border-box; }
@@ -38,7 +59,7 @@
     min-height: 100%;
     background: var(--paper);
     color: var(--ink);
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: 'Nunito', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     overflow-x: hidden;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
@@ -46,6 +67,7 @@
 
   body {
     min-height: 100dvh;
+    background: radial-gradient(120% 74% at 50% 0%, var(--paper-top) 0%, var(--paper) 76%) fixed;
   }
 
   button {
@@ -61,34 +83,8 @@
     overflow: hidden;
     padding: calc(18px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr;
     gap: 16px;
-  }
-
-  .edge-hint {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: min(34vw, 190px);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .edge-hint.left {
-    left: 0;
-    background: linear-gradient(90deg, rgba(37, 99, 184, var(--edge-left-alpha, 0)) 0%, rgba(37, 99, 184, 0) 100%);
-  }
-
-  .edge-hint.right {
-    right: 0;
-    background: linear-gradient(270deg, rgba(168, 85, 12, var(--edge-right-alpha, 0)) 0%, rgba(168, 85, 12, 0) 100%);
-  }
-
-  .topbar,
-  .board,
-  .feedback {
-    position: relative;
-    z-index: 1;
   }
 
   .topbar {
@@ -101,19 +97,26 @@
   .chrome-button,
   .letter-filter {
     min-height: 40px;
-    border: 1px solid rgba(37, 34, 29, 0.12);
-    border-radius: 8px;
-    background: #fffaf0;
-    color: var(--ink);
-    box-shadow: 0 1px 2px rgba(58, 43, 22, 0.06);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: rgba(255, 253, 246, 0.6);
+    color: var(--muted);
+    font-weight: 700;
   }
 
   .letter-filter {
+    appearance: none;
+    -webkit-appearance: none;
     max-width: min(46vw, 172px);
-    padding: 8px 30px 8px 12px;
+    padding: 8px 36px 8px 16px;
     font: inherit;
-    font-weight: 800;
+    font-weight: 700;
+    color: var(--muted);
     cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%237b7060' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 11px;
   }
 
   .chrome-button {
@@ -121,7 +124,7 @@
     padding: 8px 11px;
     display: inline-grid;
     place-items: center;
-    font-weight: 900;
+    font-size: 18px;
     text-align: center;
     cursor: pointer;
   }
@@ -133,57 +136,65 @@
   }
 
   .board {
-    width: min(620px, calc(100vw - 28px));
-    max-width: 100%;
+    position: relative;
+    width: min(620px, 100%);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-items: stretch;
+    justify-items: center;
+    align-content: center;
+    gap: 20px;
   }
 
-  .pile {
-    width: 100%;
-    min-width: 0;
-    min-height: min(520px, calc(100dvh - 168px));
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: left;
-  }
-
-  .source-pile {
+  /* The two layers behind the card read as the remaining pile. They fade out as
+     the round runs down so the last card looks like the last card. */
+  .card-stack {
     position: relative;
-    overflow: visible;
+    width: var(--card-w);
+    height: var(--card-h);
   }
 
-  .card-area {
-    position: relative;
-    width: 100%;
-    min-width: 0;
-    min-height: 354px;
-    display: grid;
-    place-items: center;
+  .card-stack::before,
+  .card-stack::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: var(--card-radius);
+    background: var(--card);
+    box-shadow: 0 12px 26px -18px rgba(62, 46, 24, 0.55);
+    transition: opacity 320ms ease;
+  }
+
+  .card-stack::before {
+    transform: rotate(-3.4deg) translateY(3px);
+    opacity: 0.55;
+  }
+
+  .card-stack::after {
+    transform: rotate(2deg) translateY(1px);
+    opacity: 0.8;
+  }
+
+  .card-stack.thin::before,
+  .card-stack.empty::before,
+  .card-stack.empty::after {
+    opacity: 0;
   }
 
   .word-card {
-    width: min(360px, calc(100vw - 28px));
-    max-width: 100%;
-    min-height: 304px;
-    border: 2px solid rgba(37, 34, 29, 0.15);
-    border-radius: 8px;
-    background: #fffefa;
-    box-shadow: var(--shadow);
-  }
-
-  .word-card {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 1;
-    padding: 26px 20px 22px;
+    padding: 26px 22px;
+    border-radius: var(--card-radius);
+    background: var(--card);
+    box-shadow:
+      0 1px 2px rgba(62, 46, 24, 0.06),
+      0 14px 30px -14px rgba(62, 46, 24, 0.32),
+      0 34px 64px -34px rgba(62, 46, 24, 0.5);
     display: grid;
-    grid-template-rows: minmax(118px, 1fr) auto 28px;
-    align-content: stretch;
-    gap: 18px;
+    align-content: center;
+    gap: 16px;
     text-align: center;
     cursor: grab;
     touch-action: none;
@@ -196,16 +207,6 @@
   .word-card.dragging {
     cursor: grabbing;
     transition: none;
-  }
-
-  .word-card.move-left {
-    transform: translateX(-78%) rotate(-5deg);
-    opacity: 0;
-  }
-
-  .word-card.move-right {
-    transform: translateX(78%) rotate(5deg);
-    opacity: 0;
   }
 
   .word-card.exit-correct {
@@ -230,48 +231,68 @@
   }
 
   .masked-word {
-    align-self: end;
-    font-size: clamp(42px, 9vw, 72px);
-    line-height: 1;
-    font-weight: 900;
-    letter-spacing: 0;
+    font-size: clamp(46px, 12vw, 74px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.015em;
   }
 
+  /* At rest the gap is a soft tinted well rather than an underscore, so the card
+     reads as a word waiting for a letter instead of broken text. */
   .letter-slot {
     display: inline-grid;
-    min-width: 0.66em;
-    min-height: 0.96em;
-    margin: 0 0.02em;
-    border-radius: 8px;
+    min-width: 0.58em;
+    min-height: 0.86em;
+    margin: 0 0.04em;
+    border-radius: 0.16em;
+    background: rgba(42, 37, 29, 0.055);
     place-items: center;
-    transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+    transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
   }
 
+  /* Two stages, both inside the word: a tinted preview while the card is still
+     short of the submit distance, then solid colour once letting go will
+     answer. That commit moment is the only cue, so it has to be unmissable. */
   .letter-slot.fill-i {
-    background: var(--blue-strong);
-    color: #fff;
-    box-shadow: 0 8px 20px rgba(37, 99, 184, 0.22);
+    background: rgba(37, 99, 184, 0.16);
+    color: var(--blue-strong);
   }
 
   .letter-slot.fill-y {
+    background: rgba(168, 85, 12, 0.16);
+    color: var(--gold-strong);
+  }
+
+  .letter-slot.fill-i.ready {
+    background: var(--blue-strong);
+    color: #fff;
+    box-shadow: 0 10px 22px -8px rgba(37, 99, 184, 0.55);
+  }
+
+  .letter-slot.fill-y.ready {
     background: var(--gold-strong);
     color: #fff;
-    box-shadow: 0 8px 20px rgba(168, 85, 12, 0.24);
+    box-shadow: 0 10px 22px -8px rgba(168, 85, 12, 0.55);
   }
 
   .sentence {
-    align-self: end;
     margin: 0;
     color: var(--muted);
-    font-size: 20px;
-    line-height: 1.35;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.4;
   }
 
   .full-word {
-    min-height: 28px;
-    font-size: 18px;
-    font-weight: 800;
+    min-height: 1.5em;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--muted);
   }
+
+  .full-word.answer-i { color: var(--blue-strong); }
+
+  .full-word.answer-y { color: var(--gold-strong); }
 
   .confetti-layer {
     position: absolute;
@@ -317,8 +338,8 @@
     height: var(--piece-height);
     overflow: hidden;
     border: 1px solid rgba(168, 47, 53, 0.18);
-    border-radius: 7px;
-    background: #fffefa;
+    border-radius: 10px;
+    background: var(--card);
     box-shadow: 0 12px 24px rgba(58, 43, 22, 0.12);
     opacity: 0;
     transform: translate(-50%, -50%) rotate(var(--piece-start-rotate, 0deg));
@@ -349,6 +370,8 @@
     position: absolute;
     left: 0;
     top: calc(-1 * var(--strip-offset));
+    right: auto;
+    bottom: auto;
     width: var(--card-width);
     min-height: var(--card-height);
     height: var(--card-height);
@@ -409,37 +432,25 @@
   }
 
   .feedback {
-    min-height: 34px;
-    width: min(760px, 100%);
-    margin: 0 auto;
-    padding: 10px 14px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: #fffaf0;
+    min-height: 1.5em;
+    max-width: min(420px, 100%);
+    margin: 0;
+    padding: 0 10px;
     text-align: center;
-    font-weight: 800;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: opacity 200ms ease;
   }
 
-  .feedback.good {
-    border-color: rgba(23, 114, 69, 0.32);
-    background: var(--green);
-    color: var(--green-strong);
-  }
+  .feedback.good { color: var(--green-strong); }
 
-  .feedback.needs-work {
-    border-color: rgba(168, 47, 53, 0.3);
-    background: var(--rose);
-    color: var(--rose-strong);
-  }
+  .feedback.needs-work { color: var(--rose-strong); }
 
-  .feedback.done {
-    border-color: rgba(37, 99, 184, 0.26);
-    background: var(--blue);
-    color: var(--blue-strong);
-  }
+  .feedback.done { color: var(--blue-strong); }
 
   .feedback.quiet {
-    visibility: hidden;
+    opacity: 0;
   }
 
   .about-overlay {
@@ -449,7 +460,7 @@
     padding: 24px;
     display: grid;
     place-items: center;
-    background: rgba(37, 34, 29, 0.24);
+    background: rgba(58, 43, 22, 0.3);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
   }
@@ -462,15 +473,15 @@
     position: relative;
     width: min(340px, 100%);
     padding: 30px 24px 24px;
-    border: 1px solid rgba(37, 34, 29, 0.14);
-    border-radius: 8px;
-    background: var(--paper);
-    box-shadow: 0 22px 54px rgba(37, 34, 29, 0.24);
+    border-radius: var(--card-radius);
+    background: var(--card);
+    box-shadow: 0 26px 60px -20px rgba(37, 34, 29, 0.38);
     text-align: center;
   }
 
   .about-sheet h2 {
     margin: 0;
+    padding: 0 24px;
     font-size: 22px;
     line-height: 1.1;
     letter-spacing: 0;
@@ -507,8 +518,8 @@
 
   .sheet-close {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 10px;
+    right: 12px;
     border: 0;
     background: transparent;
     color: var(--muted);
@@ -535,47 +546,23 @@
       min-height: 38px;
     }
 
-    .pile {
-      min-height: min(510px, calc(100dvh - 152px));
-    }
-
-    .card-area {
-      min-height: 386px;
-    }
-
     .word-card {
-      min-height: 328px;
-    }
-
-    .word-card {
-      padding: 20px 12px 18px;
-      grid-template-rows: minmax(136px, 1fr) auto 26px;
+      padding: 22px 16px;
+      gap: 14px;
     }
 
     .sentence {
       font-size: 17px;
     }
 
-    .full-word {
+    .full-word,
+    .feedback {
       font-size: 16px;
     }
-  }
-
-  @media (max-width: 480px) {
-    .pile {
-      min-height: min(500px, calc(100dvh - 148px));
-    }
-
-    .masked-word {
-      font-size: 42px;
-    }
-
   }
 </style>
 </head>
 <body>
-<div class="edge-hint left" id="edge-left" aria-hidden="true"></div>
-<div class="edge-hint right" id="edge-right" aria-hidden="true"></div>
 <main class="app">
   <header class="topbar" aria-label="Nastavenia">
     <select class="letter-filter" id="letter-filter" aria-label="Vybrať písmeno">
@@ -585,19 +572,16 @@
   </header>
 
   <section class="board" aria-label="Triedenie kartičiek">
-      <div class="pile source-pile" aria-live="polite">
-      <div class="card-area">
-        <article class="word-card" id="word-card">
-          <div class="masked-word" id="masked-word">...</div>
-          <p class="sentence" id="sentence">Načítavam kartičky.</p>
-          <div class="full-word" id="full-word"></div>
-        </article>
-        <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
-      </div>
+    <div class="card-stack" id="card-stack" aria-live="polite">
+      <article class="word-card" id="word-card">
+        <div class="masked-word" id="masked-word"></div>
+        <p class="sentence" id="sentence">Načítavam kartičky.</p>
+        <div class="full-word" id="full-word"></div>
+      </article>
     </div>
+    <p class="feedback quiet" id="feedback" aria-live="polite"></p>
+    <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
   </section>
-
-  <div class="feedback quiet" id="feedback" aria-live="polite"></div>
 </main>
 <div class="about-overlay" id="about-overlay" hidden>
   <section class="about-sheet" role="dialog" aria-modal="true" aria-labelledby="about-title">
@@ -615,9 +599,8 @@
 const Engine = window.VybraneSlovaEngine;
 
 const elements = {
-  edgeLeft: document.querySelector('#edge-left'),
-  edgeRight: document.querySelector('#edge-right'),
   card: document.querySelector('#word-card'),
+  cardStack: document.querySelector('#card-stack'),
   confettiLayer: document.querySelector('#confetti-layer'),
   maskedWord: document.querySelector('#masked-word'),
   sentence: document.querySelector('#sentence'),
@@ -690,6 +673,7 @@ const drag = {
   startTime: 0,
   moved: false,
   hintAnswer: null,
+  hintReady: false,
   lastPointerAt: 0,
 };
 
@@ -825,7 +809,7 @@ function showWrongFallApart() {
     });
     const cardSlice = elements.card.cloneNode(true);
     cardSlice.removeAttribute('id');
-    cardSlice.classList.remove('dragging', 'hint-left', 'hint-right', 'move-left', 'move-right', 'exit-correct', 'exit-wrong');
+    cardSlice.classList.remove('dragging', 'exit-correct', 'exit-wrong');
     cardSlice.classList.add('paper-strip-card');
     cardSlice.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
     piece.append(cardSlice);
@@ -840,11 +824,17 @@ function letterForAnswer(card, answerGroup) {
   const isLong = correctLetter === 'í' || correctLetter === 'ý';
   if (answerGroup === 'i') return isLong ? 'í' : 'i';
   if (answerGroup === 'y') return isLong ? 'ý' : 'y';
-  return '_';
+  return '';
+}
+
+function setReveal(text, answerGroup) {
+  elements.fullWord.className = `full-word${answerGroup ? ` answer-${answerGroup}` : ''}`;
+  elements.fullWord.textContent = text;
 }
 
 function renderMaskedWord(card, answerGroup = null) {
   elements.maskedWord.textContent = '';
+  elements.letterSlot = null;
   const maskIndex = card.masked_surface.indexOf('_');
   if (maskIndex < 0) {
     elements.maskedWord.textContent = card.masked_surface;
@@ -853,34 +843,40 @@ function renderMaskedWord(card, answerGroup = null) {
 
   elements.maskedWord.append(document.createTextNode(card.masked_surface.slice(0, maskIndex)));
   const slot = document.createElement('span');
-  slot.className = `letter-slot${answerGroup ? ` fill-${answerGroup}` : ''}`;
+  slot.className = `letter-slot${answerGroup ? ` fill-${answerGroup}` : ''}${answerGroup && drag.hintReady ? ' ready' : ''}`;
   slot.textContent = letterForAnswer(card, answerGroup);
+  elements.letterSlot = slot;
   elements.maskedWord.append(slot);
   elements.maskedWord.append(document.createTextNode(card.masked_surface.slice(maskIndex + 1)));
+}
+
+function renderStackDepth() {
+  const remaining = Math.max(0, state.round.length - state.index);
+  elements.cardStack.classList.toggle('thin', remaining === 2);
+  elements.cardStack.classList.toggle('empty', remaining <= 1);
 }
 
 function render() {
   const card = currentCard();
   const total = state.round.length;
   renderStats();
+  renderStackDepth();
+
+  elements.card.classList.remove('exit-correct', 'exit-wrong');
+  clearDragStyles();
+  clearConfetti();
 
   if (!card) {
-    elements.card.classList.remove('move-left', 'move-right', 'exit-correct', 'exit-wrong');
-    clearDragStyles();
-    clearConfetti();
     elements.maskedWord.textContent = 'hotovo';
     elements.sentence.textContent = `Skóre ${state.correct}/${total}`;
-    elements.fullWord.textContent = '';
+    setReveal('', null);
     setFeedback('Kolo je hotové.', 'done');
     return;
   }
 
-  elements.card.classList.remove('move-left', 'move-right', 'exit-correct', 'exit-wrong');
-  clearDragStyles();
-  clearConfetti();
   renderMaskedWord(card);
   elements.sentence.textContent = card.prompt_sentence;
-  elements.fullWord.textContent = '';
+  setReveal('', null);
 }
 
 function nextCard() {
@@ -905,17 +901,16 @@ function choose(answerGroup) {
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
   Engine.saveProgress(state.progress, appStorage);
 
-  setEdgeHints(answerGroup === 'i' ? -submitThreshold() : submitThreshold());
   if (isCorrect) {
-    setDragHint(answerGroup);
+    setDragHint(answerGroup, true);
     elements.card.classList.add('exit-correct');
-    elements.fullWord.textContent = card.full_sentence;
+    setReveal(card.full_sentence, card.answer_group);
     showCardConfetti(answerGroup);
     setFeedback('', 'quiet');
   } else {
-    setDragHint(card.answer_group);
+    setDragHint(card.answer_group, true);
     elements.card.classList.add('exit-wrong');
-    elements.fullWord.textContent = card.full_sentence;
+    setReveal(card.full_sentence, card.answer_group);
     showWrongFallApart();
     setFeedback(`Patrí do ${card.answer_group === 'i' ? 'i/í' : 'y/ý'}: ${card.surface}`, 'needs-work');
   }
@@ -931,60 +926,42 @@ function submitThreshold() {
   return Math.max(72, Math.min(108, elements.card.offsetWidth * 0.28));
 }
 
-function setEdgeHints(dx) {
-  const threshold = submitThreshold();
-  const distance = clamp(Math.abs(dx) / threshold, 0, 1);
-  const base = 0.09;
-  const strong = 0.34;
-  const subtle = 0.025;
-  let left = base;
-  let right = base;
-
-  if (dx < -8) {
-    left = base + (strong - base) * distance;
-    right = base - (base - subtle) * distance;
-  } else if (dx > 8) {
-    right = base + (strong - base) * distance;
-    left = base - (base - subtle) * distance;
-  }
-
-  elements.edgeLeft.style.setProperty('--edge-left-alpha', left.toFixed(3));
-  elements.edgeRight.style.setProperty('--edge-right-alpha', right.toFixed(3));
-}
-
-function clearEdgeHints() {
-  elements.edgeLeft.style.setProperty('--edge-left-alpha', '0');
-  elements.edgeRight.style.setProperty('--edge-right-alpha', '0');
-}
-
 function setCardDrag(dx, dy) {
   const rotation = clamp(dx / 18, -10, 10);
   elements.card.style.setProperty('--drag-x', `${dx}px`);
   elements.card.style.setProperty('--drag-y', `${dy}px`);
   elements.card.style.setProperty('--drag-rotate', `${rotation}deg`);
-  setEdgeHints(dx);
+  const ready = Math.abs(dx) >= submitThreshold();
   if (dx < -22) {
-    setDragHint('i');
+    setDragHint('i', ready);
   } else if (dx > 22) {
-    setDragHint('y');
+    setDragHint('y', ready);
   } else {
-    setDragHint(null);
+    setDragHint(null, false);
   }
 }
 
-function setDragHint(answerGroup) {
-  if (drag.hintAnswer === answerGroup) return;
+// All drag feedback lives inside the word: the blank previews the letter in its
+// answer colour, and turns solid once the card has moved far enough to submit.
+function setDragHint(answerGroup, ready = false) {
+  if (drag.hintAnswer === answerGroup && drag.hintReady === ready) return;
+  const answerChanged = drag.hintAnswer !== answerGroup;
   drag.hintAnswer = answerGroup;
-  elements.card.classList.toggle('hint-left', answerGroup === 'i');
-  elements.card.classList.toggle('hint-right', answerGroup === 'y');
+  drag.hintReady = ready;
+
   const card = currentCard();
-  if (card) renderMaskedWord(card, answerGroup);
+  if (!card) return;
+  if (answerChanged) {
+    renderMaskedWord(card, answerGroup);
+  } else if (elements.letterSlot) {
+    elements.letterSlot.classList.toggle('ready', ready);
+  }
 }
 
 function clearDragStyles() {
-  elements.card.classList.remove('dragging', 'hint-left', 'hint-right');
+  elements.card.classList.remove('dragging');
   drag.hintAnswer = null;
-  clearEdgeHints();
+  drag.hintReady = false;
   elements.card.style.removeProperty('--drag-x');
   elements.card.style.removeProperty('--drag-y');
   elements.card.style.removeProperty('--drag-rotate');
@@ -1007,6 +984,41 @@ function snapCardBack() {
   }, 280);
 }
 
+// On load the card demonstrates the gesture itself: it drifts toward i/í, then
+// toward y/ý, filling the letter slot each way, then settles back. Any real
+// input cancels it, so it never fights the child for control of the card.
+let introTimers = [];
+
+function cancelIntro() {
+  if (!introTimers.length) return;
+  introTimers.forEach(window.clearTimeout);
+  introTimers = [];
+  clearDragStyles();
+}
+
+function runIntro() {
+  if (!currentCard()) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Never reach past the free space beside the card: a demo that slides off the
+  // screen edge reads as breakage rather than as a move.
+  const reach = () => {
+    const room = Math.max(0, (window.innerWidth - elements.card.offsetWidth) / 2);
+    return Math.round(Math.min(submitThreshold() * 0.86, room));
+  };
+  const at = (delay, step) => introTimers.push(window.setTimeout(step, delay));
+
+  // Force the committed fill: the demo cannot always travel the full submit
+  // distance, but it should still show what a finished answer looks like.
+  at(460, () => { setCardDrag(-reach(), 0); setDragHint('i', true); });
+  at(1200, () => { setCardDrag(reach(), 0); setDragHint('y', true); });
+  at(1940, () => setCardDrag(0, 0));
+  at(2260, () => {
+    introTimers = [];
+    clearDragStyles();
+  });
+}
+
 function beginDrag(source, id, clientX, clientY) {
   drag.active = true;
   drag.pointerId = id;
@@ -1019,7 +1031,6 @@ function beginDrag(source, id, clientX, clientY) {
   drag.moved = false;
   drag.hintAnswer = null;
   elements.card.classList.add('dragging');
-  setEdgeHints(0);
 }
 
 function updateDrag(clientX, clientY) {
@@ -1050,6 +1061,7 @@ function onPointerDown(event) {
   if (event.pointerType === 'mouse' && event.button !== 0) return;
 
   drag.lastPointerAt = performance.now();
+  cancelIntro();
   beginDrag('pointer', event.pointerId, event.clientX, event.clientY);
   elements.card.setPointerCapture(event.pointerId);
   event.preventDefault();
@@ -1087,6 +1099,7 @@ function onMouseDown(event) {
   if (state.locked || drag.active || !currentCard() || event.button !== 0) return;
   if (performance.now() - drag.lastPointerAt < 500) return;
 
+  cancelIntro();
   beginDrag('mouse', 'mouse', event.clientX, event.clientY);
   event.preventDefault();
 }
@@ -1115,6 +1128,7 @@ function onTouchStart(event) {
 
   const touch = firstTouch(event);
   if (!touch) return;
+  cancelIntro();
   beginDrag('touch', touch.identifier, touch.clientX, touch.clientY);
   event.preventDefault();
 }
@@ -1160,6 +1174,7 @@ function onAboutKeyDown(event) {
 }
 
 function resetRound() {
+  cancelIntro();
   state.index = 0;
   state.correct = 0;
   state.locked = false;
@@ -1179,6 +1194,7 @@ async function start() {
     state.round = createCurrentRound();
     render();
     setFeedback('', 'quiet');
+    runIntro();
   } catch (error) {
     elements.maskedWord.textContent = 'chyba';
     elements.sentence.textContent = 'Kartičky sa nenačítali.';
