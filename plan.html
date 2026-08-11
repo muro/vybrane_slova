@@ -361,7 +361,7 @@
 
   <section>
     <h2>Visual Language</h2>
-    <p>The look is one warm parchment background with a single lifted card on it. Because there is only one framed surface, that surface has to carry the identity: real elevation, a 26px radius, and two faint fanned layers behind it so the deck reads as a pile that runs down as the round progresses.</p>
+    <p>The look is one warm parchment background with a single lifted card on it. It has real elevation and a 26px radius. The next card sits just behind it with its masked word and sentence already rendered, so the full next prompt appears as the current card moves; one further faint layer keeps the deck reading as a pile that runs down as the round progresses.</p>
     <p>The blank is a soft tinted well inside the word, never a typed underscore, so a card at rest reads as a word waiting for a letter rather than as broken text. During a drag it fills in two stages: a light tint of <strong>blue</strong> for <strong>i/í</strong> or <strong>gold</strong> for <strong>y/ý</strong> while the card is still short of the submit distance, then the solid colour with a white letter once releasing will answer.</p>
     <p>Type is <strong>Nunito</strong>, committed as two variable <code>woff2</code> subsets under <code>web/fonts/</code> and precached by the service worker, so the installed app never fetches a font. Its rounded terminals suit ages 7-10, and its <code>í</code> and <code>ý</code> stay unmistakable at card size. The Open Font License text ships alongside it.</p>
     <p>Corrections appear as a single coloured line under the card, not as a bordered banner. Routine progress stays off the main screen, as decided in the game loop below.</p>
@@ -380,7 +380,7 @@
       </div>
       <div class="panel">
         <h3>Minimal chrome</h3>
-        <p>The header should contain only a letter-set chooser, defaulting to all letters, and an about button for feedback and project links.</p>
+        <p>The header should contain only circular letter toggles, defaulting to all letters selected and allowing several letters at once, plus an about button for feedback and project links.</p>
       </div>
       <div class="panel">
         <h3>Feedback</h3>

@@ -95,33 +95,46 @@
   }
 
   .chrome-button,
-  .letter-filter {
+  .letter-filter-button {
     min-height: 40px;
     border: 1px solid var(--hairline);
-    border-radius: 999px;
     background: rgba(255, 253, 246, 0.6);
     color: var(--muted);
     font-weight: 700;
   }
 
   .letter-filter {
-    appearance: none;
-    -webkit-appearance: none;
-    max-width: min(46vw, 172px);
-    padding: 8px 36px 8px 16px;
+    display: flex;
+    flex: 1;
+    gap: 4px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .letter-filter-button {
+    width: clamp(30px, 9vw, 40px);
+    min-width: 30px;
+    height: clamp(30px, 9vw, 40px);
+    min-height: 30px;
+    padding: 0;
+    border-radius: 50%;
     font: inherit;
-    font-weight: 700;
-    color: var(--muted);
+    font-weight: 900;
+    line-height: 1;
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%237b7060' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    background-size: 11px;
+  }
+
+  .letter-filter-button[aria-pressed="true"] {
+    border-color: var(--blue-strong);
+    background: var(--blue-strong);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(37, 99, 184, 0.25);
   }
 
   .chrome-button {
     min-width: 40px;
     padding: 8px 11px;
+    border-radius: 999px;
     display: inline-grid;
     place-items: center;
     font-size: 18px;
@@ -130,7 +143,7 @@
   }
 
   .chrome-button:focus-visible,
-  .letter-filter:focus-visible {
+  .letter-filter-button:focus-visible {
     outline: 3px solid rgba(37, 99, 184, 0.28);
     outline-offset: 2px;
   }
@@ -145,8 +158,8 @@
     gap: 20px;
   }
 
-  /* The two layers behind the card read as the remaining pile. They fade out as
-     the round runs down so the last card looks like the last card. */
+  /* The two layers behind the card read as the remaining pile. The closest one
+     carries the next prompt, so its whole card appears as the current card moves. */
   .card-stack {
     position: relative;
     width: var(--card-w);
@@ -184,7 +197,7 @@
   .word-card {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     padding: 26px 22px;
     border-radius: var(--card-radius);
     background: var(--card);
@@ -202,6 +215,12 @@
     transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg));
     transition: transform 260ms ease, opacity 260ms ease;
     overflow: hidden;
+  }
+
+  .word-card.upcoming-card {
+    z-index: 1;
+    pointer-events: none;
+    transform: translateY(8px) rotate(-1.8deg);
   }
 
   .word-card.dragging {
@@ -565,14 +584,17 @@
 <body>
 <main class="app">
   <header class="topbar" aria-label="Nastavenia">
-    <select class="letter-filter" id="letter-filter" aria-label="Vybrať písmeno">
-      <option value="all">všetky</option>
-    </select>
+    <div class="letter-filter" id="letter-filter" role="group" aria-label="Vybrať písmená"></div>
     <button class="chrome-button" type="button" id="about-open" aria-label="O aplikácii">?</button>
   </header>
 
   <section class="board" aria-label="Triedenie kartičiek">
     <div class="card-stack" id="card-stack" aria-live="polite">
+      <article class="word-card upcoming-card" id="upcoming-card" aria-hidden="true" hidden>
+        <div class="masked-word" id="upcoming-masked-word"></div>
+        <p class="sentence" id="upcoming-sentence"></p>
+        <div class="full-word" id="upcoming-full-word"></div>
+      </article>
       <article class="word-card" id="word-card">
         <div class="masked-word" id="masked-word"></div>
         <p class="sentence" id="sentence">Načítavam kartičky.</p>
@@ -594,17 +616,21 @@
   </section>
 </div>
 
-<script src="./engine.js?v=3"></script>
+<script src="./engine.js?v=4"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
 
 const elements = {
   card: document.querySelector('#word-card'),
+  upcomingCard: document.querySelector('#upcoming-card'),
   cardStack: document.querySelector('#card-stack'),
   confettiLayer: document.querySelector('#confetti-layer'),
   maskedWord: document.querySelector('#masked-word'),
+  upcomingMaskedWord: document.querySelector('#upcoming-masked-word'),
   sentence: document.querySelector('#sentence'),
+  upcomingSentence: document.querySelector('#upcoming-sentence'),
   fullWord: document.querySelector('#full-word'),
+  upcomingFullWord: document.querySelector('#upcoming-full-word'),
   feedback: document.querySelector('#feedback'),
   letterFilter: document.querySelector('#letter-filter'),
   aboutOpen: document.querySelector('#about-open'),
@@ -627,15 +653,18 @@ const appStorage = getStorage();
 const LETTER_ORDER = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
 
 function loadSettings(storage) {
-  if (!storage) return { selectedLetter: 'all' };
+  if (!storage) return { selectedLetters: null };
   try {
     const raw = storage.getItem(Engine.STORAGE_KEYS.settings);
     const saved = raw ? JSON.parse(raw) : {};
+    const selectedLetters = Array.isArray(saved.selectedLetters)
+      ? saved.selectedLetters.filter(letter => typeof letter === 'string')
+      : null;
     return {
-      selectedLetter: typeof saved.selectedLetter === 'string' ? saved.selectedLetter : 'all',
+      selectedLetters,
     };
   } catch (_error) {
-    return { selectedLetter: 'all' };
+    return { selectedLetters: null };
   }
 }
 
@@ -643,7 +672,7 @@ function saveSettings() {
   if (!appStorage) return;
   try {
     appStorage.setItem(Engine.STORAGE_KEYS.settings, JSON.stringify({
-      selectedLetter: state.selectedLetter,
+      selectedLetters: state.selectedLetters,
     }));
   } catch (_error) {
     // Practice should continue even if storage is unavailable.
@@ -658,7 +687,7 @@ const state = {
   index: 0,
   correct: 0,
   locked: false,
-  selectedLetter: settings.selectedLetter,
+  selectedLetters: settings.selectedLetters,
   progress: Engine.loadProgress(appStorage),
 };
 
@@ -681,42 +710,47 @@ function currentCard() {
   return state.round[state.index] || null;
 }
 
+function nextCardInRound() {
+  return state.round[state.index + 1] || null;
+}
+
 function renderStats() {
   document.title = state.round.length
     ? `Vybrané slová ${Math.min(state.index + 1, state.round.length)}/${state.round.length}`
     : 'Vybrané slová';
 }
 
-function cardsForSelectedLetter() {
-  if (state.selectedLetter === 'all') return state.cards;
-  return state.cards.filter(card => card.selected_letter === state.selectedLetter);
+function cardsForSelectedLetters() {
+  return Engine.filterCardsByLetters(state.cards, state.selectedLetters);
 }
 
 function createCurrentRound() {
-  return Engine.createRound(cardsForSelectedLetter(), { seed: Date.now() });
+  return Engine.createRound(cardsForSelectedLetters(), { seed: Date.now() });
 }
 
 function populateLetterFilter() {
   const available = new Set(state.cards.map(card => card.selected_letter).filter(Boolean));
   const letters = LETTER_ORDER.filter(letter => available.has(letter));
-  if (state.selectedLetter !== 'all' && !available.has(state.selectedLetter)) {
-    state.selectedLetter = 'all';
-  }
+  state.selectedLetters = Array.isArray(state.selectedLetters)
+    ? state.selectedLetters.filter(letter => available.has(letter))
+    : letters.slice();
 
   elements.letterFilter.textContent = '';
-  const allOption = document.createElement('option');
-  allOption.value = 'all';
-  allOption.textContent = 'všetky';
-  elements.letterFilter.append(allOption);
-
   for (const letter of letters) {
-    const option = document.createElement('option');
-    option.value = letter;
-    option.textContent = letter;
-    elements.letterFilter.append(option);
+    const button = document.createElement('button');
+    button.className = 'letter-filter-button';
+    button.type = 'button';
+    button.dataset.letter = letter;
+    button.textContent = letter;
+    button.setAttribute('aria-pressed', String(state.selectedLetters.includes(letter)));
+    elements.letterFilter.append(button);
   }
+}
 
-  elements.letterFilter.value = state.selectedLetter;
+function updateLetterFilter() {
+  elements.letterFilter.querySelectorAll('.letter-filter-button').forEach(button => {
+    button.setAttribute('aria-pressed', String(state.selectedLetters.includes(button.dataset.letter)));
+  });
 }
 
 function setFeedback(text, className = '') {
@@ -832,22 +866,35 @@ function setReveal(text, answerGroup) {
   elements.fullWord.textContent = text;
 }
 
-function renderMaskedWord(card, answerGroup = null) {
-  elements.maskedWord.textContent = '';
-  elements.letterSlot = null;
+function renderMaskedWordInto(target, card, answerGroup = null) {
+  target.textContent = '';
   const maskIndex = card.masked_surface.indexOf('_');
   if (maskIndex < 0) {
-    elements.maskedWord.textContent = card.masked_surface;
-    return;
+    target.textContent = card.masked_surface;
+    return null;
   }
 
-  elements.maskedWord.append(document.createTextNode(card.masked_surface.slice(0, maskIndex)));
+  target.append(document.createTextNode(card.masked_surface.slice(0, maskIndex)));
   const slot = document.createElement('span');
   slot.className = `letter-slot${answerGroup ? ` fill-${answerGroup}` : ''}${answerGroup && drag.hintReady ? ' ready' : ''}`;
   slot.textContent = letterForAnswer(card, answerGroup);
-  elements.letterSlot = slot;
-  elements.maskedWord.append(slot);
-  elements.maskedWord.append(document.createTextNode(card.masked_surface.slice(maskIndex + 1)));
+  target.append(slot);
+  target.append(document.createTextNode(card.masked_surface.slice(maskIndex + 1)));
+  return slot;
+}
+
+function renderMaskedWord(card, answerGroup = null) {
+  elements.letterSlot = renderMaskedWordInto(elements.maskedWord, card, answerGroup);
+}
+
+function renderUpcomingCard() {
+  const card = nextCardInRound();
+  elements.upcomingCard.hidden = !card;
+  if (!card) return;
+
+  renderMaskedWordInto(elements.upcomingMaskedWord, card);
+  elements.upcomingSentence.textContent = card.prompt_sentence;
+  elements.upcomingFullWord.textContent = '';
 }
 
 function renderStackDepth() {
@@ -861,12 +908,20 @@ function render() {
   const total = state.round.length;
   renderStats();
   renderStackDepth();
+  renderUpcomingCard();
 
   elements.card.classList.remove('exit-correct', 'exit-wrong');
   clearDragStyles();
   clearConfetti();
 
   if (!card) {
+    if (!total) {
+      elements.maskedWord.textContent = 'vyber písmeno';
+      elements.sentence.textContent = 'Ťukni na písmeno hore.';
+      setReveal('', null);
+      setFeedback('', 'quiet');
+      return;
+    }
     elements.maskedWord.textContent = 'hotovo';
     elements.sentence.textContent = `Skóre ${state.correct}/${total}`;
     setReveal('', null);
@@ -1202,8 +1257,16 @@ async function start() {
   }
 }
 
-elements.letterFilter.addEventListener('change', () => {
-  state.selectedLetter = elements.letterFilter.value;
+elements.letterFilter.addEventListener('click', event => {
+  const button = event.target.closest('.letter-filter-button');
+  if (!button) return;
+  const letter = button.dataset.letter;
+  if (!letter) return;
+
+  state.selectedLetters = state.selectedLetters.includes(letter)
+    ? state.selectedLetters.filter(selected => selected !== letter)
+    : [...state.selectedLetters, letter].sort((left, right) => LETTER_ORDER.indexOf(left) - LETTER_ORDER.indexOf(right));
+  updateLetterFilter();
   saveSettings();
   resetRound();
 });

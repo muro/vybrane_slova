@@ -34,7 +34,7 @@
 <div id="summary">Running...</div>
 <ol id="results"></ol>
 
-<script src="./engine.js?v=3"></script>
+<script src="./engine.js?v=4"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
 const results = document.querySelector('#results');
@@ -105,6 +105,13 @@ async function run() {
     assert(Engine.checkAnswer(vir, 'i'), 'i should be correct');
     assert(Engine.checkAnswer(vir, 'í'), 'í should normalize to i');
     assert(!Engine.checkAnswer(vir, 'y'), 'y should be incorrect');
+  });
+
+  test('filters cards by several selected letters', () => {
+    const cards = Engine.filterCardsByLetters(readyCards, ['b', 'm']);
+    assert(cards.length > 0, 'selected letters should have cards');
+    assert(cards.every(card => ['b', 'm'].includes(card.selected_letter)), 'unexpected letter in filtered cards');
+    assert(!cards.some(card => card.selected_letter === 'v'), 'unselected letter was included');
   });
 
   test('creates deterministic rounds when seeded', () => {

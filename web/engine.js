@@ -93,6 +93,11 @@
     }, { i: 0, y: 0 });
   }
 
+  function filterCardsByLetters(cards, letters) {
+    const selected = new Set(letters);
+    return cards.filter(card => selected.has(card.selected_letter));
+  }
+
   function mulberry32(seed) {
     return function random() {
       let t = seed += 0x6D2B79F5;
@@ -187,6 +192,7 @@
     parseTsv,
     loadDisambiguationCards,
     answerCounts,
+    filterCardsByLetters,
     createRound,
     checkAnswer,
     maskSurface,
