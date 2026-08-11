@@ -301,7 +301,7 @@
       </div>
       <div class="panel">
         <h3>Motor skills</h3>
-        <p>Use large tap targets and generous hit areas. Dragging should be forgiving, with tap always available as the reliable default.</p>
+        <p>Make the card itself the main control. Dragging should be forgiving, with a clear threshold and visible edge hints before an answer is submitted.</p>
       </div>
       <div class="panel">
         <h3>Feedback tone</h3>
@@ -312,22 +312,22 @@
 
   <section>
     <h2>Core Interaction</h2>
-    <p>The app starts with three piles of cards: an empty <strong>i/í</strong> pile on the left, a full word-card pile in the middle, and an empty <strong>y/ý</strong> pile on the right.</p>
-    <p>The first-run tutorial should zoom into the middle pile, lift the top card, and show it moving from the middle pile to the correct side pile. After that, every question repeats the same mental model: move the top card from the middle pile to one of the side piles.</p>
+    <p>The app should feel almost entirely about one word card moving. The word card stays in the center, and the child drags it left for <strong>i/í</strong> or right for <strong>y/ý</strong>.</p>
+    <p>Static destination tiles and framed board panels should not be visible in the main version. Use one page background, with the current word card as the only framed surface. On drag start, the screen edges give a subtle color hint; as the card moves closer to one side, that side becomes stronger and the opposite side becomes quieter. The missing letter is filled directly inside the word while dragging so the child sees what will be submitted.</p>
 
-    <div class="flow" aria-label="Three-pile card sorting model">
+    <div class="flow" aria-label="Card drag model">
       <div class="pile left">
         <div>
           <div class="pile-title">i / í</div>
-          <div class="pile-label">Left answer pile</div>
+          <div class="pile-label">Left edge hint</div>
         </div>
-        <div class="pile-label">Cards land here when the missing letter is i or í.</div>
+        <div class="pile-label">Blue edge glow becomes stronger as the card moves left.</div>
       </div>
 
       <div class="pile middle">
         <div>
-          <div class="pile-title">Word cards</div>
-          <div class="pile-label">Middle source pile</div>
+          <div class="pile-title">Word card</div>
+          <div class="pile-label">Main interaction</div>
         </div>
         <div class="card-stack" aria-hidden="true">
           <div class="word-card behind">slovo _</div>
@@ -338,14 +338,14 @@
       <div class="pile right">
         <div>
           <div class="pile-title">y / ý</div>
-          <div class="pile-label">Right answer pile</div>
+          <div class="pile-label">Right edge hint</div>
         </div>
-        <div class="pile-label">Cards land here when the missing letter is y or ý.</div>
+        <div class="pile-label">Gold edge glow becomes stronger as the card moves right.</div>
       </div>
     </div>
 
     <div class="motion-note">
-      Keep the language as <strong>sorting</strong>, <strong>moving</strong>, and <strong>choosing a pile</strong>. Avoid copy such as "swipe left", "swipe right", "like", "reject", "match", or "nope".
+      Keep the language as <strong>moving</strong>, <strong>dragging</strong>, and <strong>choosing an answer</strong>. Avoid copy such as "swipe left", "swipe right", "like", "reject", "match", or "nope".
     </div>
   </section>
 
@@ -354,22 +354,22 @@
     <div class="grid">
       <div class="panel">
         <h3>Primary input</h3>
-        <p>Tap the left or right pile. This is discoverable for kids, reliable on desktop, and works even before they understand gestures.</p>
+        <p>Drag the card horizontally. Submit only after a meaningful sideways distance so accidental tiny movements snap back.</p>
       </div>
       <div class="panel">
-        <h3>Gesture input</h3>
-        <p>Drag or flick the top card into a side pile. The card should visibly follow the finger, then settle into the selected pile.</p>
+        <h3>Minimal chrome</h3>
+        <p>The header should contain only a letter-set chooser, defaulting to all letters, and an about button for feedback and project links.</p>
       </div>
       <div class="panel">
-        <h3>Keyboard input</h3>
-        <p>Support left and right arrows for accessibility, quick testing, and desktop play.</p>
+        <h3>Feedback</h3>
+        <p>Correct answers turn the card into a small confetti burst. Incorrect answers split the card into falling strips and use a short corrective message without shame.</p>
       </div>
     </div>
     <ul class="tag-list" aria-label="Interaction tags">
-      <li>tap-first</li>
-      <li>drag-friendly</li>
-      <li>keyboard-ready</li>
-      <li>sorting-game framing</li>
+      <li>drag-first</li>
+      <li>card-first</li>
+      <li>minimal chrome</li>
+      <li>edge hints</li>
       <li>no dating-app wording</li>
     </ul>
   </section>
@@ -378,13 +378,13 @@
     <h2>Game Loop</h2>
     <ol>
       <li>Choose a lesson or continue the current practice set.</li>
-      <li>Show the next word card in the middle pile with the target letter blanked out.</li>
-      <li>The child sends the card to <strong>i/í</strong> or <strong>y/ý</strong>.</li>
-      <li>Animate the card into the chosen side pile.</li>
-      <li>Give short feedback, then reveal or emphasize the correct full word.</li>
+      <li>Show the next word card in the center with the target letter blanked out.</li>
+      <li>The child drags the card left or right. The blank fills with the hinted letter during the drag.</li>
+      <li>If the card crosses the drag threshold, submit the chosen answer; otherwise snap back.</li>
+      <li>For correct answers, let the card become a small confetti burst. For mistakes, split the card into falling strips, reveal the correct full word, and keep the correction gentle.</li>
       <li>Advance until the round is complete, then show score, streak, and next-step recommendation.</li>
     </ol>
-    <p>The middle pile should visibly shrink during a round while the side piles fill up. That makes progress obvious without extra instructional text.</p>
+    <p>Keep routine progress indicators out of the main screen unless they are needed for a round-complete state. The main screen should stay centered on the card.</p>
   </section>
 
   <section>
@@ -453,7 +453,7 @@
       </div>
       <div class="panel">
         <h3>Task 2: Build The App</h3>
-        <p>Owns the PWA shell, data loader, engine, three-pile interaction, animations, scoring, persistence, tests, preview page, manifest, service worker, and icons.</p>
+        <p>Owns the PWA shell, data loader, engine, drag-card interaction, animations, scoring, persistence, tests, preview page, manifest, service worker, and icons.</p>
         <p>The app should consume only rows whose <code>status</code> and <code>pack</code> are intentionally enabled. It must ignore unreviewed <code>candidate</code> rows by default.</p>
       </div>
       <div class="panel">
@@ -508,6 +508,10 @@
         <tr>
           <th>Namespaced storage</th>
           <td>Use versioned localStorage keys such as <code>vybrane-slova.progress.v1</code>, <code>vybrane-slova.settings.v1</code>, and <code>vybrane-slova.lesson</code>. Plan migrations up front so word-set changes do not strand old progress.</td>
+        </tr>
+        <tr>
+          <th>Offline about sheet</th>
+          <td>Reuse Clockwork's in-app about/support sheet pattern: keep the sheet inside the PWA, include a feedback mail link, link to <code>aidistillery.dev</code>, and avoid requiring network just to explain the app.</td>
         </tr>
         <tr>
           <th>Dev-only phone preview</th>

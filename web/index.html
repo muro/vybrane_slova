@@ -34,10 +34,12 @@
   html,
   body {
     margin: 0;
+    width: 100%;
     min-height: 100%;
     background: var(--paper);
     color: var(--ink);
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    overflow-x: hidden;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
   }
@@ -51,160 +53,144 @@
   }
 
   .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100vw;
     min-height: 100dvh;
+    overflow: hidden;
     padding: calc(18px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     display: grid;
     grid-template-rows: auto 1fr auto;
     gap: 16px;
   }
 
+  .edge-hint {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: min(34vw, 190px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .edge-hint.left {
+    left: 0;
+    background: linear-gradient(90deg, rgba(37, 99, 184, var(--edge-left-alpha, 0)) 0%, rgba(37, 99, 184, 0) 100%);
+  }
+
+  .edge-hint.right {
+    right: 0;
+    background: linear-gradient(270deg, rgba(168, 85, 12, var(--edge-right-alpha, 0)) 0%, rgba(168, 85, 12, 0) 100%);
+  }
+
+  .topbar,
+  .board,
+  .feedback {
+    position: relative;
+    z-index: 1;
+  }
+
   .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 14px;
+    min-height: 40px;
   }
 
-  h1 {
-    margin: 0;
-    font-size: 22px;
-    line-height: 1.1;
-    letter-spacing: 0;
-  }
-
-  .stats {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    color: var(--muted);
-    font-size: 14px;
-    white-space: nowrap;
-  }
-
-  .stat {
-    min-width: 74px;
-    padding: 7px 10px;
-    border: 1px solid var(--line);
+  .chrome-button,
+  .letter-filter {
+    min-height: 40px;
+    border: 1px solid rgba(37, 34, 29, 0.12);
     border-radius: 8px;
     background: #fffaf0;
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(58, 43, 22, 0.06);
+  }
+
+  .letter-filter {
+    max-width: min(46vw, 172px);
+    padding: 8px 30px 8px 12px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .chrome-button {
+    min-width: 40px;
+    padding: 8px 11px;
+    display: inline-grid;
+    place-items: center;
+    font-weight: 900;
     text-align: center;
+    cursor: pointer;
+  }
+
+  .chrome-button:focus-visible,
+  .letter-filter:focus-visible {
+    outline: 3px solid rgba(37, 99, 184, 0.28);
+    outline-offset: 2px;
   }
 
   .board {
-    width: min(1060px, 100%);
+    width: min(620px, calc(100vw - 28px));
+    max-width: 100%;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: minmax(142px, 1fr) minmax(260px, 1.25fr) minmax(142px, 1fr);
-    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
   }
 
   .pile {
-    min-height: 360px;
-    border: 2px solid rgba(37, 34, 29, 0.12);
-    border-radius: 8px;
-    padding: 16px;
+    width: 100%;
+    min-width: 0;
+    min-height: min(520px, calc(100dvh - 168px));
+    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     text-align: left;
-  }
-
-  .answer-pile {
-    cursor: pointer;
-    background: #fff;
-    color: inherit;
-    transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
-  }
-
-  .answer-pile:hover,
-  .answer-pile:focus-visible {
-    transform: translateY(-2px);
-    border-color: rgba(37, 34, 29, 0.28);
-    box-shadow: 0 10px 24px rgba(58, 43, 22, 0.12);
-    outline: none;
-  }
-
-  .answer-pile.left {
-    background: var(--blue);
-  }
-
-  .answer-pile.right {
-    background: var(--gold);
-  }
-
-  .answer-pile.drop-target {
-    transform: translateY(-2px);
-    border-color: rgba(37, 34, 29, 0.34);
-    box-shadow: 0 12px 28px rgba(58, 43, 22, 0.16);
   }
 
   .source-pile {
     position: relative;
-    overflow: hidden;
-    background: #fffaf0;
-  }
-
-  .pile-letter {
-    display: block;
-    font-size: clamp(40px, 8vw, 78px);
-    line-height: 0.92;
-    font-weight: 900;
-    letter-spacing: 0;
-    white-space: nowrap;
-  }
-
-  .pile-name {
-    display: block;
-    margin-top: 8px;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .pile-count {
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 700;
+    overflow: visible;
   }
 
   .card-area {
     position: relative;
-    min-height: 256px;
+    width: 100%;
+    min-width: 0;
+    min-height: 354px;
     display: grid;
     place-items: center;
   }
 
-  .ghost-card,
   .word-card {
-    width: min(360px, 100%);
-    min-height: 196px;
+    width: min(360px, calc(100vw - 28px));
+    max-width: 100%;
+    min-height: 304px;
     border: 2px solid rgba(37, 34, 29, 0.15);
     border-radius: 8px;
     background: #fffefa;
     box-shadow: var(--shadow);
   }
 
-  .ghost-card {
-    position: absolute;
-    inset: auto 50% 28px auto;
-    transform: translateX(50%) rotate(-3deg);
-    opacity: 0.23;
-  }
-
   .word-card {
     position: relative;
     z-index: 1;
-    padding: 20px;
+    padding: 26px 20px 22px;
     display: grid;
-    align-content: center;
-    gap: 14px;
+    grid-template-rows: minmax(118px, 1fr) auto 28px;
+    align-content: stretch;
+    gap: 18px;
     text-align: center;
     cursor: grab;
     touch-action: none;
     user-select: none;
     transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg));
     transition: transform 260ms ease, opacity 260ms ease;
+    overflow: hidden;
   }
 
   .word-card.dragging {
@@ -222,14 +208,59 @@
     opacity: 0;
   }
 
+  .word-card.exit-correct {
+    opacity: 0;
+    transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.94) rotate(var(--drag-rotate, 0deg));
+    transition: opacity 120ms ease, transform 160ms ease;
+  }
+
+  .word-card.exit-wrong {
+    animation: wrong-card-fade 760ms ease forwards;
+  }
+
+  @keyframes wrong-card-fade {
+    0%, 16% {
+      opacity: 1;
+    }
+
+    26%, 100% {
+      opacity: 0;
+      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.98) rotate(var(--drag-rotate, 0deg));
+    }
+  }
+
   .masked-word {
+    align-self: end;
     font-size: clamp(42px, 9vw, 72px);
     line-height: 1;
     font-weight: 900;
     letter-spacing: 0;
   }
 
+  .letter-slot {
+    display: inline-grid;
+    min-width: 0.66em;
+    min-height: 0.96em;
+    margin: 0 0.02em;
+    border-radius: 8px;
+    place-items: center;
+    transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+  }
+
+  .letter-slot.fill-i {
+    background: var(--blue-strong);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(37, 99, 184, 0.22);
+  }
+
+  .letter-slot.fill-y {
+    background: var(--gold-strong);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(168, 85, 12, 0.24);
+  }
+
   .sentence {
+    align-self: end;
     margin: 0;
     color: var(--muted);
     font-size: 20px;
@@ -240,6 +271,141 @@
     min-height: 28px;
     font-size: 18px;
     font-weight: 800;
+  }
+
+  .confetti-layer {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    width: var(--confetti-width, 7px);
+    height: var(--confetti-height, 11px);
+    border-radius: 2px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7) rotate(0deg);
+    animation: confetti-pop 760ms cubic-bezier(0.16, 0.92, 0.32, 1) forwards;
+    animation-delay: var(--confetti-delay, 0ms);
+  }
+
+  .card-effect-piece {
+    position: absolute;
+    left: var(--piece-left);
+    top: var(--piece-top);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .card-confetti-piece {
+    width: var(--piece-width, 8px);
+    height: var(--piece-height, 12px);
+    border-radius: 2px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.75) rotate(0deg);
+    animation: card-confetti-pop 840ms cubic-bezier(0.14, 0.84, 0.28, 1) forwards;
+    animation-delay: var(--piece-delay, 0ms);
+  }
+
+  .paper-strip {
+    width: var(--piece-width);
+    height: var(--piece-height);
+    overflow: hidden;
+    border: 1px solid rgba(168, 47, 53, 0.18);
+    border-radius: 7px;
+    background: #fffefa;
+    box-shadow: 0 12px 24px rgba(58, 43, 22, 0.12);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--piece-start-rotate, 0deg));
+    animation: paper-strip-fall 880ms cubic-bezier(0.22, 0.62, 0.36, 1) forwards;
+    animation-delay: var(--piece-delay, 0ms);
+  }
+
+  .paper-strip::before,
+  .paper-strip::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    z-index: 2;
+    border-top: 1px dashed rgba(168, 47, 53, 0.18);
+    pointer-events: none;
+  }
+
+  .paper-strip::before {
+    top: 0;
+  }
+
+  .paper-strip::after {
+    bottom: 0;
+  }
+
+  .paper-strip-card {
+    position: absolute;
+    left: 0;
+    top: calc(-1 * var(--strip-offset));
+    width: var(--card-width);
+    min-height: var(--card-height);
+    height: var(--card-height);
+    box-shadow: none;
+    transform: none !important;
+    transition: none !important;
+    pointer-events: none;
+  }
+
+  @keyframes confetti-pop {
+    12% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--confetti-x)), calc(-50% + var(--confetti-y))) scale(1) rotate(var(--confetti-rotate));
+    }
+  }
+
+  @keyframes card-confetti-pop {
+    8% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--piece-x)), calc(-50% + var(--piece-y))) scale(0.78) rotate(var(--piece-rotate));
+    }
+  }
+
+  @keyframes paper-strip-fall {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -52%) rotate(var(--piece-start-rotate, 0deg));
+    }
+
+    12% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--piece-x)), calc(-50% + var(--piece-y))) rotate(var(--piece-rotate));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-confetti-piece,
+    .paper-strip,
+    .confetti-piece {
+      animation-duration: 240ms;
+    }
+
+    .word-card.exit-wrong {
+      animation-duration: 240ms;
+    }
   }
 
   .feedback {
@@ -272,19 +438,90 @@
     color: var(--blue-strong);
   }
 
-  .reset {
-    border: 1px solid var(--line);
+  .feedback.quiet {
+    visibility: hidden;
+  }
+
+  .about-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    padding: 24px;
+    display: grid;
+    place-items: center;
+    background: rgba(37, 34, 29, 0.24);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  .about-overlay[hidden] {
+    display: none;
+  }
+
+  .about-sheet {
+    position: relative;
+    width: min(340px, 100%);
+    padding: 30px 24px 24px;
+    border: 1px solid rgba(37, 34, 29, 0.14);
     border-radius: 8px;
-    background: #fffaf0;
-    color: var(--ink);
-    padding: 8px 11px;
+    background: var(--paper);
+    box-shadow: 0 22px 54px rgba(37, 34, 29, 0.24);
+    text-align: center;
+  }
+
+  .about-sheet h2 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .about-sheet p {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .about-sheet a {
+    color: var(--blue-strong);
     font-weight: 800;
+    text-decoration: none;
+  }
+
+  .support-link {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    background: var(--blue-strong);
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(37, 99, 184, 0.18);
+  }
+
+  .privacy-note {
+    font-size: 12px !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sheet-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 24px;
+    line-height: 1;
+    padding: 6px 9px;
     cursor: pointer;
   }
 
-  .reset:focus-visible {
-    outline: 3px solid rgba(37, 99, 184, 0.3);
+  .sheet-close:focus-visible {
+    outline: 3px solid rgba(37, 99, 184, 0.28);
     outline-offset: 2px;
+    border-radius: 8px;
   }
 
   @media (max-width: 760px) {
@@ -295,55 +532,24 @@
     }
 
     .topbar {
-      align-items: flex-start;
-    }
-
-    h1 {
-      font-size: 20px;
-    }
-
-    .stats {
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      font-size: 13px;
-    }
-
-    .stat {
-      min-width: 64px;
-      padding: 6px 8px;
-    }
-
-    .board {
-      min-height: 0;
-      grid-template-columns: 1fr 1.25fr 1fr;
-      gap: 8px;
+      min-height: 38px;
     }
 
     .pile {
-      min-height: 450px;
-      padding: 10px;
-    }
-
-    .pile-letter {
-      font-size: clamp(31px, 12vw, 56px);
-    }
-
-    .pile-name,
-    .pile-count {
-      font-size: 12px;
+      min-height: min(510px, calc(100dvh - 152px));
     }
 
     .card-area {
-      min-height: 310px;
-    }
-
-    .word-card,
-    .ghost-card {
-      min-height: 238px;
+      min-height: 386px;
     }
 
     .word-card {
-      padding: 14px 10px;
+      min-height: 328px;
+    }
+
+    .word-card {
+      padding: 20px 12px 18px;
+      grid-template-rows: minmax(136px, 1fr) auto 26px;
     }
 
     .sentence {
@@ -356,96 +562,75 @@
   }
 
   @media (max-width: 480px) {
-    .board {
-      grid-template-columns: minmax(74px, 0.78fr) minmax(154px, 1.15fr) minmax(74px, 0.78fr);
-    }
-
     .pile {
-      min-height: 430px;
-      padding: 8px;
-    }
-
-    .pile-name {
-      display: none;
+      min-height: min(500px, calc(100dvh - 148px));
     }
 
     .masked-word {
       font-size: 42px;
     }
 
-    .answer-pile .pile-letter {
-      font-size: 30px;
-    }
   }
 </style>
 </head>
 <body>
+<div class="edge-hint left" id="edge-left" aria-hidden="true"></div>
+<div class="edge-hint right" id="edge-right" aria-hidden="true"></div>
 <main class="app">
-  <header class="topbar">
-    <h1>Vybrané slová</h1>
-    <div class="stats" aria-live="polite">
-      <div class="stat"><span id="round-progress">0/0</span></div>
-      <div class="stat"><span id="score">0 správne</span></div>
-      <button class="reset" type="button" id="reset-progress">Znova</button>
-    </div>
+  <header class="topbar" aria-label="Nastavenia">
+    <select class="letter-filter" id="letter-filter" aria-label="Vybrať písmeno">
+      <option value="all">všetky</option>
+    </select>
+    <button class="chrome-button" type="button" id="about-open" aria-label="O aplikácii">?</button>
   </header>
 
   <section class="board" aria-label="Triedenie kartičiek">
-    <button class="pile answer-pile left" type="button" id="answer-i" aria-label="Vybrať i alebo í">
-      <span>
-        <span class="pile-letter">i / í</span>
-        <span class="pile-name">ľavá kôpka</span>
-      </span>
-      <span class="pile-count"><span id="left-count">0</span> kariet</span>
-    </button>
-
-    <div class="pile source-pile" aria-live="polite">
-      <span>
-        <span class="pile-letter">karta</span>
-        <span class="pile-name">stredná kôpka</span>
-      </span>
+      <div class="pile source-pile" aria-live="polite">
       <div class="card-area">
-        <div class="ghost-card" aria-hidden="true"></div>
         <article class="word-card" id="word-card">
           <div class="masked-word" id="masked-word">...</div>
           <p class="sentence" id="sentence">Načítavam kartičky.</p>
           <div class="full-word" id="full-word"></div>
         </article>
+        <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
       </div>
-      <span class="pile-count"><span id="remaining-count">0</span> v strede</span>
     </div>
-
-    <button class="pile answer-pile right" type="button" id="answer-y" aria-label="Vybrať y alebo ý">
-      <span>
-        <span class="pile-letter">y / ý</span>
-        <span class="pile-name">pravá kôpka</span>
-      </span>
-      <span class="pile-count"><span id="right-count">0</span> kariet</span>
-    </button>
   </section>
 
-  <div class="feedback" id="feedback">Vyber kôpku pre hornú kartu.</div>
+  <div class="feedback quiet" id="feedback" aria-live="polite"></div>
 </main>
+<div class="about-overlay" id="about-overlay" hidden>
+  <section class="about-sheet" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <button class="sheet-close" type="button" id="about-close" aria-label="Zavrieť">×</button>
+    <h2 id="about-title">Vybrané slová</h2>
+    <p>Krátke precvičovanie slov, kde si dieťa vyberá medzi i/í a y/ý potiahnutím kartičky.</p>
+    <a class="support-link" href="mailto:vybrane-slova@aidistillery.dev?subject=Vybrane%20slova%20feedback">Napísať spätnú väzbu</a>
+    <p>Vytvorené na <a href="https://aidistillery.dev" target="_blank" rel="noopener noreferrer">aidistillery.dev</a></p>
+    <p class="privacy-note">Bez zbierania dát</p>
+  </section>
+</div>
 
 <script src="./engine.js?v=3"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
 
 const elements = {
-  answerI: document.querySelector('#answer-i'),
-  answerY: document.querySelector('#answer-y'),
+  edgeLeft: document.querySelector('#edge-left'),
+  edgeRight: document.querySelector('#edge-right'),
   card: document.querySelector('#word-card'),
+  confettiLayer: document.querySelector('#confetti-layer'),
   maskedWord: document.querySelector('#masked-word'),
   sentence: document.querySelector('#sentence'),
   fullWord: document.querySelector('#full-word'),
   feedback: document.querySelector('#feedback'),
-  roundProgress: document.querySelector('#round-progress'),
-  score: document.querySelector('#score'),
-  leftCount: document.querySelector('#left-count'),
-  rightCount: document.querySelector('#right-count'),
-  remainingCount: document.querySelector('#remaining-count'),
-  resetProgress: document.querySelector('#reset-progress'),
+  letterFilter: document.querySelector('#letter-filter'),
+  aboutOpen: document.querySelector('#about-open'),
+  aboutClose: document.querySelector('#about-close'),
+  aboutOverlay: document.querySelector('#about-overlay'),
+  aboutSheet: document.querySelector('.about-sheet'),
 };
+
+let confettiTimer = null;
 
 function getStorage() {
   try {
@@ -456,15 +641,41 @@ function getStorage() {
 }
 
 const appStorage = getStorage();
+const LETTER_ORDER = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
+
+function loadSettings(storage) {
+  if (!storage) return { selectedLetter: 'all' };
+  try {
+    const raw = storage.getItem(Engine.STORAGE_KEYS.settings);
+    const saved = raw ? JSON.parse(raw) : {};
+    return {
+      selectedLetter: typeof saved.selectedLetter === 'string' ? saved.selectedLetter : 'all',
+    };
+  } catch (_error) {
+    return { selectedLetter: 'all' };
+  }
+}
+
+function saveSettings() {
+  if (!appStorage) return;
+  try {
+    appStorage.setItem(Engine.STORAGE_KEYS.settings, JSON.stringify({
+      selectedLetter: state.selectedLetter,
+    }));
+  } catch (_error) {
+    // Practice should continue even if storage is unavailable.
+  }
+}
+
+const settings = loadSettings(appStorage);
 
 const state = {
   cards: [],
   round: [],
   index: 0,
   correct: 0,
-  chosenI: 0,
-  chosenY: 0,
   locked: false,
+  selectedLetter: settings.selectedLetter,
   progress: Engine.loadProgress(appStorage),
 };
 
@@ -478,6 +689,7 @@ const drag = {
   lastY: 0,
   startTime: 0,
   moved: false,
+  hintAnswer: null,
   lastPointerAt: 0,
 };
 
@@ -486,17 +698,165 @@ function currentCard() {
 }
 
 function renderStats() {
-  const total = state.round.length;
-  elements.roundProgress.textContent = `${Math.min(state.index + 1, total)}/${total}`;
-  elements.score.textContent = `${state.correct} správne`;
-  elements.leftCount.textContent = state.chosenI;
-  elements.rightCount.textContent = state.chosenY;
-  elements.remainingCount.textContent = Math.max(total - state.index, 0);
+  document.title = state.round.length
+    ? `Vybrané slová ${Math.min(state.index + 1, state.round.length)}/${state.round.length}`
+    : 'Vybrané slová';
+}
+
+function cardsForSelectedLetter() {
+  if (state.selectedLetter === 'all') return state.cards;
+  return state.cards.filter(card => card.selected_letter === state.selectedLetter);
+}
+
+function createCurrentRound() {
+  return Engine.createRound(cardsForSelectedLetter(), { seed: Date.now() });
+}
+
+function populateLetterFilter() {
+  const available = new Set(state.cards.map(card => card.selected_letter).filter(Boolean));
+  const letters = LETTER_ORDER.filter(letter => available.has(letter));
+  if (state.selectedLetter !== 'all' && !available.has(state.selectedLetter)) {
+    state.selectedLetter = 'all';
+  }
+
+  elements.letterFilter.textContent = '';
+  const allOption = document.createElement('option');
+  allOption.value = 'all';
+  allOption.textContent = 'všetky';
+  elements.letterFilter.append(allOption);
+
+  for (const letter of letters) {
+    const option = document.createElement('option');
+    option.value = letter;
+    option.textContent = letter;
+    elements.letterFilter.append(option);
+  }
+
+  elements.letterFilter.value = state.selectedLetter;
 }
 
 function setFeedback(text, className = '') {
   elements.feedback.className = `feedback ${className}`.trim();
   elements.feedback.textContent = text;
+}
+
+function clearConfetti() {
+  if (confettiTimer) {
+    window.clearTimeout(confettiTimer);
+    confettiTimer = null;
+  }
+  elements.confettiLayer.textContent = '';
+}
+
+function cardBoxInEffectLayer() {
+  const cardRect = elements.card.getBoundingClientRect();
+  const layerRect = elements.confettiLayer.getBoundingClientRect();
+  return {
+    left: cardRect.left - layerRect.left,
+    top: cardRect.top - layerRect.top,
+    width: cardRect.width,
+    height: cardRect.height,
+  };
+}
+
+function addEffectPiece(className, left, top, customProperties = {}) {
+  const piece = document.createElement('div');
+  piece.className = `card-effect-piece ${className}`;
+  piece.style.setProperty('--piece-left', `${left}px`);
+  piece.style.setProperty('--piece-top', `${top}px`);
+  for (const [name, value] of Object.entries(customProperties)) {
+    piece.style.setProperty(name, value);
+  }
+  elements.confettiLayer.append(piece);
+  return piece;
+}
+
+function showCardConfetti(answerGroup) {
+  const answerColors = answerGroup === 'i'
+    ? ['#2563b8', '#60a5fa', '#d9edff']
+    : ['#a8550c', '#f59e0b', '#ffe4b8'];
+  const colors = [...answerColors, '#177245', '#db2777', '#facc15'];
+  const box = cardBoxInEffectLayer();
+  const centerX = box.left + box.width / 2;
+  const centerY = box.top + box.height / 2;
+  clearConfetti();
+
+  for (let index = 0; index < 34; index++) {
+    const left = box.left + 18 + Math.random() * Math.max(1, box.width - 36);
+    const top = box.top + 18 + Math.random() * Math.max(1, box.height - 36);
+    const fromCenterX = left - centerX;
+    const fromCenterY = top - centerY;
+    const angle = Math.atan2(fromCenterY, fromCenterX) + (-0.8 + Math.random() * 1.6);
+    const distance = 78 + Math.random() * 132;
+    const piece = addEffectPiece('card-confetti-piece', left, top, {
+      '--piece-x': `${Math.cos(angle) * distance}px`,
+      '--piece-y': `${Math.sin(angle) * distance - 34 - Math.random() * 42}px`,
+      '--piece-rotate': `${-320 + Math.random() * 640}deg`,
+      '--piece-delay': `${index * 7}ms`,
+      '--piece-width': `${5 + Math.random() * 8}px`,
+      '--piece-height': `${7 + Math.random() * 11}px`,
+    });
+    piece.style.background = colors[index % colors.length];
+  }
+
+  confettiTimer = window.setTimeout(clearConfetti, 1120);
+}
+
+function showWrongFallApart() {
+  const box = cardBoxInEffectLayer();
+  const strips = 5;
+  clearConfetti();
+
+  for (let index = 0; index < strips; index++) {
+    const stripHeight = box.height / strips;
+    const left = box.left + box.width / 2 + (-5 + Math.random() * 10);
+    const top = box.top + stripHeight * (index + 0.5);
+    const piece = addEffectPiece('paper-strip', left, top, {
+      '--piece-width': `${box.width}px`,
+      '--piece-height': `${Math.max(28, stripHeight + 4)}px`,
+      '--card-width': `${box.width}px`,
+      '--card-height': `${box.height}px`,
+      '--strip-offset': `${stripHeight * index}px`,
+      '--piece-x': `${-48 + Math.random() * 96}px`,
+      '--piece-y': `${230 + index * 24 + Math.random() * 42}px`,
+      '--piece-rotate': `${-28 + Math.random() * 56}deg`,
+      '--piece-start-rotate': `${-3 + Math.random() * 6}deg`,
+      '--piece-delay': `${80 + index * 36}ms`,
+    });
+    const cardSlice = elements.card.cloneNode(true);
+    cardSlice.removeAttribute('id');
+    cardSlice.classList.remove('dragging', 'hint-left', 'hint-right', 'move-left', 'move-right', 'exit-correct', 'exit-wrong');
+    cardSlice.classList.add('paper-strip-card');
+    cardSlice.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+    piece.append(cardSlice);
+  }
+
+  confettiTimer = window.setTimeout(clearConfetti, 1100);
+}
+
+function letterForAnswer(card, answerGroup) {
+  const maskIndex = card.masked_surface.indexOf('_');
+  const correctLetter = maskIndex >= 0 ? card.surface[maskIndex] : '';
+  const isLong = correctLetter === 'í' || correctLetter === 'ý';
+  if (answerGroup === 'i') return isLong ? 'í' : 'i';
+  if (answerGroup === 'y') return isLong ? 'ý' : 'y';
+  return '_';
+}
+
+function renderMaskedWord(card, answerGroup = null) {
+  elements.maskedWord.textContent = '';
+  const maskIndex = card.masked_surface.indexOf('_');
+  if (maskIndex < 0) {
+    elements.maskedWord.textContent = card.masked_surface;
+    return;
+  }
+
+  elements.maskedWord.append(document.createTextNode(card.masked_surface.slice(0, maskIndex)));
+  const slot = document.createElement('span');
+  slot.className = `letter-slot${answerGroup ? ` fill-${answerGroup}` : ''}`;
+  slot.textContent = letterForAnswer(card, answerGroup);
+  elements.maskedWord.append(slot);
+  elements.maskedWord.append(document.createTextNode(card.masked_surface.slice(maskIndex + 1)));
 }
 
 function render() {
@@ -505,20 +865,20 @@ function render() {
   renderStats();
 
   if (!card) {
+    elements.card.classList.remove('move-left', 'move-right', 'exit-correct', 'exit-wrong');
+    clearDragStyles();
+    clearConfetti();
     elements.maskedWord.textContent = 'hotovo';
     elements.sentence.textContent = `Skóre ${state.correct}/${total}`;
     elements.fullWord.textContent = '';
     setFeedback('Kolo je hotové.', 'done');
-    elements.answerI.disabled = true;
-    elements.answerY.disabled = true;
     return;
   }
 
-  elements.answerI.disabled = state.locked;
-  elements.answerY.disabled = state.locked;
-  elements.card.classList.remove('move-left', 'move-right');
+  elements.card.classList.remove('move-left', 'move-right', 'exit-correct', 'exit-wrong');
   clearDragStyles();
-  elements.maskedWord.textContent = card.masked_surface;
+  clearConfetti();
+  renderMaskedWord(card);
   elements.sentence.textContent = card.prompt_sentence;
   elements.fullWord.textContent = '';
 }
@@ -527,7 +887,7 @@ function nextCard() {
   state.index++;
   state.locked = false;
   render();
-  if (currentCard()) setFeedback('Vyber kôpku pre hornú kartu.');
+  if (currentCard()) setFeedback('', 'quiet');
 }
 
 function choose(answerGroup) {
@@ -538,21 +898,27 @@ function choose(answerGroup) {
   state.locked = true;
   drag.active = false;
   drag.source = null;
-  clearTargetPile();
   elements.card.classList.remove('dragging');
-  elements.answerI.disabled = true;
-  elements.answerY.disabled = true;
   const isCorrect = Engine.checkAnswer(card, answerGroup);
-  if (answerGroup === 'i') state.chosenI++;
-  if (answerGroup === 'y') state.chosenY++;
   if (isCorrect) state.correct++;
 
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
   Engine.saveProgress(state.progress, appStorage);
 
-  elements.card.classList.add(answerGroup === 'i' ? 'move-left' : 'move-right');
-  elements.fullWord.textContent = card.full_sentence;
-  setFeedback(isCorrect ? `Správne: ${card.surface}` : `Patrí do ${card.answer_group === 'i' ? 'i/í' : 'y/ý'}: ${card.surface}`, isCorrect ? 'good' : 'needs-work');
+  setEdgeHints(answerGroup === 'i' ? -submitThreshold() : submitThreshold());
+  if (isCorrect) {
+    setDragHint(answerGroup);
+    elements.card.classList.add('exit-correct');
+    elements.fullWord.textContent = card.full_sentence;
+    showCardConfetti(answerGroup);
+    setFeedback('', 'quiet');
+  } else {
+    setDragHint(card.answer_group);
+    elements.card.classList.add('exit-wrong');
+    elements.fullWord.textContent = card.full_sentence;
+    showWrongFallApart();
+    setFeedback(`Patrí do ${card.answer_group === 'i' ? 'i/í' : 'y/ý'}: ${card.surface}`, 'needs-work');
+  }
   renderStats();
   window.setTimeout(nextCard, 980);
 }
@@ -561,54 +927,79 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function submitThreshold() {
+  return Math.max(72, Math.min(108, elements.card.offsetWidth * 0.28));
+}
+
+function setEdgeHints(dx) {
+  const threshold = submitThreshold();
+  const distance = clamp(Math.abs(dx) / threshold, 0, 1);
+  const base = 0.09;
+  const strong = 0.34;
+  const subtle = 0.025;
+  let left = base;
+  let right = base;
+
+  if (dx < -8) {
+    left = base + (strong - base) * distance;
+    right = base - (base - subtle) * distance;
+  } else if (dx > 8) {
+    right = base + (strong - base) * distance;
+    left = base - (base - subtle) * distance;
+  }
+
+  elements.edgeLeft.style.setProperty('--edge-left-alpha', left.toFixed(3));
+  elements.edgeRight.style.setProperty('--edge-right-alpha', right.toFixed(3));
+}
+
+function clearEdgeHints() {
+  elements.edgeLeft.style.setProperty('--edge-left-alpha', '0');
+  elements.edgeRight.style.setProperty('--edge-right-alpha', '0');
+}
+
 function setCardDrag(dx, dy) {
   const rotation = clamp(dx / 18, -10, 10);
   elements.card.style.setProperty('--drag-x', `${dx}px`);
   elements.card.style.setProperty('--drag-y', `${dy}px`);
   elements.card.style.setProperty('--drag-rotate', `${rotation}deg`);
+  setEdgeHints(dx);
+  if (dx < -22) {
+    setDragHint('i');
+  } else if (dx > 22) {
+    setDragHint('y');
+  } else {
+    setDragHint(null);
+  }
+}
+
+function setDragHint(answerGroup) {
+  if (drag.hintAnswer === answerGroup) return;
+  drag.hintAnswer = answerGroup;
+  elements.card.classList.toggle('hint-left', answerGroup === 'i');
+  elements.card.classList.toggle('hint-right', answerGroup === 'y');
+  const card = currentCard();
+  if (card) renderMaskedWord(card, answerGroup);
 }
 
 function clearDragStyles() {
-  elements.card.classList.remove('dragging');
+  elements.card.classList.remove('dragging', 'hint-left', 'hint-right');
+  drag.hintAnswer = null;
+  clearEdgeHints();
   elements.card.style.removeProperty('--drag-x');
   elements.card.style.removeProperty('--drag-y');
   elements.card.style.removeProperty('--drag-rotate');
 }
 
-function clearTargetPile() {
-  elements.answerI.classList.remove('drop-target');
-  elements.answerY.classList.remove('drop-target');
-}
-
-function setTargetPile(answerGroup) {
-  elements.answerI.classList.toggle('drop-target', answerGroup === 'i');
-  elements.answerY.classList.toggle('drop-target', answerGroup === 'y');
-}
-
-function targetFromPoint(clientX, clientY) {
-  const element = document.elementFromPoint(clientX, clientY);
-  if (element && elements.answerI.contains(element)) return 'i';
-  if (element && elements.answerY.contains(element)) return 'y';
-  return null;
-}
-
-function targetFromDrag(clientX, clientY, dx) {
-  const overPile = targetFromPoint(clientX, clientY);
-  if (overPile) return overPile;
-
-  const elapsed = Math.max(1, performance.now() - drag.startTime);
-  const velocityX = dx / elapsed;
-  const threshold = Math.max(70, elements.card.offsetWidth * 0.34);
-  const flickDistance = Math.max(46, elements.card.offsetWidth * 0.2);
-  if (dx <= -threshold || (dx <= -flickDistance && velocityX <= -0.7)) return 'i';
-  if (dx >= threshold || (dx >= flickDistance && velocityX >= 0.7)) return 'y';
+function targetFromDrag(dx) {
+  const threshold = submitThreshold();
+  if (dx <= -threshold) return 'i';
+  if (dx >= threshold) return 'y';
   return null;
 }
 
 function snapCardBack() {
   drag.active = false;
   drag.source = null;
-  clearTargetPile();
   elements.card.classList.remove('dragging');
   setCardDrag(0, 0);
   window.setTimeout(() => {
@@ -626,7 +1017,9 @@ function beginDrag(source, id, clientX, clientY) {
   drag.lastY = clientY;
   drag.startTime = performance.now();
   drag.moved = false;
+  drag.hintAnswer = null;
   elements.card.classList.add('dragging');
+  setEdgeHints(0);
 }
 
 function updateDrag(clientX, clientY) {
@@ -638,16 +1031,17 @@ function updateDrag(clientX, clientY) {
   const dy = clientY - drag.startY;
   if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
   setCardDrag(dx, dy);
-  setTargetPile(targetFromDrag(clientX, clientY, dx));
 }
 
 function finishDrag(clientX, clientY) {
   const dx = clientX - drag.startX;
-  const answerGroup = drag.moved ? targetFromDrag(clientX, clientY, dx) : null;
+  const wasMoved = drag.moved;
+  const answerGroup = wasMoved ? targetFromDrag(dx) : null;
   if (answerGroup) {
     choose(answerGroup);
   } else {
     snapCardBack();
+    if (wasMoved) setFeedback('Potiahni viac do strany.');
   }
 }
 
@@ -749,17 +1143,29 @@ function onTouchCancel(event) {
   event.preventDefault();
 }
 
+function openAbout() {
+  elements.aboutOverlay.hidden = false;
+  elements.aboutClose.focus();
+}
+
+function closeAbout() {
+  elements.aboutOverlay.hidden = true;
+  elements.aboutOpen.focus();
+}
+
+function onAboutKeyDown(event) {
+  if (event.key === 'Escape' && !elements.aboutOverlay.hidden) {
+    closeAbout();
+  }
+}
+
 function resetRound() {
   state.index = 0;
   state.correct = 0;
-  state.chosenI = 0;
-  state.chosenY = 0;
   state.locked = false;
-  state.round = Engine.createRound(state.cards, { seed: Date.now() });
-  elements.answerI.disabled = false;
-  elements.answerY.disabled = false;
+  state.round = createCurrentRound();
   render();
-  setFeedback('Vyber kôpku pre hornú kartu.');
+  setFeedback('', 'quiet');
 }
 
 async function start() {
@@ -769,9 +1175,10 @@ async function start() {
       return response.text();
     });
     state.cards = Engine.loadDisambiguationCards(tsv);
-    state.round = Engine.createRound(state.cards, { seed: Date.now() });
+    populateLetterFilter();
+    state.round = createCurrentRound();
     render();
-    setFeedback('Vyber kôpku pre hornú kartu.');
+    setFeedback('', 'quiet');
   } catch (error) {
     elements.maskedWord.textContent = 'chyba';
     elements.sentence.textContent = 'Kartičky sa nenačítali.';
@@ -779,13 +1186,20 @@ async function start() {
   }
 }
 
-elements.answerI.addEventListener('click', () => choose('i'));
-elements.answerY.addEventListener('click', () => choose('y'));
-elements.resetProgress.addEventListener('click', resetRound);
+elements.letterFilter.addEventListener('change', () => {
+  state.selectedLetter = elements.letterFilter.value;
+  saveSettings();
+  resetRound();
+});
+elements.aboutOpen.addEventListener('click', openAbout);
+elements.aboutClose.addEventListener('click', closeAbout);
+elements.aboutOverlay.addEventListener('click', closeAbout);
+elements.aboutSheet.addEventListener('click', event => event.stopPropagation());
+window.addEventListener('keydown', onAboutKeyDown);
 elements.card.addEventListener('pointerdown', onPointerDown);
-elements.card.addEventListener('pointermove', onPointerMove);
-elements.card.addEventListener('pointerup', onPointerUp);
-elements.card.addEventListener('pointercancel', onPointerCancel);
+window.addEventListener('pointermove', onPointerMove);
+window.addEventListener('pointerup', onPointerUp);
+window.addEventListener('pointercancel', onPointerCancel);
 elements.card.addEventListener('mousedown', onMouseDown);
 window.addEventListener('mousemove', onMouseMove);
 window.addEventListener('mouseup', onMouseUp);
@@ -793,14 +1207,10 @@ elements.card.addEventListener('touchstart', onTouchStart, { passive: false });
 window.addEventListener('touchmove', onTouchMove, { passive: false });
 window.addEventListener('touchend', onTouchEnd, { passive: false });
 window.addEventListener('touchcancel', onTouchCancel, { passive: false });
-window.addEventListener('keydown', event => {
-  if (event.key === 'ArrowLeft') choose('i');
-  if (event.key === 'ArrowRight') choose('y');
-});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js');
+    navigator.serviceWorker.register('./sw.js').then(registration => registration.update());
   });
 }
 
