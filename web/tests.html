@@ -100,6 +100,12 @@ async function run() {
     equal(vyr.full_sentence, 'Na strome sedí veľký výr.', 'full sentence');
   });
 
+  test('keeps the cheese prompt grammatical without revealing its answer', () => {
+    const syr = readyCards.find(card => card.surface === 'syr');
+    equal(syr.prompt_sentence, 'Na tanieri je s_r.', 'masked cheese prompt');
+    equal(syr.full_sentence, 'Na tanieri je syr.', 'full cheese sentence');
+  });
+
   test('checks answers by side group', () => {
     const vir = readyCards.find(card => card.surface === 'vír');
     assert(Engine.checkAnswer(vir, 'i'), 'i should be correct');

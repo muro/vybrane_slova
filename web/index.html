@@ -223,6 +223,13 @@
     transform: translateY(8px) rotate(-1.8deg);
   }
 
+  .outgoing-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+
   .word-card.dragging {
     cursor: grabbing;
     transition: none;
@@ -235,15 +242,26 @@
   }
 
   .word-card.exit-wrong {
-    animation: wrong-card-fade 760ms ease forwards;
+    animation: wrong-card-fade 2000ms ease forwards;
+  }
+
+  /* A wrong answer has one clear home for its correction: the departing card.
+     Keep it large and steady long enough to read before the card breaks apart. */
+  .word-card.outgoing-card.exit-wrong .full-word {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(168, 47, 53, 0.1);
+    color: var(--rose-strong);
+    font-size: 20px;
+    font-weight: 900;
   }
 
   @keyframes wrong-card-fade {
-    0%, 16% {
+    0%, 62% {
       opacity: 1;
     }
 
-    26%, 100% {
+    80%, 100% {
       opacity: 0;
       transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.98) rotate(var(--drag-rotate, 0deg));
     }
@@ -318,7 +336,7 @@
     inset: 0;
     overflow: visible;
     pointer-events: none;
-    z-index: 3;
+    z-index: 4;
   }
 
   .confetti-piece {
@@ -600,6 +618,7 @@
         <p class="sentence" id="sentence">Načítavam kartičky.</p>
         <div class="full-word" id="full-word"></div>
       </article>
+      <div class="outgoing-layer" id="outgoing-layer" aria-hidden="true"></div>
     </div>
     <p class="feedback quiet" id="feedback" aria-live="polite"></p>
     <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
@@ -619,10 +638,13 @@
 <script src="./engine.js?v=4"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
+const WRONG_STRIP_DELAY_MS = 1280;
+const WRONG_OUTGOING_LIFETIME_MS = 2400;
 
 const elements = {
   card: document.querySelector('#word-card'),
   upcomingCard: document.querySelector('#upcoming-card'),
+  outgoingLayer: document.querySelector('#outgoing-layer'),
   cardStack: document.querySelector('#card-stack'),
   confettiLayer: document.querySelector('#confetti-layer'),
   maskedWord: document.querySelector('#masked-word'),
@@ -766,8 +788,8 @@ function clearConfetti() {
   elements.confettiLayer.textContent = '';
 }
 
-function cardBoxInEffectLayer() {
-  const cardRect = elements.card.getBoundingClientRect();
+function cardBoxInEffectLayer(card) {
+  const cardRect = card.getBoundingClientRect();
   const layerRect = elements.confettiLayer.getBoundingClientRect();
   return {
     left: cardRect.left - layerRect.left,
@@ -789,12 +811,12 @@ function addEffectPiece(className, left, top, customProperties = {}) {
   return piece;
 }
 
-function showCardConfetti(answerGroup) {
+function showCardConfetti(answerGroup, card) {
   const answerColors = answerGroup === 'i'
     ? ['#2563b8', '#60a5fa', '#d9edff']
     : ['#a8550c', '#f59e0b', '#ffe4b8'];
   const colors = [...answerColors, '#177245', '#db2777', '#facc15'];
-  const box = cardBoxInEffectLayer();
+  const box = cardBoxInEffectLayer(card);
   const centerX = box.left + box.width / 2;
   const centerY = box.top + box.height / 2;
   clearConfetti();
@@ -820,8 +842,8 @@ function showCardConfetti(answerGroup) {
   confettiTimer = window.setTimeout(clearConfetti, 1120);
 }
 
-function showWrongFallApart() {
-  const box = cardBoxInEffectLayer();
+function showWrongFallApart(card) {
+  const box = cardBoxInEffectLayer(card);
   const strips = 5;
   clearConfetti();
 
@@ -839,9 +861,9 @@ function showWrongFallApart() {
       '--piece-y': `${230 + index * 24 + Math.random() * 42}px`,
       '--piece-rotate': `${-28 + Math.random() * 56}deg`,
       '--piece-start-rotate': `${-3 + Math.random() * 6}deg`,
-      '--piece-delay': `${80 + index * 36}ms`,
+      '--piece-delay': `${WRONG_STRIP_DELAY_MS + index * 36}ms`,
     });
-    const cardSlice = elements.card.cloneNode(true);
+    const cardSlice = card.cloneNode(true);
     cardSlice.removeAttribute('id');
     cardSlice.classList.remove('dragging', 'exit-correct', 'exit-wrong');
     cardSlice.classList.add('paper-strip-card');
@@ -849,7 +871,7 @@ function showWrongFallApart() {
     piece.append(cardSlice);
   }
 
-  confettiTimer = window.setTimeout(clearConfetti, 1100);
+  confettiTimer = window.setTimeout(clearConfetti, WRONG_OUTGOING_LIFETIME_MS);
 }
 
 function letterForAnswer(card, answerGroup) {
@@ -912,7 +934,6 @@ function render() {
 
   elements.card.classList.remove('exit-correct', 'exit-wrong');
   clearDragStyles();
-  clearConfetti();
 
   if (!card) {
     if (!total) {
@@ -934,11 +955,22 @@ function render() {
   setReveal('', null);
 }
 
-function nextCard() {
+function advanceToNextCard() {
   state.index++;
   state.locked = false;
   render();
   if (currentCard()) setFeedback('', 'quiet');
+}
+
+function moveCurrentCardToOutgoingLayer(lifetime = 1200) {
+  const outgoing = elements.card.cloneNode(true);
+  outgoing.removeAttribute('id');
+  outgoing.classList.remove('dragging');
+  outgoing.classList.add('outgoing-card');
+  outgoing.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+  elements.outgoingLayer.append(outgoing);
+  window.setTimeout(() => outgoing.remove(), lifetime);
+  return outgoing;
 }
 
 function choose(answerGroup) {
@@ -956,21 +988,24 @@ function choose(answerGroup) {
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
   Engine.saveProgress(state.progress, appStorage);
 
+  // The outgoing card is the one place that reveals the correction. Keeping
+  // the feedback line quiet avoids repeating the same message underneath it.
+  setDragHint(isCorrect ? answerGroup : card.answer_group, true);
+  setReveal(card.full_sentence, card.answer_group);
+  setFeedback('', 'quiet');
+
+  const outgoing = moveCurrentCardToOutgoingLayer(
+    isCorrect ? 1200 : WRONG_OUTGOING_LIFETIME_MS,
+  );
   if (isCorrect) {
-    setDragHint(answerGroup, true);
-    elements.card.classList.add('exit-correct');
-    setReveal(card.full_sentence, card.answer_group);
-    showCardConfetti(answerGroup);
-    setFeedback('', 'quiet');
+    outgoing.classList.add('exit-correct');
+    showCardConfetti(answerGroup, outgoing);
   } else {
-    setDragHint(card.answer_group, true);
-    elements.card.classList.add('exit-wrong');
-    setReveal(card.full_sentence, card.answer_group);
-    showWrongFallApart();
-    setFeedback(`Patrí do ${card.answer_group === 'i' ? 'i/í' : 'y/ý'}: ${card.surface}`, 'needs-work');
+    outgoing.classList.add('exit-wrong');
+    showWrongFallApart(outgoing);
   }
   renderStats();
-  window.setTimeout(nextCard, 980);
+  advanceToNextCard();
 }
 
 function clamp(value, min, max) {
@@ -1230,6 +1265,8 @@ function onAboutKeyDown(event) {
 
 function resetRound() {
   cancelIntro();
+  clearConfetti();
+  elements.outgoingLayer.textContent = '';
   state.index = 0;
   state.correct = 0;
   state.locked = false;
