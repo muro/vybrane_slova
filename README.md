@@ -24,3 +24,7 @@ python3 -m http.server 8765 --directory web
 - App: `http://localhost:8765/index.html`
 - Tests: `http://localhost:8765/tests.html`
 - Phone preview: `http://localhost:8765/preview.html`
+
+## License
+
+Apache-2.0. See `LICENSE` and `NOTICE`.
