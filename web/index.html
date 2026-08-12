@@ -881,8 +881,10 @@ function showCardTear(answerGroup, card) {
   clearConfetti();
 
   const pieces = document.createDocumentFragment();
-  const columns = 6;
-  const rows = 4;
+  // Smaller tiles still reconstruct the card on release, but read as
+  // confetti sooner than the original broad paper rectangles.
+  const columns = 8;
+  const rows = 6;
   const width = box.width / columns + 0.5;
   const height = box.height / rows + 0.5;
   for (let index = 0; index < columns * rows; index++) {
