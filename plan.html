@@ -354,7 +354,7 @@
     <p>The look is one warm parchment background with a single lifted card on a small stack. The active card has real elevation, a 26px radius, a visible paper edge, and a restrained glossy sheen: glossy heavy paper rather than plastic. During a tug it lifts a little, tilts by only a degree or two, and moves its shadow. The upper sheet underneath is the next masked word and sentence, becoming visible as the active card moves; the lower layers are only paper. None of the sheets are answer targets. When an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
     <p>The blank is a soft tinted well inside the word, never a typed underscore, so a card at rest reads as a word waiting for a letter rather than as broken text. During a drag it fills in two stages: a light tint of <strong>blue</strong> for <strong>i/í</strong> or <strong>gold</strong> for <strong>y/ý</strong> while the card is still short of the submit distance, then the solid colour with a white letter once releasing will answer.</p>
     <p>Type is <strong>Nunito</strong>, committed as two variable <code>woff2</code> subsets under <code>web/fonts/</code> and precached by the service worker, so the installed app never fetches a font. Its rounded terminals suit ages 7-10, and its <code>í</code> and <code>ý</code> stay unmistakable at card size. The Open Font License text ships alongside it.</p>
-    <p>Corrections appear as a single coloured line under the card, not as a bordered banner. Routine progress stays off the main screen, as decided in the game loop below.</p>
+    <p>Corrections appear as a single coloured line under the card, not as a bordered banner. A quiet 3px strip beneath the paper stack is the only routine progress signal: it fills across the last ten answers in the current visit, shifting from muted rose toward leaf green with their recent accuracy. The remainder stays parchment-coloured, so fewer than ten answers never look like a score.</p>
   </section>
 
   <section>
@@ -396,7 +396,7 @@
       <li>For correct answers, immediately replace the card with an irregular paper tear that flips from its printed front to glossy coloured backs. For mistakes, let the card warm to rose, show the correct word, then split it into diagonal falling strips.</li>
       <li>Advance until the round is complete, then show score, streak, and next-step recommendation.</li>
     </ol>
-    <p>Keep routine progress indicators out of the main screen unless they are needed for a round-complete state. The main screen should stay centered on the card.</p>
+    <p>Keep routine progress indicators out of the main screen except for the quiet 3px recent-answer strip beneath the stack. The main screen should stay centered on the card.</p>
   </section>
 
   <section>

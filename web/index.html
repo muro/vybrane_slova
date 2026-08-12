@@ -188,6 +188,37 @@
     transform: translate(-3px, 4px) rotate(-0.3deg);
   }
 
+  /* A hairline of recent practice is deliberately quieter than the card: it
+     fills over ten answers and shifts from warm rose toward leaf green. */
+  .recent-progress {
+    position: absolute;
+    z-index: 5;
+    left: 10%;
+    right: 10%;
+    bottom: -12px;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(112, 89, 55, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+
+  .recent-progress.has-history { opacity: 0.78; }
+
+  .recent-progress-fill {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--recent-hue, 72) 42% 47% / 0.46),
+      hsl(var(--recent-hue, 72) 56% 40% / 0.9)
+    );
+    transition: width 340ms cubic-bezier(0.2, 0.82, 0.28, 1), background 340ms ease;
+  }
+
   .word-card {
     position: absolute;
     inset: 0;
@@ -737,6 +768,7 @@
         <div class="full-word" id="full-word"></div>
       </article>
       <div class="outgoing-layer" id="outgoing-layer" aria-hidden="true"></div>
+      <div class="recent-progress" id="recent-progress" aria-hidden="true"><div class="recent-progress-fill" id="recent-progress-fill"></div></div>
     </div>
     <p class="feedback quiet" id="feedback" aria-live="polite"></p>
     <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
@@ -777,6 +809,8 @@ const elements = {
   aboutClose: document.querySelector('#about-close'),
   aboutOverlay: document.querySelector('#about-overlay'),
   aboutSheet: document.querySelector('.about-sheet'),
+  recentProgress: document.querySelector('#recent-progress'),
+  recentProgressFill: document.querySelector('#recent-progress-fill'),
 };
 
 let confettiTimer = null;
@@ -829,6 +863,7 @@ const state = {
   locked: false,
   selectedLetters: settings.selectedLetters,
   progress: Engine.loadProgress(appStorage),
+  recentAnswers: [],
 };
 
 const drag = {
@@ -858,6 +893,18 @@ function renderStats() {
   document.title = state.round.length
     ? `Vybrané slová ${Math.min(state.index + 1, state.round.length)}/${state.round.length}`
     : 'Vybrané slová';
+}
+
+function renderRecentProgress() {
+  const answers = state.recentAnswers;
+  const answered = answers.length;
+  const correct = answers.filter(Boolean).length;
+  const accuracy = answered ? correct / answered : 0;
+  const hue = Math.round(8 + accuracy * 120);
+
+  elements.recentProgress.classList.toggle('has-history', answered > 0);
+  elements.recentProgressFill.style.width = `${answered * 10}%`;
+  elements.recentProgressFill.style.setProperty('--recent-hue', hue);
 }
 
 function cardsForSelectedLetters() {
@@ -1096,6 +1143,7 @@ function render() {
   const card = currentCard();
   const total = state.round.length;
   renderStats();
+  renderRecentProgress();
   renderUpcomingCard();
 
   elements.card.classList.remove('exit-wrong');
@@ -1153,6 +1201,8 @@ function choose(answerGroup) {
 
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
   Engine.saveProgress(state.progress, appStorage);
+  state.recentAnswers = [...state.recentAnswers, isCorrect].slice(-10);
+  renderRecentProgress();
 
   // The outgoing card is the one place that reveals the correction. Keeping
   // the feedback line quiet avoids repeating the same message underneath it.
