@@ -371,6 +371,7 @@
     opacity: 1;
     perspective: 600px;
     contain: layout paint;
+    clip-path: var(--piece-clip, inset(0));
     transform: translate(-50%, -50%) scale(1) rotate(0deg);
     transform-style: preserve-3d;
     animation: card-tear-pop 700ms linear forwards;
@@ -881,17 +882,27 @@ function showCardTear(answerGroup, card) {
   clearConfetti();
 
   const pieces = document.createDocumentFragment();
-  // A dense tile grid preserves the complete paper face for the release frame
-  // while making the scattered result read as fine confetti.
-  const columns = 16;
-  const rows = 12;
-  const width = box.width / columns + 0.5;
-  const height = box.height / rows + 0.5;
+  const tearShapes = [
+    'polygon(2% 14%, 62% 0, 100% 18%, 91% 100%, 24% 94%, 0 58%)',
+    'polygon(14% 0, 93% 6%, 100% 66%, 72% 100%, 10% 86%, 0 28%)',
+    'polygon(0 17%, 51% 0, 100% 22%, 84% 100%, 20% 94%)',
+    'polygon(9% 0, 100% 13%, 82% 70%, 54% 100%, 0 88%, 7% 46%)',
+    'polygon(0 0, 81% 8%, 100% 55%, 67% 100%, 5% 83%, 16% 35%)',
+    'polygon(21% 0, 100% 12%, 88% 83%, 41% 100%, 0 65%, 8% 20%)',
+  ];
+  // Irregular pieces overlap slightly at release, avoiding a visible grid
+  // while keeping the short animation light enough for phone hardware.
+  const columns = 8;
+  const rows = 8;
+  const cellWidth = box.width / columns;
+  const cellHeight = box.height / rows;
+  const width = cellWidth * 1.35;
+  const height = cellHeight * 1.35;
   for (let index = 0; index < columns * rows; index++) {
     const column = index % columns;
     const row = Math.floor(index / columns);
-    const sourceLeft = column * (box.width / columns);
-    const sourceTop = row * (box.height / rows);
+    const sourceLeft = column * cellWidth - (width - cellWidth) / 2;
+    const sourceTop = row * cellHeight - (height - cellHeight) / 2;
     const left = box.left + sourceLeft + width / 2;
     const top = box.top + sourceTop + height / 2;
     const fromCenterX = left - centerX;
@@ -912,6 +923,7 @@ function showCardTear(answerGroup, card) {
       '--piece-delay': '0ms',
       '--piece-width': `${width}px`,
       '--piece-height': `${height}px`,
+      '--piece-clip': tearShapes[(index + Math.floor(Math.random() * tearShapes.length)) % tearShapes.length],
       '--piece-color': colors[index % colors.length],
     }, pieces);
     const front = document.createElement('div');
