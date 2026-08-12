@@ -1,9 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Vybrané slová">
-  <rect width="512" height="512" rx="96" fill="#fffdf7"/>
-  <rect x="54" y="92" width="124" height="328" rx="30" fill="#d9edff" stroke="#2563b8" stroke-width="14"/>
-  <rect x="334" y="92" width="124" height="328" rx="30" fill="#ffe4b8" stroke="#a8550c" stroke-width="14"/>
-  <rect x="146" y="132" width="220" height="248" rx="34" fill="#fffefa" stroke="#25221d" stroke-width="14"/>
-  <path d="M202 274h108" stroke="#25221d" stroke-width="22" stroke-linecap="round"/>
-  <circle cx="222" cy="210" r="20" fill="#2563b8"/>
-  <circle cx="290" cy="210" r="20" fill="#a8550c"/>
+  <rect width="512" height="512" rx="104" fill="#f3ebdd"/>
+  <g transform="translate(256 258)" fill="none" stroke="#695f4f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="0" cy="-106" rx="47" ry="100" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-106" rx="47" ry="100" transform="rotate(72)"/>
+    <ellipse cx="0" cy="-106" rx="47" ry="100" transform="rotate(144)"/>
+    <ellipse cx="0" cy="-106" rx="47" ry="100" transform="rotate(216)"/>
+    <ellipse cx="0" cy="-106" rx="47" ry="100" transform="rotate(288)"/>
+    <path d="M -44.17 -71.80 A 47 100 0 0 1 -44.70 -136.90" transform="rotate(0)" stroke="#3f769f" stroke-width="9"/>
+    <path d="M -34.93 -172.91 A 47 100 0 0 1 -26.28 -188.90" transform="rotate(0)" stroke="#3f769f" stroke-width="9"/>
+    <path d="M 27.63 -186.90 A 47 100 0 0 1 40.70 -56.00" transform="rotate(0)" stroke="#9b792d" stroke-width="9"/>
+    <path d="M -8.16 -7.52 A 47 100 0 0 1 -40.70 -56.00" transform="rotate(72)" stroke="#9b792d" stroke-width="9"/>
+    <path d="M -40.70 -56.00 A 47 100 0 0 1 -46.97 -102.51" transform="rotate(72)" stroke="#9b792d" stroke-width="9"/>
+    <circle cx="0" cy="0" r="23" fill="#f3ebdd"/>
+  </g>
 </svg>

@@ -354,6 +354,7 @@
     <p>The look is one warm parchment background with a single lifted card on a small stack. The active card has real elevation, a 26px radius, a visible paper edge, and a restrained glossy sheen: glossy heavy paper rather than plastic. During a tug it lifts a little, tilts by only a degree or two, and moves its shadow. The upper sheet underneath is the next masked word and sentence, becoming visible as the active card moves; the lower layers are only paper. None of the sheets are answer targets. When an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
     <p>The blank is a soft tinted well inside the word, never a typed underscore, so a card at rest reads as a word waiting for a letter rather than as broken text. During a drag it fills in two stages: a light tint of <strong>blue</strong> for <strong>i/í</strong> or <strong>gold</strong> for <strong>y/ý</strong> while the card is still short of the submit distance, then the solid colour with a white letter once releasing will answer.</p>
     <p>Type is <strong>Nunito</strong>, committed as two variable <code>woff2</code> subsets under <code>web/fonts/</code> and precached by the service worker, so the installed app never fetches a font. Its rounded terminals suit ages 7-10, and its <code>í</code> and <code>ý</code> stay unmistakable at card size. The Open Font License text ships alongside it.</p>
+    <p>The installable app icon uses the same folk-flower language as the answer trace: a muted five-petal line flower on warm paper, with blue and gold highlights on selected parts of the existing petal outlines arranged as <strong>i</strong> and <strong>y</strong>. It avoids side-pile and destination-tile imagery because the current interaction no longer draws answer sides.</p>
     <p>Corrections appear as a single coloured line under the card, not as a bordered banner. Each answer adds one quiet, stemless folk-flower outline into the surrounding paper for the current visit: blue for a correct answer and pale madder red for an incorrect one. Every selected consonant has its own petal shape. The complete flower makes one short pop into place, then stays still. Flowers sample the open paper area, may tuck under the card as long as more than half stays visible, avoid the controls, prefer places far from existing flowers, and keep a mild preference for interior space so desktop does not become a border frame. Older flowers gradually become lighter like a historical linen or blueprint print.</p>
   </section>
 
@@ -532,7 +533,7 @@
         </tr>
         <tr>
           <th>Generated app icons</th>
-          <td>Reuse the icon-generation workflow from <code>tools/build_icon.py</code>, but generate a new identity around word cards, answer piles, or Slovak spelling practice.</td>
+          <td>Use <code>tools/build_icon.py</code> to regenerate the committed SVG and PNG icons from one folk-flower design.</td>
         </tr>
         <tr>
           <th>Installed-mobile polish</th>

@@ -36,6 +36,14 @@ context-dependent cards. For example:
 This is a hidden review mode: it omits the simple word lists and is not exposed
 in the child-facing interface.
 
+## Icons
+
+Regenerate the committed PWA icons after changing the icon design:
+
+```sh
+python3 tools/build_icon.py
+```
+
 ## Hosted preview
 
 Build the deployable preview bundle when publishing with Sites:

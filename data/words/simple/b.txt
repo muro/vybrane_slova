@@ -7,6 +7,7 @@ biely
 bieliť
 bielizeň
 bielidlo
+bidlo
 bielko
 bieloba
 bielučký
@@ -60,7 +61,6 @@ bývať
 obývať
 obyvateľ
 prebývať
-bydlo
 bydlisko
 byt
 bytná
