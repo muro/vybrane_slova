@@ -438,7 +438,8 @@
 
     <h3>Current count</h3>
     <p>The documented starter set currently has <strong>10 contrast pairs</strong>, or <strong>20 surface-form cards</strong>: 6 picture-friendly pairs (12 cards) and 4 context-first pairs (8 cards). Because each pair has one <code>y/ý</code> form and one <code>i/í</code> form, the current set is balanced at 10 <code>y/ý</code> cards and 10 <code>i/í</code> cards.</p>
-    <p>The ordinary non-disambiguation list is now split into compact per-letter plain word lists with <strong>388 candidate words by convention</strong>: 188 <code>y/ý</code> selected-word rows and 200 <code>i/í</code> control rows. Words that need context or picture disambiguation live separately in the rich disambiguation list, which currently has <strong>22 rows</strong>: 20 ready starter cards and 2 review cards for <code>by</code> / <code>bi</code>.</p>
+    <p>The ordinary non-disambiguation list is split into compact per-letter plain word lists with <strong>388 cards</strong>: 188 <code>y/ý</code> selected-word rows and 200 <code>i/í</code> control rows. The default lesson pool combines them with the <strong>20 ready ambiguous cards</strong>, for <strong>408 cards</strong>. Simple cards show the masked word with the short prompt “Vyber správne písmeno.”; words that need context or pictures stay in the rich disambiguation list. The two <code>by</code> / <code>bi</code> review rows remain excluded.</p>
+    <p>A hidden review flag, <code>?cards=ambiguous</code>, loads only the 20 current ready ambiguous cards. It is deliberately not part of the child-facing interface, so the picture/context set can be revisited without changing the normal lesson controls.</p>
     <p>Future packs must include enough <code>i/í</code> cards that children cannot learn "this app usually wants y". Prefer balanced packs, or packs with more <code>i/í</code> controls than selected-word <code>y/ý</code> cards when adding unpaired drill content.</p>
 
     <h3>Form scope</h3>
@@ -503,7 +504,7 @@
         </tr>
         <tr>
           <th>Pure <code>engine.js</code></th>
-          <td>Keep word data, answer-checking, lesson generation, scoring, mastery, and localStorage helpers in <code>engine.js</code>. The UI should ask the engine questions, not contain spelling rules.</td>
+          <td>Keep word data, answer-checking, lesson generation, scoring, mastery, and localStorage helpers in the pure engine. The shipped <code>app-engine.js</code> is a cache-safe runtime copy while installed clients move away from the older <code>engine.js</code> URL. The UI should ask the engine questions, not contain spelling rules.</td>
         </tr>
         <tr>
           <th>Data-driven lessons</th>
@@ -511,7 +512,7 @@
         </tr>
         <tr>
           <th>Browser tests</th>
-          <td>Reuse the <code>tests.html</code> pattern. Tests should load <code>engine.js</code> directly and cover word data, accepted answers, lesson selection, scoring thresholds, localStorage migration, and progress reset.</td>
+          <td>Reuse the <code>tests.html</code> pattern. Tests should load the shipped engine directly and cover word data, accepted answers, lesson selection, scoring thresholds, localStorage migration, and progress reset.</td>
         </tr>
         <tr>
           <th>Headless-friendly checks</th>

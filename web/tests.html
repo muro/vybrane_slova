@@ -34,7 +34,7 @@
 <div id="summary">Running...</div>
 <ol id="results"></ol>
 
-<script src="./engine.js?v=4"></script>
+<script src="./app-engine.js"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
 const results = document.querySelector('#results');
@@ -72,6 +72,12 @@ async function run() {
   const rows = Engine.parseTsv(tsv);
   const readyCards = Engine.loadDisambiguationCards(tsv);
   const allReviewCards = Engine.loadDisambiguationCards(tsv, { statuses: ['review'] });
+  const simpleLetters = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
+  const simpleLists = Object.fromEntries(await Promise.all(simpleLetters.map(async letter => [
+    letter,
+    await fetch(`./data/simple/${letter}.txt`).then(response => response.text()),
+  ])));
+  const simpleCards = Engine.loadSimpleCards(simpleLists);
 
   test('parses the disambiguation TSV', () => {
     equal(rows.length, 22, 'row count');
@@ -85,6 +91,23 @@ async function run() {
   test('keeps review rows out of the starter lesson', () => {
     equal(allReviewCards.length, 2, 'review count');
     assert(!readyCards.some(card => card.pair_id === 'by-bi'), 'by/bi should stay review-only');
+  });
+
+  test('loads the complete simple-word pool', () => {
+    equal(simpleCards.length, 388, 'simple card count');
+    const counts = Engine.answerCounts(simpleCards);
+    equal(counts.i, 200, 'simple i answer count');
+    equal(counts.y, 188, 'simple y answer count');
+  });
+
+  test('masks the letter after the selected-word consonant', () => {
+    const bicycle = simpleCards.find(card => card.surface === 'bicykel');
+    equal(bicycle.masked_surface, 'b_cykel', 'bicykel target mask');
+    equal(bicycle.missing_letter, 'i', 'bicykel target letter');
+    equal(bicycle.prompt_sentence, 'Vyber správne písmeno.', 'simple prompt');
+    const fish = simpleCards.find(card => card.surface === 'ryba');
+    equal(fish.masked_surface, 'r_ba', 'ryba target mask');
+    equal(fish.answer_group, 'y', 'ryba answer group');
   });
 
   test('keeps ready answers balanced', () => {

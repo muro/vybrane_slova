@@ -749,11 +749,12 @@
   </section>
 </div>
 
-<script src="./engine.js?v=4"></script>
+<script src="./app-engine.js"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
 const WRONG_STRIP_DELAY_MS = 1020;
 const WRONG_OUTGOING_LIFETIME_MS = 2000;
+const HIDDEN_AMBIGUOUS_ONLY = new URLSearchParams(window.location.search).get('cards') === 'ambiguous';
 
 const elements = {
   card: document.querySelector('#word-card'),
@@ -1452,11 +1453,19 @@ function resetRound() {
 
 async function start() {
   try {
-    const tsv = await fetch('./data/disambiguation.tsv').then(response => {
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const fetchText = path => fetch(path).then(response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status} for ${path}`);
       return response.text();
     });
-    state.cards = Engine.loadDisambiguationCards(tsv);
+    const [tsv, ...simpleLists] = await Promise.all([
+      fetchText('./data/disambiguation.tsv'),
+      ...LETTER_ORDER.map(letter => fetchText(`./data/simple/${letter}.txt`)),
+    ]);
+    const ambiguousCards = Engine.loadDisambiguationCards(tsv);
+    const simpleCards = Engine.loadSimpleCards(Object.fromEntries(
+      LETTER_ORDER.map((letter, index) => [letter, simpleLists[index]]),
+    ));
+    state.cards = HIDDEN_AMBIGUOUS_ONLY ? ambiguousCards : [...ambiguousCards, ...simpleCards];
     populateLetterFilter();
     state.round = createCurrentRound();
     render();

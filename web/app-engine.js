@@ -6,25 +6,11 @@
   root.VybraneSlovaEngine = engine;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function createEngine() {
   const DISAMBIGUATION_HEADER = [
-    'id',
-    'pack',
-    'pair_id',
-    'selected_letter',
-    'surface',
-    'answer_group',
-    'contrast_surface',
-    'needs_disambiguation',
-    'disambiguation_mode',
-    'picture_role',
-    'sentence',
-    'image_prompt',
-    'source',
-    'status',
-    'notes',
+    'id', 'pack', 'pair_id', 'selected_letter', 'surface', 'answer_group',
+    'contrast_surface', 'needs_disambiguation', 'disambiguation_mode',
+    'picture_role', 'sentence', 'image_prompt', 'source', 'status', 'notes',
   ];
-
   const SIMPLE_ANSWER_GROUPS = new Set(['i', 'y']);
-
   const STORAGE_VERSION = 1;
   const STORAGE_KEYS = {
     progress: 'vybrane-slova.progress.v1',
@@ -36,12 +22,10 @@
     const cleanText = text.replace(/^\uFEFF/, '');
     const lines = cleanText.split(/\r?\n/).filter((line, index, all) => line || index < all.length - 1);
     if (lines.length === 0) return [];
-
     const header = lines[0].split('\t');
     if (header.join('\t') !== DISAMBIGUATION_HEADER.join('\t')) {
       throw new Error('Unexpected disambiguation TSV header');
     }
-
     return lines.slice(1).filter(Boolean).map((line, rowIndex) => {
       const cells = line.split('\t');
       if (cells.length !== header.length) {
@@ -70,9 +54,7 @@
     const index = selectedLetter && answerGroup
       ? targetIndexForSelectedLetter(surface, selectedLetter, answerGroup)
       : chars.findIndex(char => ['i', 'í', 'y', 'ý'].includes(char.toLocaleLowerCase('sk')));
-    if (index === -1) {
-      return { maskedSurface: surface, missingLetter: '' };
-    }
+    if (index === -1) return { maskedSurface: surface, missingLetter: '' };
     const missingLetter = chars[index];
     chars[index] = '_';
     return { maskedSurface: chars.join(''), missingLetter };
@@ -102,9 +84,7 @@
   function parseSimpleWordList(text, selectedLetter) {
     let answerGroup = null;
     const rows = [];
-    const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
-
-    for (const rawLine of lines) {
+    for (const rawLine of text.replace(/^\uFEFF/, '').split(/\r?\n/)) {
       const surface = rawLine.trim();
       if (!surface || surface.startsWith('#')) continue;
       const section = surface.match(/^\[([iy])\]$/);
@@ -120,18 +100,11 @@
       }
       rows.push({
         id: `simple:${selectedLetter}:${answerGroup}:${surface}`,
-        pack: 'simple',
-        selected_letter: selectedLetter,
-        surface,
-        answer_group: answerGroup,
-        needs_disambiguation: 'false',
-        disambiguation_mode: 'none',
-        picture_role: 'none',
-        sentence: 'Vyber správne písmeno.',
-        status: 'ready',
+        pack: 'simple', selected_letter: selectedLetter, surface, answer_group: answerGroup,
+        needs_disambiguation: 'false', disambiguation_mode: 'none', picture_role: 'none',
+        sentence: 'Vyber správne písmeno.', status: 'ready',
       });
     }
-
     if (!rows.length) throw new Error(`Simple list for ${selectedLetter} is empty`);
     return rows;
   }
@@ -184,13 +157,7 @@
   }
 
   function defaultProgress() {
-    return {
-      version: STORAGE_VERSION,
-      totalAnswered: 0,
-      totalCorrect: 0,
-      cards: {},
-      updatedAt: null,
-    };
+    return { version: STORAGE_VERSION, totalAnswered: 0, totalCorrect: 0, cards: {}, updatedAt: null };
   }
 
   function readJson(storage, key) {
@@ -205,14 +172,8 @@
 
   function loadProgress(storage) {
     const saved = readJson(storage, STORAGE_KEYS.progress);
-    if (!saved || saved.version !== STORAGE_VERSION || typeof saved.cards !== 'object') {
-      return defaultProgress();
-    }
-    return {
-      ...defaultProgress(),
-      ...saved,
-      cards: saved.cards || {},
-    };
+    if (!saved || saved.version !== STORAGE_VERSION || typeof saved.cards !== 'object') return defaultProgress();
+    return { ...defaultProgress(), ...saved, cards: saved.cards || {} };
   }
 
   function saveProgress(progress, storage) {

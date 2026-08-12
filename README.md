@@ -5,9 +5,10 @@ aplikacia na trenovanie vybranych slov
 
 Reviewable word-card data lives in `data/words/`. Simple non-disambiguation
 words are in plain per-letter word-list files under `simple/`; words that need context or
-picture disambiguation are in `disambiguation.tsv`. The current starter
-contrast pack has 20 ready cards across 10 pairs, plus 2 review cards. Run the
-validator after editing:
+picture disambiguation are in `disambiguation.tsv`. The app loads 388 simple
+cards and 20 ready contrast cards by default. The hidden review URL
+`?cards=ambiguous` limits the pool to the 20 ready contrast cards; the 2
+review rows remain excluded. Run the validator after editing:
 
 ```sh
 node tools/validate_words.js
