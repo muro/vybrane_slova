@@ -104,7 +104,7 @@ async function run() {
     const bicycle = simpleCards.find(card => card.surface === 'bicykel');
     equal(bicycle.masked_surface, 'b_cykel', 'bicykel target mask');
     equal(bicycle.missing_letter, 'i', 'bicykel target letter');
-    equal(bicycle.prompt_sentence, 'Vyber správne písmeno.', 'simple prompt');
+    equal(bicycle.prompt_sentence, '', 'simple cards have no prompt');
     const fish = simpleCards.find(card => card.surface === 'ryba');
     equal(fish.masked_surface, 'r_ba', 'ryba target mask');
     equal(fish.answer_group, 'y', 'ryba answer group');

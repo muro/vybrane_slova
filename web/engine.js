@@ -80,7 +80,7 @@
 
   function prepareCard(row) {
     const masked = maskSurface(row.surface, row.selected_letter, row.answer_group);
-    const sentence = row.sentence || 'Vyber správne písmeno.';
+    const sentence = row.sentence || '';
     return {
       ...row,
       missing_letter: masked.missingLetter,
@@ -127,7 +127,7 @@
         needs_disambiguation: 'false',
         disambiguation_mode: 'none',
         picture_role: 'none',
-        sentence: 'Vyber správne písmeno.',
+        sentence: '',
         status: 'ready',
       });
     }

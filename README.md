@@ -26,6 +26,16 @@ python3 -m http.server 8765 --directory web
 - Tests: `http://localhost:8765/tests.html`
 - Phone preview: `http://localhost:8765/preview.html`
 
+### Ambiguous-only review
+
+Append `?cards=ambiguous` to the app URL to review only the ready
+context-dependent cards. For example:
+
+`http://localhost:8765/index.html?cards=ambiguous`
+
+This is a hidden review mode: it omits the simple word lists and is not exposed
+in the child-facing interface.
+
 ## Hosted preview
 
 Build the deployable preview bundle when publishing with Sites:
