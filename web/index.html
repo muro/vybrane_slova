@@ -170,11 +170,15 @@
     z-index: 2;
     padding: 26px 22px;
     border-radius: var(--card-radius);
-    background: var(--card);
+    border: 1px solid rgba(112, 89, 55, 0.12);
+    background: linear-gradient(145deg, #fffef9 0%, var(--card) 58%, #f7efe3 100%);
     box-shadow:
-      0 1px 2px rgba(62, 46, 24, 0.06),
-      0 14px 30px -14px rgba(62, 46, 24, 0.32),
-      0 34px 64px -34px rgba(62, 46, 24, 0.5);
+      inset 0 1px 0 rgba(255, 255, 255, 0.96),
+      inset 0 -3px 0 rgba(141, 112, 72, 0.07),
+      0 3px 0 #ebe0d0,
+      0 6px 0 #dacbb8,
+      var(--shadow-x, 0px) calc(19px + var(--drag-lift, 0px)) calc(36px + var(--drag-lift, 0px)) -24px rgba(62, 46, 24, 0.48),
+      var(--shadow-x, 0px) calc(38px + var(--drag-lift, 0px)) calc(64px + var(--drag-lift, 0px)) -36px rgba(62, 46, 24, 0.32);
     display: grid;
     align-content: center;
     gap: 16px;
@@ -182,9 +186,22 @@
     cursor: grab;
     touch-action: none;
     user-select: none;
-    transform: translate(var(--drag-x, 0), var(--drag-y, 0));
+    transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg)) scale(var(--drag-scale, 1));
     transition: transform 300ms cubic-bezier(0.2, 0.9, 0.25, 1.22), opacity 260ms ease;
     overflow: hidden;
+  }
+
+  /* A restrained sheen and visible paper edge make the card feel substantial,
+     while still leaving the word as the only focus. */
+  .word-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      linear-gradient(118deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.17) 27%, transparent 47%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 34%);
+    pointer-events: none;
   }
 
   .outgoing-layer {
@@ -232,12 +249,12 @@
   @keyframes correct-card-settle {
     0%, 46% {
       opacity: 1;
-      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(1);
+      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg)) scale(var(--drag-scale, 1));
     }
 
     100% {
       opacity: 0;
-      transform: translate(0, 12px) scale(0.97);
+      transform: translate(0, 12px) rotate(0deg) scale(0.97);
     }
   }
 
@@ -963,16 +980,28 @@ function submitThreshold() {
 }
 
 function resistedDistance(distance) {
-  const maximum = Math.min(60, elements.card.offsetWidth * 0.18);
-  const resistance = Math.max(46, elements.card.offsetWidth * 0.19);
-  return Math.sign(distance) * maximum * (1 - Math.exp(-Math.abs(distance) / resistance));
+  const freeTravel = Math.min(42, elements.card.offsetWidth * 0.13);
+  const maximum = Math.min(78, elements.card.offsetWidth * 0.23);
+  const extraTravel = Math.max(0, Math.abs(distance) - freeTravel);
+  const resistance = Math.max(54, elements.card.offsetWidth * 0.2);
+  const resistedTravel = maximum - freeTravel;
+  const visualDistance = Math.abs(distance) <= freeTravel
+    ? Math.abs(distance)
+    : freeTravel + resistedTravel * (1 - Math.exp(-extraTravel / resistance));
+  return Math.sign(distance) * visualDistance;
 }
 
 function setCardDrag(dx, dy) {
   const visualX = resistedDistance(dx);
   const visualY = clamp(dy * 0.08, -12, 12);
+  const pull = Math.min(1, Math.abs(visualX) / Math.max(1, elements.card.offsetWidth * 0.23));
+  const rotation = clamp(visualX / 44, -1.7, 1.7);
   elements.card.style.setProperty('--drag-x', `${visualX}px`);
   elements.card.style.setProperty('--drag-y', `${visualY}px`);
+  elements.card.style.setProperty('--drag-rotate', `${rotation}deg`);
+  elements.card.style.setProperty('--drag-scale', String(1 + pull * 0.008));
+  elements.card.style.setProperty('--drag-lift', `${Math.round(pull * 9)}px`);
+  elements.card.style.setProperty('--shadow-x', `${Math.round(-visualX * 0.11)}px`);
   const ready = Math.abs(dx) >= submitThreshold();
   if (dx < -22) {
     setDragHint('i', ready);
@@ -1006,6 +1035,10 @@ function clearDragStyles() {
   drag.hintReady = false;
   elements.card.style.removeProperty('--drag-x');
   elements.card.style.removeProperty('--drag-y');
+  elements.card.style.removeProperty('--drag-rotate');
+  elements.card.style.removeProperty('--drag-scale');
+  elements.card.style.removeProperty('--drag-lift');
+  elements.card.style.removeProperty('--shadow-x');
 }
 
 function targetFromDrag(dx) {

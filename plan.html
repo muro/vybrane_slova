@@ -303,7 +303,7 @@
 
   <section>
     <h2>Core Interaction</h2>
-    <p>The app should feel almost entirely about one word tile moving. The tile stays in the center, and the child tugs it left for <strong>i/í</strong> or right for <strong>y/ý</strong>. It travels only a short distance and becomes more resistant the farther it is pulled.</p>
+    <p>The app should feel almost entirely about one word tile moving. The tile stays in the center, and the child tugs it left for <strong>i/í</strong> or right for <strong>y/ý</strong>. It follows the first part of a pull, then becomes more resistant, like a heavy card held to the table.</p>
     <p>The answer sides are never drawn. No destination tiles, no framed board panels, and no coloured screen edges: one page background, with the current word card as the only surface, and every piece of interaction and feedback contained inside that card.</p>
     <p>All drag feedback therefore lives in the word itself. The missing letter fills in as the card moves, tinted in its answer colour, and turns solid once the card has travelled far enough that letting go will submit. That change from tint to solid is the only signal that the answer is armed, so it has to be unmissable.</p>
 
@@ -321,7 +321,7 @@
           <div class="pile-title">Word card</div>
           <div class="pile-label">Main interaction</div>
         </div>
-          <div class="card-stage" aria-hidden="true">
+        <div class="card-stage" aria-hidden="true">
           <div class="word-card">karta _</div>
         </div>
       </div>
@@ -351,7 +351,7 @@
 
   <section>
     <h2>Visual Language</h2>
-    <p>The look is one warm parchment background with a single lifted card on it. It has real elevation and a 26px radius. There is no card deck: when an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
+    <p>The look is one warm parchment background with a single lifted card on it. It has real elevation, a 26px radius, a visible paper edge, and a restrained glossy sheen: glossy heavy paper rather than plastic. During a tug it lifts a little, tilts by only a degree or two, and moves its shadow. There is no card deck: when an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
     <p>The blank is a soft tinted well inside the word, never a typed underscore, so a card at rest reads as a word waiting for a letter rather than as broken text. During a drag it fills in two stages: a light tint of <strong>blue</strong> for <strong>i/í</strong> or <strong>gold</strong> for <strong>y/ý</strong> while the card is still short of the submit distance, then the solid colour with a white letter once releasing will answer.</p>
     <p>Type is <strong>Nunito</strong>, committed as two variable <code>woff2</code> subsets under <code>web/fonts/</code> and precached by the service worker, so the installed app never fetches a font. Its rounded terminals suit ages 7-10, and its <code>í</code> and <code>ý</code> stay unmistakable at card size. The Open Font License text ships alongside it.</p>
     <p>Corrections appear as a single coloured line under the card, not as a bordered banner. Routine progress stays off the main screen, as decided in the game loop below.</p>
@@ -362,7 +362,7 @@
     <div class="grid">
       <div class="panel">
         <h3>Primary input</h3>
-        <p>Tug the card horizontally. It moves only a little and pushes back as the pull becomes longer. Submit only after a meaningful sideways distance so accidental tiny movements snap back.</p>
+        <p>Tug the card horizontally. It follows the start of the pull, then pushes back as the pull becomes longer; a small tilt, lift, and shifting shadow make its paper weight clear. Submit only after a meaningful sideways distance so accidental tiny movements snap back.</p>
       </div>
       <div class="panel">
         <h3>Gesture demo on load</h3>
