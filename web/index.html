@@ -884,28 +884,8 @@ function getStorage() {
 const appStorage = getStorage();
 const LETTER_ORDER = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
 const FLOWER_PETALS = { b: 5, m: 6, p: 4, r: 8, s: 6, v: 5, z: 7 };
-const FLOWER_SPOTS = [
-  { left: '8%', top: '12%', size: 48 }, { left: '22%', top: '16%', size: 62 },
-  { left: '38%', top: '11%', size: 54 }, { left: '54%', top: '20%', size: 46 },
-  { left: '70%', top: '13%', size: 64 }, { left: '87%', top: '18%', size: 52 },
-  { left: '15%', top: '25%', size: 58 }, { left: '31%', top: '22%', size: 44 },
-  { left: '47%', top: '15%', size: 68 }, { left: '62%', top: '24%', size: 50 },
-  { left: '78%', top: '25%', size: 60 }, { left: '93%', top: '10%', size: 46 },
-  { left: '4%', top: '33%', size: 54 }, { left: '96%', top: '35%', size: 62 },
-  { left: '7%', top: '46%', size: 46 }, { left: '94%', top: '50%', size: 56 },
-  { left: '3%', top: '60%', size: 64 }, { left: '97%', top: '64%', size: 48 },
-  { left: '8%', top: '73%', size: 58 }, { left: '93%', top: '76%', size: 68 },
-  { left: '13%', top: '86%', size: 48 }, { left: '27%', top: '79%', size: 62 },
-  { left: '42%', top: '91%', size: 54 }, { left: '57%', top: '82%', size: 46 },
-  { left: '72%', top: '90%', size: 64 }, { left: '87%', top: '84%', size: 52 },
-  { left: '20%', top: '95%', size: 56 }, { left: '35%', top: '75%', size: 48 },
-  { left: '50%', top: '97%', size: 62 }, { left: '65%', top: '73%', size: 50 },
-  { left: '80%', top: '96%', size: 58 }, { left: '6%', top: '28%', size: 44 },
-  { left: '98%', top: '27%', size: 54 }, { left: '2%', top: '70%', size: 50 },
-  { left: '98%', top: '70%', size: 60 }, { left: '18%', top: '70%', size: 46 },
-  { left: '82%', top: '70%', size: 52 }, { left: '25%', top: '8%', size: 48 },
-  { left: '75%', top: '7%', size: 56 }, { left: '50%', top: '7%', size: 44 },
-];
+const FLOWER_CANDIDATES = 42;
+const FLOWER_TOP_CHOICES = 5;
 
 function loadSettings(storage) {
   if (!storage) return { selectedLetters: null };
@@ -943,7 +923,6 @@ const state = {
   locked: false,
   selectedLetters: settings.selectedLetters,
   progress: Engine.loadProgress(appStorage),
-  flowerCount: 0,
 };
 
 const drag = {
@@ -969,16 +948,135 @@ function nextCardInRound() {
   return state.round[state.index + 1] || null;
 }
 
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function viewportSize() {
+  return {
+    width: Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1000),
+    height: Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1000),
+  };
+}
+
+function randomFlowerSpot() {
+  const { width, height } = viewportSize();
+  const wideViewport = window.matchMedia && window.matchMedia('(min-width: 760px)').matches;
+  const margin = wideViewport ? 58 : 18;
+  const x = randomBetween(margin, Math.max(margin, width - margin));
+  const y = randomBetween(margin, Math.max(margin, height - margin));
+  return {
+    left: (x / width) * 100,
+    top: (y / height) * 100,
+    size: Math.round(randomBetween(42, 72)),
+  };
+}
+
+function pointForFlowerSpot(spot) {
+  const { width, height } = viewportSize();
+  return {
+    x: (spot.left / 100) * width,
+    y: (spot.top / 100) * height,
+  };
+}
+
+function currentFlowerSpots() {
+  return Array.from(elements.flowerGarden.querySelectorAll('.folk-flower'))
+    .map(flower => ({
+      left: Number(flower.dataset.flowerLeft),
+      top: Number(flower.dataset.flowerTop),
+    }))
+    .filter(spot => Number.isFinite(spot.left) && Number.isFinite(spot.top));
+}
+
+function nearestFlowerDistance(spot, existingSpots) {
+  if (!existingSpots.length) return Infinity;
+  const { width, height } = viewportSize();
+  return Math.min(...existingSpots.map(existing => {
+    const dx = ((spot.left - existing.left) / 100) * width;
+    const dy = ((spot.top - existing.top) / 100) * height;
+    return Math.hypot(dx, dy);
+  }));
+}
+
+function protectedFlowerRects() {
+  return [
+    { selector: '.card-stage', mode: 'half-visible' },
+    { selector: '.topbar', mode: 'avoid' },
+    { selector: '.feedback', mode: 'avoid' },
+  ]
+    .map(item => ({
+      ...item,
+      rect: document.querySelector(item.selector)?.getBoundingClientRect(),
+    }))
+    .filter(item => item.rect && item.rect.width > 0 && item.rect.height > 0);
+}
+
+function distanceToRect(point, rect) {
+  const dx = Math.max(rect.left - point.x, 0, point.x - rect.right);
+  const dy = Math.max(rect.top - point.y, 0, point.y - rect.bottom);
+  return Math.hypot(dx, dy);
+}
+
+function pointInRect(point, rect) {
+  return point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom;
+}
+
+function flowerProtectedPenalty(spot, rects) {
+  const point = pointForFlowerSpot(spot);
+  const radius = spot.size * 0.56;
+  for (const item of rects) {
+    if (item.mode === 'half-visible') {
+      if (pointInRect(point, item.rect)) return -10000;
+      continue;
+    }
+
+    const distance = distanceToRect(point, item.rect);
+    if (distance < radius + 12) return -10000;
+  }
+  return 0;
+}
+
+function flowerEdgeDistance(spot) {
+  const point = pointForFlowerSpot(spot);
+  const { width, height } = viewportSize();
+  return Math.min(point.x, width - point.x, point.y, height - point.y);
+}
+
+function scoreFlowerSpot(spot, existingSpots, protectedRects) {
+  const nearest = existingSpots.length ? nearestFlowerDistance(spot, existingSpots) : 260;
+  const spread = Math.min(nearest, 430);
+  const interior = Math.min(flowerEdgeDistance(spot), 170) * 0.72;
+  return spread + interior + flowerProtectedPenalty(spot, protectedRects) + Math.random() * 34;
+}
+
+function chooseFlowerSpot() {
+  const existingSpots = currentFlowerSpots();
+  const protectedRects = protectedFlowerRects();
+  const candidates = Array.from({ length: FLOWER_CANDIDATES }, randomFlowerSpot)
+    .map(spot => ({
+      ...spot,
+      score: scoreFlowerSpot(spot, existingSpots, protectedRects),
+    }))
+    .filter(spot => spot.score > -1000)
+    .sort((a, b) => b.score - a.score);
+  if (!candidates.length) return randomFlowerSpot();
+  const topChoices = candidates.slice(0, Math.min(FLOWER_TOP_CHOICES, candidates.length));
+  const choiceIndex = Math.floor(Math.pow(Math.random(), 1.35) * topChoices.length);
+  return topChoices[choiceIndex];
+}
+
 function addBackgroundFlower(card, isCorrect) {
-  const flowerIndex = state.flowerCount++;
-  const spot = FLOWER_SPOTS[flowerIndex % FLOWER_SPOTS.length];
+  const spot = chooseFlowerSpot();
   const letter = FLOWER_PETALS[card.selected_letter] ? card.selected_letter : 'b';
   const flower = document.createElement('div');
   flower.className = `folk-flower folk-flower--${letter}${isCorrect ? '' : ' incorrect'}`;
-  flower.style.left = spot.left;
-  flower.style.top = spot.top;
-  flower.style.setProperty('--flower-size', `${spot.size + (flowerIndex % 3) * 5}px`);
-  flower.style.setProperty('--flower-turn', `${(flowerIndex * 19) % 360}deg`);
+  flower.style.left = `${spot.left.toFixed(2)}%`;
+  flower.style.top = `${spot.top.toFixed(2)}%`;
+  flower.style.setProperty('--flower-size', `${spot.size}px`);
+  flower.style.setProperty('--flower-turn', `${Math.round(Math.random() * 360)}deg`);
+  flower.dataset.flowerLeft = String(spot.left);
+  flower.dataset.flowerTop = String(spot.top);
   flower.dataset.opacity = String(isCorrect ? 0.31 : 0.19);
   flower.style.setProperty('--flower-opacity', flower.dataset.opacity);
 
