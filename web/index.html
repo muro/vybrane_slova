@@ -881,10 +881,10 @@ function showCardTear(answerGroup, card) {
   clearConfetti();
 
   const pieces = document.createDocumentFragment();
-  // Smaller tiles still reconstruct the card on release, but read as
-  // confetti sooner than the original broad paper rectangles.
-  const columns = 8;
-  const rows = 6;
+  // A dense tile grid preserves the complete paper face for the release frame
+  // while making the scattered result read as fine confetti.
+  const columns = 16;
+  const rows = 12;
   const width = box.width / columns + 0.5;
   const height = box.height / rows + 0.5;
   for (let index = 0; index < columns * rows; index++) {
