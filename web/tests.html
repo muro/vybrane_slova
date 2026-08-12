@@ -94,10 +94,10 @@ async function run() {
   });
 
   test('loads the complete simple-word pool', () => {
-    equal(simpleCards.length, 386, 'simple card count');
+    equal(simpleCards.length, 383, 'simple card count');
     const counts = Engine.answerCounts(simpleCards);
     equal(counts.i, 202, 'simple i answer count');
-    equal(counts.y, 184, 'simple y answer count');
+    equal(counts.y, 181, 'simple y answer count');
   });
 
   test('masks the letter after the selected-word consonant', () => {

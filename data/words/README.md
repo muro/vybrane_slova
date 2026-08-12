@@ -16,7 +16,7 @@ across 14 pairs, balanced as 14 `i/í` answers and 14 `y/ý` answers. The
 `by` / `bi` pair is also in `disambiguation.tsv` with `review` status.
 
 The current ordinary simple-list data is split across the per-letter files in
-`simple/`: 386 cards, with 184 `y/ý` selected-word rows and 202 `i/í` control
+`simple/`: 383 cards, with 181 `y/ý` selected-word rows and 202 `i/í` control
 rows. They are loaded by default alongside the 28 ready contrast cards. The
 app has a hidden `?cards=ambiguous` review mode that loads only those 28 ready
 contrast cards while picture and context work is revisited; `review` rows stay

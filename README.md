@@ -5,7 +5,7 @@ aplikacia na trenovanie vybranych slov
 
 Reviewable word-card data lives in `data/words/`. Simple non-disambiguation
 words are in plain per-letter word-list files under `simple/`; words that need context or
-picture disambiguation are in `disambiguation.tsv`. The app loads 386 simple
+picture disambiguation are in `disambiguation.tsv`. The app loads 383 simple
 cards and 28 ready contrast cards by default. The hidden review URL
 `?cards=ambiguous` limits the pool to the 28 ready contrast cards; the 2
 review rows remain excluded. Run the validator after editing:
