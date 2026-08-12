@@ -188,35 +188,84 @@
     transform: translate(-3px, 4px) rotate(-0.3deg);
   }
 
-  /* A hairline of recent practice is deliberately quieter than the card: it
-     fills over ten answers and shifts from warm rose toward leaf green. */
-  .recent-progress {
-    position: absolute;
-    z-index: 5;
-    left: 10%;
-    right: 10%;
-    bottom: -12px;
-    height: 3px;
+  /* Answers slowly print a folk-flower field into the paper around the card.
+     These belong to the current visit only, so a pale mistake never becomes a
+     permanent mark. */
+  .flower-garden {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
     overflow: hidden;
-    border-radius: 999px;
-    background: rgba(112, 89, 55, 0.1);
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 220ms ease;
   }
 
-  .recent-progress.has-history { opacity: 0.78; }
+  .folk-flower {
+    position: absolute;
+    width: var(--flower-size, 64px);
+    height: var(--flower-size, 64px);
+    color: rgba(36, 92, 153, var(--flower-opacity, 0.28));
+    transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg));
+    animation: flower-print 520ms cubic-bezier(0.18, 0.82, 0.3, 1) both;
+  }
 
-  .recent-progress-fill {
-    width: 0;
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(
-      90deg,
-      hsl(var(--recent-hue, 72) 42% 47% / 0.46),
-      hsl(var(--recent-hue, 72) 56% 40% / 0.9)
-    );
-    transition: width 340ms cubic-bezier(0.2, 0.82, 0.28, 1), background 340ms ease;
+  .folk-flower.incorrect {
+    color: rgba(161, 72, 70, var(--flower-opacity, 0.18));
+  }
+
+  .folk-flower__petal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--petal-width, 20%);
+    height: var(--petal-height, 38%);
+    border: 1.4px solid currentColor;
+    border-radius: 60% 60% 48% 48%;
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -100%) rotate(var(--petal-angle));
+  }
+
+  .folk-flower__core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18%;
+    aspect-ratio: 1;
+    border: 1.4px solid currentColor;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .folk-flower--b { --petal-width: 24%; --petal-height: 36%; }
+  .folk-flower--m { --petal-width: 17%; --petal-height: 42%; }
+  .folk-flower--p { --petal-width: 23%; --petal-height: 35%; }
+  .folk-flower--r { --petal-width: 13%; --petal-height: 44%; }
+  .folk-flower--s { --petal-width: 20%; --petal-height: 31%; }
+  .folk-flower--v { --petal-width: 16%; --petal-height: 40%; }
+  .folk-flower--z { --petal-width: 21%; --petal-height: 33%; }
+
+  .folk-flower--p .folk-flower__petal,
+  .folk-flower--v .folk-flower__petal {
+    border-radius: 100% 0 100% 0;
+  }
+
+  .folk-flower--s .folk-flower__petal {
+    border-radius: 2px;
+  }
+
+  .folk-flower--r .folk-flower__petal {
+    border-radius: 999px 999px 28% 28%;
+  }
+
+  @keyframes flower-print {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) scale(0.72);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) scale(1);
+    }
   }
 
   .word-card {
@@ -615,6 +664,10 @@
       animation-duration: 240ms;
     }
 
+    .folk-flower {
+      animation-duration: 120ms;
+    }
+
   }
 
   .feedback {
@@ -749,6 +802,7 @@
 </style>
 </head>
 <body>
+<div class="flower-garden" id="flower-garden" aria-hidden="true"></div>
 <main class="app">
   <header class="topbar" aria-label="Nastavenia">
     <div class="letter-filter" id="letter-filter" role="group" aria-label="Vybrať písmená"></div>
@@ -768,7 +822,6 @@
         <div class="full-word" id="full-word"></div>
       </article>
       <div class="outgoing-layer" id="outgoing-layer" aria-hidden="true"></div>
-      <div class="recent-progress" id="recent-progress" aria-hidden="true"><div class="recent-progress-fill" id="recent-progress-fill"></div></div>
     </div>
     <p class="feedback quiet" id="feedback" aria-live="polite"></p>
     <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
@@ -809,8 +862,7 @@ const elements = {
   aboutClose: document.querySelector('#about-close'),
   aboutOverlay: document.querySelector('#about-overlay'),
   aboutSheet: document.querySelector('.about-sheet'),
-  recentProgress: document.querySelector('#recent-progress'),
-  recentProgressFill: document.querySelector('#recent-progress-fill'),
+  flowerGarden: document.querySelector('#flower-garden'),
 };
 
 let confettiTimer = null;
@@ -825,6 +877,21 @@ function getStorage() {
 
 const appStorage = getStorage();
 const LETTER_ORDER = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
+const FLOWER_PETALS = { b: 5, m: 6, p: 4, r: 8, s: 6, v: 5, z: 7 };
+const FLOWER_SPOTS = [
+  { left: '13%', top: '16%', size: 58 },
+  { left: '84%', top: '18%', size: 72 },
+  { left: '29%', top: '24%', size: 54 },
+  { left: '72%', top: '77%', size: 64 },
+  { left: '16%', top: '81%', size: 76 },
+  { left: '95%', top: '63%', size: 52 },
+  { left: '45%', top: '87%', size: 60 },
+  { left: '58%', top: '13%', size: 50 },
+  { left: '3%', top: '49%', size: 62 },
+  { left: '97%', top: '43%', size: 58 },
+  { left: '36%', top: '72%', size: 48 },
+  { left: '67%', top: '29%', size: 68 },
+];
 
 function loadSettings(storage) {
   if (!storage) return { selectedLetters: null };
@@ -863,7 +930,7 @@ const state = {
   locked: false,
   selectedLetters: settings.selectedLetters,
   progress: Engine.loadProgress(appStorage),
-  recentAnswers: [],
+  flowerCount: 0,
 };
 
 const drag = {
@@ -895,16 +962,40 @@ function renderStats() {
     : 'Vybrané slová';
 }
 
-function renderRecentProgress() {
-  const answers = state.recentAnswers;
-  const answered = answers.length;
-  const correct = answers.filter(Boolean).length;
-  const accuracy = answered ? correct / answered : 0;
-  const hue = Math.round(8 + accuracy * 120);
+function addBackgroundFlower(card, isCorrect) {
+  const flowerIndex = state.flowerCount++;
+  const spot = FLOWER_SPOTS[flowerIndex % FLOWER_SPOTS.length];
+  const letter = FLOWER_PETALS[card.selected_letter] ? card.selected_letter : 'b';
+  const flower = document.createElement('div');
+  flower.className = `folk-flower folk-flower--${letter}${isCorrect ? '' : ' incorrect'}`;
+  flower.style.left = spot.left;
+  flower.style.top = spot.top;
+  flower.style.setProperty('--flower-size', `${spot.size + (flowerIndex % 3) * 5}px`);
+  flower.style.setProperty('--flower-turn', `${(flowerIndex * 19) % 360}deg`);
+  flower.dataset.opacity = String(isCorrect ? 0.31 : 0.19);
+  flower.style.setProperty('--flower-opacity', flower.dataset.opacity);
 
-  elements.recentProgress.classList.toggle('has-history', answered > 0);
-  elements.recentProgressFill.style.width = `${answered * 10}%`;
-  elements.recentProgressFill.style.setProperty('--recent-hue', hue);
+  const petals = FLOWER_PETALS[letter];
+  for (let index = 0; index < petals; index++) {
+    const petal = document.createElement('span');
+    petal.className = 'folk-flower__petal';
+    petal.style.setProperty('--petal-angle', `${index * (360 / petals)}deg`);
+    flower.append(petal);
+  }
+
+  const core = document.createElement('span');
+  core.className = 'folk-flower__core';
+  flower.append(core);
+
+  elements.flowerGarden.querySelectorAll('.folk-flower').forEach(existing => {
+    const nextOpacity = Math.max(0.07, Number(existing.dataset.opacity) - 0.012);
+    existing.dataset.opacity = String(nextOpacity);
+    existing.style.setProperty('--flower-opacity', nextOpacity);
+  });
+  elements.flowerGarden.append(flower);
+  if (elements.flowerGarden.childElementCount > 24) {
+    elements.flowerGarden.firstElementChild.remove();
+  }
 }
 
 function cardsForSelectedLetters() {
@@ -1143,7 +1234,6 @@ function render() {
   const card = currentCard();
   const total = state.round.length;
   renderStats();
-  renderRecentProgress();
   renderUpcomingCard();
 
   elements.card.classList.remove('exit-wrong');
@@ -1201,8 +1291,7 @@ function choose(answerGroup) {
 
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
   Engine.saveProgress(state.progress, appStorage);
-  state.recentAnswers = [...state.recentAnswers, isCorrect].slice(-10);
-  renderRecentProgress();
+  addBackgroundFlower(card, isCorrect);
 
   // The outgoing card is the one place that reveals the correction. Keeping
   // the feedback line quiet avoids repeating the same message underneath it.
