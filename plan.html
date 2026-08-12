@@ -304,7 +304,7 @@
   <section>
     <h2>Core Interaction</h2>
     <p>The app should feel almost entirely about one word tile moving. The tile stays in the center, and the child tugs it left for <strong>i/í</strong> or right for <strong>y/ý</strong>. It follows the first part of a pull, then becomes more resistant, like a heavy card held to the table.</p>
-    <p>The answer sides are never drawn. No destination tiles, no framed board panels, and no coloured screen edges: one page background, with the current word card as the only surface carrying content, and every piece of interaction and feedback contained inside that card.</p>
+    <p>The answer sides are never drawn. No destination tiles, no framed board panels, and no coloured screen edges: one page background, with the current word card as the only surface carrying the current task, and every piece of interaction and feedback contained inside that card.</p>
     <p>All drag feedback therefore lives in the word itself. The missing letter fills in as the card moves, tinted in its answer colour, and turns solid once the card has travelled far enough that letting go will submit. That change from tint to solid is the only signal that the answer is armed, so it has to be unmissable.</p>
 
     <div class="flow" aria-label="Card drag model">
@@ -351,7 +351,7 @@
 
   <section>
     <h2>Visual Language</h2>
-    <p>The look is one warm parchment background with a single lifted card on a small stack of blank sheets. The active card has real elevation, a 26px radius, a visible paper edge, and a restrained glossy sheen: glossy heavy paper rather than plastic. During a tug it lifts a little, tilts by only a degree or two, and moves its shadow. The two sheets underneath are only material: they never preview the next word, change with progress, or act as answer targets. When an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
+    <p>The look is one warm parchment background with a single lifted card on a small stack. The active card has real elevation, a 26px radius, a visible paper edge, and a restrained glossy sheen: glossy heavy paper rather than plastic. During a tug it lifts a little, tilts by only a degree or two, and moves its shadow. The upper sheet underneath is the next masked word and sentence, becoming visible as the active card moves; the lower layers are only paper. None of the sheets are answer targets. When an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
     <p>The blank is a soft tinted well inside the word, never a typed underscore, so a card at rest reads as a word waiting for a letter rather than as broken text. During a drag it fills in two stages: a light tint of <strong>blue</strong> for <strong>i/í</strong> or <strong>gold</strong> for <strong>y/ý</strong> while the card is still short of the submit distance, then the solid colour with a white letter once releasing will answer.</p>
     <p>Type is <strong>Nunito</strong>, committed as two variable <code>woff2</code> subsets under <code>web/fonts/</code> and precached by the service worker, so the installed app never fetches a font. Its rounded terminals suit ages 7-10, and its <code>í</code> and <code>ý</code> stay unmistakable at card size. The Open Font License text ships alongside it.</p>
     <p>Corrections appear as a single coloured line under the card, not as a bordered banner. Routine progress stays off the main screen, as decided in the game loop below.</p>
@@ -374,7 +374,7 @@
       </div>
       <div class="panel">
         <h3>Feedback</h3>
-        <p>Correct answers keep the completed word visible briefly, with a small confetti burst, before the next card quietly takes its place. Incorrect answers show a clearly readable correction on the answered card before it splits into falling strips. Feedback is a pointer-transparent overlay, so the next card can be moved before the effect finishes.</p>
+        <p>Correct answers briefly brighten and collapse the completed card into a confetti burst before the next card quietly takes its place. Incorrect answers show a clearly readable correction on the answered card before it splits into falling strips. In both cases, the card itself visibly becomes the feedback. Feedback is a pointer-transparent overlay, so the next card can be moved before the effect finishes.</p>
       </div>
     </div>
     <ul class="tag-list" aria-label="Interaction tags">
@@ -393,7 +393,7 @@
       <li>Show the next word card in the center with the target letter blanked out.</li>
       <li>The child tugs the card left or right. The blank fills with the hinted letter during the tug, while the tile resists travelling very far.</li>
       <li>If the card crosses the drag threshold, submit the chosen answer; otherwise snap back.</li>
-      <li>For correct answers, let the card become a small confetti burst. For mistakes, split the card into falling strips, reveal the correct full word, and keep the correction gentle.</li>
+      <li>For correct answers, let the card brighten and collapse into a small confetti burst. For mistakes, split the card into falling strips, reveal the correct full word, and keep the correction gentle.</li>
       <li>Advance until the round is complete, then show score, streak, and next-step recommendation.</li>
     </ol>
     <p>Keep routine progress indicators out of the main screen unless they are needed for a round-complete state. The main screen should stay centered on the card.</p>
