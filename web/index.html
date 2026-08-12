@@ -158,40 +158,10 @@
     gap: 20px;
   }
 
-  /* The two layers behind the card read as the remaining pile. The closest one
-     carries the next prompt, so its whole card appears as the current card moves. */
-  .card-stack {
+  .card-stage {
     position: relative;
     width: var(--card-w);
     height: var(--card-h);
-  }
-
-  .card-stack::before,
-  .card-stack::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: var(--card-radius);
-    background: var(--card);
-    box-shadow: 0 12px 26px -18px rgba(62, 46, 24, 0.55);
-    transition: opacity 320ms ease;
-  }
-
-  .card-stack::before {
-    transform: rotate(-3.4deg) translateY(3px);
-    opacity: 0.55;
-  }
-
-  .card-stack::after {
-    transform: rotate(2deg) translateY(1px);
-    opacity: 0.8;
-  }
-
-  .card-stack.thin::before,
-  .card-stack.empty::before,
-  .card-stack.empty::after {
-    opacity: 0;
   }
 
   .word-card {
@@ -212,15 +182,9 @@
     cursor: grab;
     touch-action: none;
     user-select: none;
-    transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg));
-    transition: transform 260ms ease, opacity 260ms ease;
+    transform: translate(var(--drag-x, 0), var(--drag-y, 0));
+    transition: transform 300ms cubic-bezier(0.2, 0.9, 0.25, 1.22), opacity 260ms ease;
     overflow: hidden;
-  }
-
-  .word-card.upcoming-card {
-    z-index: 1;
-    pointer-events: none;
-    transform: translateY(8px) rotate(-1.8deg);
   }
 
   .outgoing-layer {
@@ -236,9 +200,7 @@
   }
 
   .word-card.exit-correct {
-    opacity: 0;
-    transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.94) rotate(var(--drag-rotate, 0deg));
-    transition: opacity 120ms ease, transform 160ms ease;
+    animation: correct-card-settle 720ms ease forwards;
   }
 
   .word-card.exit-wrong {
@@ -263,7 +225,19 @@
 
     80%, 100% {
       opacity: 0;
-      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.98) rotate(var(--drag-rotate, 0deg));
+      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.98);
+    }
+  }
+
+  @keyframes correct-card-settle {
+    0%, 46% {
+      opacity: 1;
+      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(0, 12px) scale(0.97);
     }
   }
 
@@ -466,6 +440,10 @@
     .word-card.exit-wrong {
       animation-duration: 240ms;
     }
+
+    .word-card.exit-correct {
+      animation-duration: 240ms;
+    }
   }
 
   .feedback {
@@ -607,12 +585,7 @@
   </header>
 
   <section class="board" aria-label="Triedenie kartičiek">
-    <div class="card-stack" id="card-stack" aria-live="polite">
-      <article class="word-card upcoming-card" id="upcoming-card" aria-hidden="true" hidden>
-        <div class="masked-word" id="upcoming-masked-word"></div>
-        <p class="sentence" id="upcoming-sentence"></p>
-        <div class="full-word" id="upcoming-full-word"></div>
-      </article>
+    <div class="card-stage" aria-live="polite">
       <article class="word-card" id="word-card">
         <div class="masked-word" id="masked-word"></div>
         <p class="sentence" id="sentence">Načítavam kartičky.</p>
@@ -643,16 +616,11 @@ const WRONG_OUTGOING_LIFETIME_MS = 2400;
 
 const elements = {
   card: document.querySelector('#word-card'),
-  upcomingCard: document.querySelector('#upcoming-card'),
   outgoingLayer: document.querySelector('#outgoing-layer'),
-  cardStack: document.querySelector('#card-stack'),
   confettiLayer: document.querySelector('#confetti-layer'),
   maskedWord: document.querySelector('#masked-word'),
-  upcomingMaskedWord: document.querySelector('#upcoming-masked-word'),
   sentence: document.querySelector('#sentence'),
-  upcomingSentence: document.querySelector('#upcoming-sentence'),
   fullWord: document.querySelector('#full-word'),
-  upcomingFullWord: document.querySelector('#upcoming-full-word'),
   feedback: document.querySelector('#feedback'),
   letterFilter: document.querySelector('#letter-filter'),
   aboutOpen: document.querySelector('#about-open'),
@@ -730,10 +698,6 @@ const drag = {
 
 function currentCard() {
   return state.round[state.index] || null;
-}
-
-function nextCardInRound() {
-  return state.round[state.index + 1] || null;
 }
 
 function renderStats() {
@@ -909,28 +873,10 @@ function renderMaskedWord(card, answerGroup = null) {
   elements.letterSlot = renderMaskedWordInto(elements.maskedWord, card, answerGroup);
 }
 
-function renderUpcomingCard() {
-  const card = nextCardInRound();
-  elements.upcomingCard.hidden = !card;
-  if (!card) return;
-
-  renderMaskedWordInto(elements.upcomingMaskedWord, card);
-  elements.upcomingSentence.textContent = card.prompt_sentence;
-  elements.upcomingFullWord.textContent = '';
-}
-
-function renderStackDepth() {
-  const remaining = Math.max(0, state.round.length - state.index);
-  elements.cardStack.classList.toggle('thin', remaining === 2);
-  elements.cardStack.classList.toggle('empty', remaining <= 1);
-}
-
 function render() {
   const card = currentCard();
   const total = state.round.length;
   renderStats();
-  renderStackDepth();
-  renderUpcomingCard();
 
   elements.card.classList.remove('exit-correct', 'exit-wrong');
   clearDragStyles();
@@ -995,7 +941,7 @@ function choose(answerGroup) {
   setFeedback('', 'quiet');
 
   const outgoing = moveCurrentCardToOutgoingLayer(
-    isCorrect ? 1200 : WRONG_OUTGOING_LIFETIME_MS,
+    isCorrect ? 800 : WRONG_OUTGOING_LIFETIME_MS,
   );
   if (isCorrect) {
     outgoing.classList.add('exit-correct');
@@ -1016,11 +962,17 @@ function submitThreshold() {
   return Math.max(72, Math.min(108, elements.card.offsetWidth * 0.28));
 }
 
+function resistedDistance(distance) {
+  const maximum = Math.min(60, elements.card.offsetWidth * 0.18);
+  const resistance = Math.max(46, elements.card.offsetWidth * 0.19);
+  return Math.sign(distance) * maximum * (1 - Math.exp(-Math.abs(distance) / resistance));
+}
+
 function setCardDrag(dx, dy) {
-  const rotation = clamp(dx / 18, -10, 10);
-  elements.card.style.setProperty('--drag-x', `${dx}px`);
-  elements.card.style.setProperty('--drag-y', `${dy}px`);
-  elements.card.style.setProperty('--drag-rotate', `${rotation}deg`);
+  const visualX = resistedDistance(dx);
+  const visualY = clamp(dy * 0.08, -12, 12);
+  elements.card.style.setProperty('--drag-x', `${visualX}px`);
+  elements.card.style.setProperty('--drag-y', `${visualY}px`);
   const ready = Math.abs(dx) >= submitThreshold();
   if (dx < -22) {
     setDragHint('i', ready);
@@ -1054,7 +1006,6 @@ function clearDragStyles() {
   drag.hintReady = false;
   elements.card.style.removeProperty('--drag-x');
   elements.card.style.removeProperty('--drag-y');
-  elements.card.style.removeProperty('--drag-rotate');
 }
 
 function targetFromDrag(dx) {
@@ -1074,9 +1025,9 @@ function snapCardBack() {
   }, 280);
 }
 
-// On load the card demonstrates the gesture itself: it drifts toward i/í, then
-// toward y/ý, filling the letter slot each way, then settles back. Any real
-// input cancels it, so it never fights the child for control of the card.
+// On load the card demonstrates a short tug toward each answer, filling the
+// letter slot each way, then springs back. Any real input cancels it, so it
+// never fights the child for control of the card.
 let introTimers = [];
 
 function cancelIntro() {
@@ -1090,18 +1041,11 @@ function runIntro() {
   if (!currentCard()) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Never reach past the free space beside the card: a demo that slides off the
-  // screen edge reads as breakage rather than as a move.
-  const reach = () => {
-    const room = Math.max(0, (window.innerWidth - elements.card.offsetWidth) / 2);
-    return Math.round(Math.min(submitThreshold() * 0.86, room));
-  };
+  const reach = () => Math.round(submitThreshold() * 1.08);
   const at = (delay, step) => introTimers.push(window.setTimeout(step, delay));
 
-  // Force the committed fill: the demo cannot always travel the full submit
-  // distance, but it should still show what a finished answer looks like.
-  at(460, () => { setCardDrag(-reach(), 0); setDragHint('i', true); });
-  at(1200, () => { setCardDrag(reach(), 0); setDragHint('y', true); });
+  at(460, () => setCardDrag(-reach(), 0));
+  at(1200, () => setCardDrag(reach(), 0));
   at(1940, () => setCardDrag(0, 0));
   at(2260, () => {
     introTimers = [];

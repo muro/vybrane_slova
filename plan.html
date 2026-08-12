@@ -149,7 +149,7 @@
     margin-top: 8px;
   }
 
-  .card-stack {
+  .card-stage {
     position: relative;
     height: 96px;
     margin-top: 8px;
@@ -172,15 +172,6 @@
     text-align: center;
     font-size: 24px;
     font-weight: 800;
-  }
-
-  .word-card.behind {
-    transform: translate(-50%, -42%) rotate(-2deg);
-    opacity: 0.55;
-  }
-
-  .word-card.front {
-    transform: translate(-50%, -54%) rotate(2deg);
   }
 
   .motion-note {
@@ -312,7 +303,7 @@
 
   <section>
     <h2>Core Interaction</h2>
-    <p>The app should feel almost entirely about one word card moving. The word card stays in the center, and the child drags it left for <strong>i/í</strong> or right for <strong>y/ý</strong>.</p>
+    <p>The app should feel almost entirely about one word tile moving. The tile stays in the center, and the child tugs it left for <strong>i/í</strong> or right for <strong>y/ý</strong>. It travels only a short distance and becomes more resistant the farther it is pulled.</p>
     <p>The answer sides are never drawn. No destination tiles, no framed board panels, and no coloured screen edges: one page background, with the current word card as the only surface, and every piece of interaction and feedback contained inside that card.</p>
     <p>All drag feedback therefore lives in the word itself. The missing letter fills in as the card moves, tinted in its answer colour, and turns solid once the card has travelled far enough that letting go will submit. That change from tint to solid is the only signal that the answer is armed, so it has to be unmissable.</p>
 
@@ -330,9 +321,8 @@
           <div class="pile-title">Word card</div>
           <div class="pile-label">Main interaction</div>
         </div>
-        <div class="card-stack" aria-hidden="true">
-          <div class="word-card behind">slovo _</div>
-          <div class="word-card front">karta _</div>
+          <div class="card-stage" aria-hidden="true">
+          <div class="word-card">karta _</div>
         </div>
       </div>
 
@@ -361,7 +351,7 @@
 
   <section>
     <h2>Visual Language</h2>
-    <p>The look is one warm parchment background with a single lifted card on it. It has real elevation and a 26px radius. The next card sits just behind it with its masked word and sentence already rendered, so the full next prompt appears as the current card moves; one further faint layer keeps the deck reading as a pile that runs down as the round progresses.</p>
+    <p>The look is one warm parchment background with a single lifted card on it. It has real elevation and a 26px radius. There is no card deck: when an answer is given, the completed word briefly settles in place and the next prompt takes its place.</p>
     <p>The blank is a soft tinted well inside the word, never a typed underscore, so a card at rest reads as a word waiting for a letter rather than as broken text. During a drag it fills in two stages: a light tint of <strong>blue</strong> for <strong>i/í</strong> or <strong>gold</strong> for <strong>y/ý</strong> while the card is still short of the submit distance, then the solid colour with a white letter once releasing will answer.</p>
     <p>Type is <strong>Nunito</strong>, committed as two variable <code>woff2</code> subsets under <code>web/fonts/</code> and precached by the service worker, so the installed app never fetches a font. Its rounded terminals suit ages 7-10, and its <code>í</code> and <code>ý</code> stay unmistakable at card size. The Open Font License text ships alongside it.</p>
     <p>Corrections appear as a single coloured line under the card, not as a bordered banner. Routine progress stays off the main screen, as decided in the game loop below.</p>
@@ -372,11 +362,11 @@
     <div class="grid">
       <div class="panel">
         <h3>Primary input</h3>
-        <p>Drag the card horizontally. Submit only after a meaningful sideways distance so accidental tiny movements snap back.</p>
+        <p>Tug the card horizontally. It moves only a little and pushes back as the pull becomes longer. Submit only after a meaningful sideways distance so accidental tiny movements snap back.</p>
       </div>
       <div class="panel">
         <h3>Gesture demo on load</h3>
-        <p>Because the answer sides are not drawn as tiles, the card teaches the gesture itself: on load it drifts toward <strong>i/í</strong>, then toward <strong>y/ý</strong>, filling the blank each way, then settles back. Any touch cancels it, and it is skipped under reduced-motion.</p>
+        <p>Because the answer sides are not drawn as tiles, the card teaches the gesture itself: on load it makes a short resisted tug toward <strong>i/í</strong>, then toward <strong>y/ý</strong>, filling the blank each way, then springs back. Any touch cancels it, and it is skipped under reduced-motion.</p>
       </div>
       <div class="panel">
         <h3>Minimal chrome</h3>
@@ -384,7 +374,7 @@
       </div>
       <div class="panel">
         <h3>Feedback</h3>
-        <p>Correct answers turn the answered card into a small confetti burst. Incorrect answers show a clearly readable correction on the answered card before it splits into falling strips. Feedback is a pointer-transparent overlay, so the next card can be moved before the effect finishes.</p>
+        <p>Correct answers keep the completed word visible briefly, with a small confetti burst, before the next card quietly takes its place. Incorrect answers show a clearly readable correction on the answered card before it splits into falling strips. Feedback is a pointer-transparent overlay, so the next card can be moved before the effect finishes.</p>
       </div>
     </div>
     <ul class="tag-list" aria-label="Interaction tags">
@@ -401,7 +391,7 @@
     <ol>
       <li>Choose a lesson or continue the current practice set.</li>
       <li>Show the next word card in the center with the target letter blanked out.</li>
-      <li>The child drags the card left or right. The blank fills with the hinted letter during the drag.</li>
+      <li>The child tugs the card left or right. The blank fills with the hinted letter during the tug, while the tile resists travelling very far.</li>
       <li>If the card crosses the drag threshold, submit the chosen answer; otherwise snap back.</li>
       <li>For correct answers, let the card become a small confetti burst. For mistakes, split the card into falling strips, reveal the correct full word, and keep the correction gentle.</li>
       <li>Advance until the round is complete, then show score, streak, and next-step recommendation.</li>
@@ -565,7 +555,7 @@
     <ol class="phase-list">
       <li><strong>Static PWA skeleton.</strong> Add <code>web/index.html</code>, <code>web/manifest.webmanifest</code>, <code>web/sw.js</code>, icons, and optional <code>web/preview.html</code>.</li>
       <li><strong>Word engine.</strong> Build <code>web/engine.js</code> with lesson data, answer checking, randomization, round scoring, and localStorage helpers.</li>
-      <li><strong>Card UI.</strong> Build the centre card and its deck, the drag interaction and submit threshold, the in-card letter fill, and the card movement animation.</li>
+      <li><strong>Card UI.</strong> Build the centre tile, its short resisted-tug interaction and submit threshold, the in-card letter fill, and the completion animation.</li>
       <li><strong>Feedback and progression.</strong> Add correct/incorrect feedback, round summaries, streaks, mastery tracking, and a gentle reset flow.</li>
       <li><strong>Offline and install polish.</strong> Finish service-worker caching, icon generation, safe-area behavior, tests, and deployment notes.</li>
       <li><strong>Later morphology pack.</strong> After the base-form list is reviewed, add declined noun/adjective forms and conjugated verb forms as a separate content expansion with its own review pass and validator coverage.</li>
