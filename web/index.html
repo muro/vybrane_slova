@@ -939,7 +939,6 @@ const state = {
   cards: [],
   round: [],
   index: 0,
-  correct: 0,
   locked: false,
   selectedLetters: settings.selectedLetters,
   progress: Engine.loadProgress(appStorage),
@@ -967,12 +966,6 @@ function currentCard() {
 
 function nextCardInRound() {
   return state.round[state.index + 1] || null;
-}
-
-function renderStats() {
-  document.title = state.round.length
-    ? `Vybrané slová ${Math.min(state.index + 1, state.round.length)}/${state.round.length}`
-    : 'Vybrané slová';
 }
 
 function addBackgroundFlower(card, isCorrect) {
@@ -1246,7 +1239,6 @@ function renderUpcomingCard() {
 function render() {
   const card = currentCard();
   const total = state.round.length;
-  renderStats();
   renderUpcomingCard();
 
   elements.card.classList.remove('exit-wrong');
@@ -1261,7 +1253,7 @@ function render() {
       return;
     }
     elements.maskedWord.textContent = 'hotovo';
-    elements.sentence.textContent = `Skóre ${state.correct}/${total}`;
+    elements.sentence.textContent = 'Kolo je hotové.';
     setReveal('', null);
     setFeedback('Kolo je hotové.', 'done');
     return;
@@ -1300,7 +1292,6 @@ function choose(answerGroup) {
   drag.source = null;
   elements.card.classList.remove('dragging');
   const isCorrect = Engine.checkAnswer(card, answerGroup);
-  if (isCorrect) state.correct++;
 
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
   Engine.saveProgress(state.progress, appStorage);
@@ -1322,7 +1313,6 @@ function choose(answerGroup) {
     outgoing.classList.add('exit-wrong');
     showWrongFallApart(outgoing);
   }
-  renderStats();
   advanceToNextCard();
 }
 
@@ -1600,7 +1590,6 @@ function resetRound() {
   clearConfetti();
   elements.outgoingLayer.textContent = '';
   state.index = 0;
-  state.correct = 0;
   state.locked = false;
   state.round = createCurrentRound();
   render();
