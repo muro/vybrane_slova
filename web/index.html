@@ -205,10 +205,7 @@
     height: var(--flower-size, 64px);
     color: rgba(36, 92, 153, var(--flower-opacity, 0.28));
     transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg));
-    transform-origin: 50% 58%;
-    animation:
-      flower-print 520ms cubic-bezier(0.18, 0.82, 0.3, 1) both,
-      flower-breeze 7.6s ease-in-out var(--flower-breeze-delay, 620ms) infinite;
+    animation: flower-pop 240ms cubic-bezier(0.18, 0.92, 0.32, 1.24) both;
   }
 
   .folk-flower.incorrect {
@@ -225,9 +222,6 @@
     border-radius: 60% 60% 48% 48%;
     transform-origin: 50% 100%;
     transform: translate(-50%, -100%) rotate(var(--petal-angle));
-    clip-path: inset(100% -12% 0 -12%);
-    animation: petal-stitch 390ms cubic-bezier(0.18, 0.82, 0.3, 1) both;
-    animation-delay: calc(70ms + var(--petal-index) * 52ms);
   }
 
   .folk-flower__core {
@@ -239,8 +233,6 @@
     border: 1.4px solid currentColor;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    opacity: 0;
-    animation: core-stitch 190ms ease-out 390ms both;
   }
 
   .folk-flower--b { --petal-width: 24%; --petal-height: 36%; }
@@ -264,47 +256,20 @@
     border-radius: 999px 999px 28% 28%;
   }
 
-  @keyframes flower-print {
+  @keyframes flower-pop {
     from {
       opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) scale(0.62);
+    }
+
+    72% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) scale(1.08);
     }
 
     to {
       opacity: 1;
-    }
-  }
-
-  @keyframes petal-stitch {
-    from {
-      clip-path: inset(100% -12% 0 -12%);
-      opacity: 0;
-    }
-
-    to {
-      clip-path: inset(0 -12% 0 -12%);
-      opacity: 1;
-    }
-  }
-
-  @keyframes core-stitch {
-    from {
-      opacity: 0;
-      clip-path: inset(50% 0 50% 0);
-    }
-
-    to {
-      opacity: 1;
-      clip-path: inset(0);
-    }
-  }
-
-  @keyframes flower-breeze {
-    0%, 100% {
-      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) rotate(-0.7deg) translateY(1px);
-    }
-
-    50% {
-      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) rotate(1.15deg) translateY(-1px);
+      transform: translate(-50%, -50%) rotate(var(--flower-turn, 0deg)) scale(1);
     }
   }
 
@@ -705,13 +670,7 @@
     }
 
     .folk-flower {
-      animation: flower-print 120ms ease-out both;
-    }
-
-    .folk-flower__petal,
-    .folk-flower__core {
       animation-duration: 120ms;
-      animation-delay: 0ms;
     }
 
   }
@@ -925,18 +884,26 @@ const appStorage = getStorage();
 const LETTER_ORDER = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
 const FLOWER_PETALS = { b: 5, m: 6, p: 4, r: 8, s: 6, v: 5, z: 7 };
 const FLOWER_SPOTS = [
-  { left: '13%', top: '16%', size: 58 },
-  { left: '84%', top: '18%', size: 72 },
-  { left: '29%', top: '24%', size: 54 },
-  { left: '72%', top: '77%', size: 64 },
-  { left: '16%', top: '81%', size: 76 },
-  { left: '95%', top: '63%', size: 52 },
-  { left: '45%', top: '87%', size: 60 },
-  { left: '58%', top: '13%', size: 50 },
-  { left: '3%', top: '49%', size: 62 },
-  { left: '97%', top: '43%', size: 58 },
-  { left: '36%', top: '72%', size: 48 },
-  { left: '67%', top: '29%', size: 68 },
+  { left: '8%', top: '12%', size: 48 }, { left: '22%', top: '16%', size: 62 },
+  { left: '38%', top: '11%', size: 54 }, { left: '54%', top: '20%', size: 46 },
+  { left: '70%', top: '13%', size: 64 }, { left: '87%', top: '18%', size: 52 },
+  { left: '15%', top: '25%', size: 58 }, { left: '31%', top: '22%', size: 44 },
+  { left: '47%', top: '15%', size: 68 }, { left: '62%', top: '24%', size: 50 },
+  { left: '78%', top: '25%', size: 60 }, { left: '93%', top: '10%', size: 46 },
+  { left: '4%', top: '33%', size: 54 }, { left: '96%', top: '35%', size: 62 },
+  { left: '7%', top: '46%', size: 46 }, { left: '94%', top: '50%', size: 56 },
+  { left: '3%', top: '60%', size: 64 }, { left: '97%', top: '64%', size: 48 },
+  { left: '8%', top: '73%', size: 58 }, { left: '93%', top: '76%', size: 68 },
+  { left: '13%', top: '86%', size: 48 }, { left: '27%', top: '79%', size: 62 },
+  { left: '42%', top: '91%', size: 54 }, { left: '57%', top: '82%', size: 46 },
+  { left: '72%', top: '90%', size: 64 }, { left: '87%', top: '84%', size: 52 },
+  { left: '20%', top: '95%', size: 56 }, { left: '35%', top: '75%', size: 48 },
+  { left: '50%', top: '97%', size: 62 }, { left: '65%', top: '73%', size: 50 },
+  { left: '80%', top: '96%', size: 58 }, { left: '6%', top: '28%', size: 44 },
+  { left: '98%', top: '27%', size: 54 }, { left: '2%', top: '70%', size: 50 },
+  { left: '98%', top: '70%', size: 60 }, { left: '18%', top: '70%', size: 46 },
+  { left: '82%', top: '70%', size: 52 }, { left: '25%', top: '8%', size: 48 },
+  { left: '75%', top: '7%', size: 56 }, { left: '50%', top: '7%', size: 44 },
 ];
 
 function loadSettings(storage) {
@@ -1018,7 +985,6 @@ function addBackgroundFlower(card, isCorrect) {
   flower.style.top = spot.top;
   flower.style.setProperty('--flower-size', `${spot.size + (flowerIndex % 3) * 5}px`);
   flower.style.setProperty('--flower-turn', `${(flowerIndex * 19) % 360}deg`);
-  flower.style.setProperty('--flower-breeze-delay', `${620 + (flowerIndex % 7) * 470}ms`);
   flower.dataset.opacity = String(isCorrect ? 0.31 : 0.19);
   flower.style.setProperty('--flower-opacity', flower.dataset.opacity);
 
@@ -1027,7 +993,6 @@ function addBackgroundFlower(card, isCorrect) {
     const petal = document.createElement('span');
     petal.className = 'folk-flower__petal';
     petal.style.setProperty('--petal-angle', `${index * (360 / petals)}deg`);
-    petal.style.setProperty('--petal-index', index);
     flower.append(petal);
   }
 
@@ -1041,7 +1006,7 @@ function addBackgroundFlower(card, isCorrect) {
     existing.style.setProperty('--flower-opacity', nextOpacity);
   });
   elements.flowerGarden.append(flower);
-  if (elements.flowerGarden.childElementCount > 24) {
+  if (elements.flowerGarden.childElementCount > 40) {
     elements.flowerGarden.firstElementChild.remove();
   }
 }
