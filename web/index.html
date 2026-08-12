@@ -398,6 +398,7 @@
     height: var(--piece-height, 24px);
     opacity: 0;
     perspective: 600px;
+    contain: layout paint;
     transform: translate(-50%, -50%) scale(1) rotate(0deg);
     transform-style: preserve-3d;
     animation: card-tear-pop 940ms cubic-bezier(0.14, 0.84, 0.28, 1) forwards;
@@ -432,14 +433,10 @@
     animation-delay: var(--piece-delay, 0ms);
   }
 
-  .tear-front-card {
+  .tear-front-content {
     position: absolute;
     right: auto;
     bottom: auto;
-    min-height: 0;
-    box-shadow: none;
-    transform: none !important;
-    transition: none !important;
     pointer-events: none;
   }
 
@@ -890,7 +887,7 @@ function cardBoxInEffectLayer(card) {
   };
 }
 
-function addEffectPiece(className, left, top, customProperties = {}) {
+function addEffectPiece(className, left, top, customProperties = {}, parent = elements.confettiLayer) {
   const piece = document.createElement('div');
   piece.className = `card-effect-piece ${className}`;
   piece.style.setProperty('--piece-left', `${left}px`);
@@ -898,7 +895,7 @@ function addEffectPiece(className, left, top, customProperties = {}) {
   for (const [name, value] of Object.entries(customProperties)) {
     piece.style.setProperty(name, value);
   }
-  elements.confettiLayer.append(piece);
+  parent.append(piece);
   return piece;
 }
 
@@ -908,13 +905,15 @@ function showCardTear(answerGroup, card) {
     : ['#e59524', '#f6bd45', '#ef6a56'];
   const colors = [...answerColors, '#20a565', '#e3477a', '#25abc6', '#9b61db'];
   const box = cardBoxInEffectLayer(card);
+  const cardStyle = getComputedStyle(card);
   const centerX = box.left + box.width / 2;
   const centerY = box.top + box.height / 2;
   clearConfetti();
 
-  for (let index = 0; index < 46; index++) {
-    const width = 11 + Math.random() * 18;
-    const height = 14 + Math.random() * 22;
+  const pieces = document.createDocumentFragment();
+  for (let index = 0; index < 24; index++) {
+    const width = 16 + Math.random() * 26;
+    const height = 18 + Math.random() * 36;
     const sourceLeft = Math.random() * Math.max(1, box.width - width);
     const sourceTop = Math.random() * Math.max(1, box.height - height);
     const left = box.left + sourceLeft + width / 2;
@@ -934,27 +933,35 @@ function showCardTear(answerGroup, card) {
       '--piece-mid-rotate': `${rotation * 0.24}deg`,
       '--piece-flip': `${flip}deg`,
       '--piece-mid-flip': `${flip * 0.6}deg`,
-      '--piece-delay': `${index * 5}ms`,
+      '--piece-delay': `${index * 4}ms`,
       '--piece-width': `${width}px`,
       '--piece-height': `${height}px`,
       '--piece-color': colors[index % colors.length],
-    });
+    }, pieces);
     const front = document.createElement('div');
     front.className = 'card-confetti-face card-confetti-front';
-    const cardSlice = card.cloneNode(true);
-    cardSlice.removeAttribute('id');
-    cardSlice.classList.remove('dragging', 'exit-correct', 'exit-wrong');
-    cardSlice.classList.add('tear-front-card');
-    cardSlice.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
-    cardSlice.style.left = `${-sourceLeft}px`;
-    cardSlice.style.top = `${-sourceTop}px`;
-    cardSlice.style.width = `${box.width}px`;
-    cardSlice.style.height = `${box.height}px`;
-    front.append(cardSlice);
+    const content = document.createElement('div');
+    content.className = 'tear-front-content';
+    content.style.left = `${-sourceLeft}px`;
+    content.style.top = `${-sourceTop}px`;
+    content.style.width = `${box.width}px`;
+    content.style.height = `${box.height}px`;
+    content.style.padding = cardStyle.padding;
+    content.style.display = 'grid';
+    content.style.alignContent = 'center';
+    content.style.gap = cardStyle.gap;
+    content.style.textAlign = 'center';
+    ['.masked-word', '.sentence', '.full-word'].forEach(selector => {
+      const source = card.querySelector(selector);
+      if (source) content.append(source.cloneNode(true));
+    });
+    front.append(content);
     const rear = document.createElement('div');
     rear.className = 'card-confetti-face card-confetti-rear';
     piece.append(front, rear);
   }
+
+  elements.confettiLayer.append(pieces);
 
   confettiTimer = window.setTimeout(clearConfetti, 1280);
 }
