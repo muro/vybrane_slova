@@ -246,11 +246,6 @@
     transition: none;
   }
 
-  .word-card.exit-correct {
-    transform-origin: center;
-    animation: correct-card-tear 340ms ease-out forwards;
-  }
-
   .word-card.exit-wrong {
     animation: wrong-card-fade 2000ms ease forwards;
   }
@@ -274,29 +269,6 @@
     80%, 100% {
       opacity: 0;
       transform: translate(var(--drag-x, 0), var(--drag-y, 0)) scale(0.98);
-    }
-  }
-
-  @keyframes correct-card-tear {
-    0%, 20% {
-      opacity: 1;
-      filter: brightness(1);
-      clip-path: inset(0 round var(--card-radius));
-      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg)) scale(var(--drag-scale, 1));
-    }
-
-    55% {
-      opacity: 0.38;
-      filter: brightness(1.13) saturate(1.12);
-      clip-path: inset(0 round var(--card-radius));
-      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg)) scale(1.01);
-    }
-
-    100% {
-      opacity: 0;
-      filter: brightness(1.26) saturate(1.25);
-      clip-path: inset(0 round var(--card-radius));
-      transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(var(--drag-rotate, 0deg)) scale(1.02);
     }
   }
 
@@ -396,12 +368,12 @@
   .card-confetti-piece {
     width: var(--piece-width, 18px);
     height: var(--piece-height, 24px);
-    opacity: 0;
+    opacity: 1;
     perspective: 600px;
     contain: layout paint;
     transform: translate(-50%, -50%) scale(1) rotate(0deg);
     transform-style: preserve-3d;
-    animation: card-tear-pop 940ms cubic-bezier(0.14, 0.84, 0.28, 1) forwards;
+    animation: card-tear-pop 700ms cubic-bezier(0.14, 0.84, 0.28, 1) forwards;
     animation-delay: var(--piece-delay, 0ms);
   }
 
@@ -417,7 +389,7 @@
   .card-confetti-front {
     background: var(--card);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    animation: tear-front-face 940ms linear forwards;
+    animation: tear-front-face 700ms linear forwards;
     animation-delay: var(--piece-delay, 0ms);
   }
 
@@ -429,7 +401,7 @@
     opacity: 0;
     backface-visibility: visible;
     -webkit-backface-visibility: visible;
-    animation: tear-rear-face 940ms linear forwards;
+    animation: tear-rear-face 700ms linear forwards;
     animation-delay: var(--piece-delay, 0ms);
   }
 
@@ -500,11 +472,17 @@
   }
 
   @keyframes card-tear-pop {
-    8% {
+    0% {
       opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(0deg) rotateY(0deg);
     }
 
-    38% {
+    16% {
+      opacity: 1;
+      transform: translate(calc(-50% + var(--piece-start-x)), calc(-50% + var(--piece-start-y))) scale(1.01) rotate(var(--piece-start-rotate)) rotateY(var(--piece-start-flip));
+    }
+
+    44% {
       opacity: 1;
       transform: translate(calc(-50% + var(--piece-mid-x)), calc(-50% + var(--piece-mid-y))) scale(1.02) rotate(var(--piece-mid-rotate)) rotateY(var(--piece-mid-flip));
     }
@@ -516,13 +494,13 @@
   }
 
   @keyframes tear-front-face {
-    0%, 31% { opacity: 1; }
-    44%, 100% { opacity: 0; }
+    0%, 20% { opacity: 1; }
+    34%, 100% { opacity: 0; }
   }
 
   @keyframes tear-rear-face {
-    0%, 31% { opacity: 0; }
-    44%, 100% { opacity: 1; }
+    0%, 20% { opacity: 0; }
+    34%, 100% { opacity: 1; }
   }
 
   @keyframes paper-strip-fall {
@@ -552,9 +530,6 @@
       animation-duration: 240ms;
     }
 
-    .word-card.exit-correct {
-      animation-duration: 240ms;
-    }
   }
 
   .feedback {
@@ -911,11 +886,15 @@ function showCardTear(answerGroup, card) {
   clearConfetti();
 
   const pieces = document.createDocumentFragment();
-  for (let index = 0; index < 24; index++) {
-    const width = 16 + Math.random() * 26;
-    const height = 18 + Math.random() * 36;
-    const sourceLeft = Math.random() * Math.max(1, box.width - width);
-    const sourceTop = Math.random() * Math.max(1, box.height - height);
+  const columns = 6;
+  const rows = 4;
+  const width = box.width / columns + 0.5;
+  const height = box.height / rows + 0.5;
+  for (let index = 0; index < columns * rows; index++) {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const sourceLeft = column * (box.width / columns);
+    const sourceTop = row * (box.height / rows);
     const left = box.left + sourceLeft + width / 2;
     const top = box.top + sourceTop + height / 2;
     const fromCenterX = left - centerX;
@@ -927,13 +906,17 @@ function showCardTear(answerGroup, card) {
     const piece = addEffectPiece('card-confetti-piece', left, top, {
       '--piece-x': `${Math.cos(angle) * distance}px`,
       '--piece-y': `${Math.sin(angle) * distance - 34 - Math.random() * 42}px`,
+      '--piece-start-x': `${Math.cos(angle) * distance * 0.2}px`,
+      '--piece-start-y': `${Math.sin(angle) * distance * 0.2 - 6}px`,
       '--piece-mid-x': `${Math.cos(angle) * distance * 0.22}px`,
       '--piece-mid-y': `${Math.sin(angle) * distance * 0.22 - 8}px`,
       '--piece-rotate': `${rotation}deg`,
+      '--piece-start-rotate': `${rotation * 0.12}deg`,
       '--piece-mid-rotate': `${rotation * 0.24}deg`,
       '--piece-flip': `${flip}deg`,
+      '--piece-start-flip': `${flip * 0.26}deg`,
       '--piece-mid-flip': `${flip * 0.6}deg`,
-      '--piece-delay': `${index * 4}ms`,
+      '--piece-delay': '0ms',
       '--piece-width': `${width}px`,
       '--piece-height': `${height}px`,
       '--piece-color': colors[index % colors.length],
@@ -1049,7 +1032,7 @@ function render() {
   renderStats();
   renderUpcomingCard();
 
-  elements.card.classList.remove('exit-correct', 'exit-wrong');
+  elements.card.classList.remove('exit-wrong');
   clearDragStyles();
 
   if (!card) {
@@ -1111,13 +1094,13 @@ function choose(answerGroup) {
   setReveal(card.full_sentence, card.answer_group);
   setFeedback('', 'quiet');
 
-  const outgoing = moveCurrentCardToOutgoingLayer(
-    isCorrect ? 800 : WRONG_OUTGOING_LIFETIME_MS,
-  );
   if (isCorrect) {
-    outgoing.classList.add('exit-correct');
-    showCardTear(answerGroup, outgoing);
+    // Build a full tiled copy before rendering the next card. The old card is
+    // never left on screen to fade: its printed front is the initial state of
+    // the pieces, so the tear begins on the release frame.
+    showCardTear(answerGroup, elements.card);
   } else {
+    const outgoing = moveCurrentCardToOutgoingLayer(WRONG_OUTGOING_LIFETIME_MS);
     outgoing.classList.add('exit-wrong');
     showWrongFallApart(outgoing);
   }
