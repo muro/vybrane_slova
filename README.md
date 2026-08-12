@@ -25,6 +25,14 @@ python3 -m http.server 8765 --directory web
 - Tests: `http://localhost:8765/tests.html`
 - Phone preview: `http://localhost:8765/preview.html`
 
+## Hosted preview
+
+Build the deployable preview bundle when publishing with Sites:
+
+```sh
+python3 tools/build_preview_site.py
+```
+
 ## License
 
 Apache-2.0. See `LICENSE` and `NOTICE`.
