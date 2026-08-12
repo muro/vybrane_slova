@@ -94,9 +94,9 @@ async function run() {
   });
 
   test('loads the complete simple-word pool', () => {
-    equal(simpleCards.length, 384, 'simple card count');
+    equal(simpleCards.length, 386, 'simple card count');
     const counts = Engine.answerCounts(simpleCards);
-    equal(counts.i, 200, 'simple i answer count');
+    equal(counts.i, 202, 'simple i answer count');
     equal(counts.y, 184, 'simple y answer count');
   });
 
@@ -111,6 +111,10 @@ async function run() {
     const mole = simpleCards.find(card => card.surface === 'ryť');
     equal(mole.masked_surface, 'r_ť', 'ryť target mask');
     equal(mole.prompt_sentence, 'Krtko ryje v zemi.', 'ryť clue');
+    const shimmer = simpleCards.find(card => card.surface === 'kmitať');
+    const roofTile = simpleCards.find(card => card.surface === 'škridla');
+    equal(shimmer.masked_surface, 'km_tať', 'kmitať target mask');
+    equal(roofTile.masked_surface, 'škr_dla', 'škridla target mask');
   });
 
   test('keeps ready answers balanced', () => {

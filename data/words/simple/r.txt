@@ -25,6 +25,7 @@ kriedový
 krištáľ
 krištáľový
 krídlo
+škridla
 tri
 trieda
 triediť

@@ -33,6 +33,7 @@ mimoriadny
 mimo
 misia
 mixér
+kmitať
 komín
 
 [y]
