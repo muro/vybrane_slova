@@ -162,6 +162,31 @@
     position: relative;
     width: var(--card-w);
     height: var(--card-h);
+    isolation: isolate;
+  }
+
+  /* The stack is material, not a queue: blank sheets give the active card a
+     physical home without previewing another word or becoming a destination. */
+  .card-stage::before,
+  .card-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border: 1px solid rgba(112, 89, 55, 0.1);
+    border-radius: var(--card-radius);
+    background: linear-gradient(145deg, #fffef9, #f7efe3);
+    box-shadow: 0 3px 0 #e8ddcd, 0 11px 22px -20px rgba(62, 46, 24, 0.75);
+    pointer-events: none;
+  }
+
+  .card-stage::before {
+    transform: translate(5px, 9px) rotate(0.45deg);
+  }
+
+  .card-stage::after {
+    z-index: 1;
+    transform: translate(-3px, 4px) rotate(-0.3deg);
   }
 
   .word-card {
