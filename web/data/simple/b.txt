@@ -68,7 +68,6 @@ príbytok
 vydobyť
 výdobytok
 dobývať
-dobýjať
 dobytok
 nábytok
 zbytočný

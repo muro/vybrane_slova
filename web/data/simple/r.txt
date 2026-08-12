@@ -68,7 +68,7 @@ zrýchľovať
 rys
 rysovať
 ryšavý
-ryť
+ryť | Krtko ryje v zemi.
 rozrývať
 rýľ
 úryvok
@@ -95,7 +95,6 @@ trýzniť
 tryzna
 trysk
 varyto
-rým
 rýmovať sa
 rýpať
 rytier

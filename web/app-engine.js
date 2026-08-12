@@ -85,13 +85,14 @@
     let answerGroup = null;
     const rows = [];
     for (const rawLine of text.replace(/^\uFEFF/, '').split(/\r?\n/)) {
-      const surface = rawLine.trim();
-      if (!surface || surface.startsWith('#')) continue;
-      const section = surface.match(/^\[([iy])\]$/);
+      const entry = rawLine.trim();
+      if (!entry || entry.startsWith('#')) continue;
+      const section = entry.match(/^\[([iy])\]$/);
       if (section) {
         answerGroup = section[1];
         continue;
       }
+      const [surface, sentence = ''] = entry.split(/\s+\|\s+/, 2);
       if (!answerGroup || !SIMPLE_ANSWER_GROUPS.has(answerGroup)) {
         throw new Error(`Simple word ${surface} is missing an [i] or [y] section`);
       }
@@ -102,7 +103,7 @@
         id: `simple:${selectedLetter}:${answerGroup}:${surface}`,
         pack: 'simple', selected_letter: selectedLetter, surface, answer_group: answerGroup,
         needs_disambiguation: 'false', disambiguation_mode: 'none', picture_role: 'none',
-        sentence: '', status: 'ready',
+        sentence, status: 'ready',
       });
     }
     if (!rows.length) throw new Error(`Simple list for ${selectedLetter} is empty`);

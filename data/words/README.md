@@ -11,14 +11,14 @@ For broad selected-word coverage, start with basic dictionary forms only.
 Declined noun/adjective forms and conjugated verb forms should be added later
 as a separate expansion pack, not mixed into the first full base-form list.
 
-The current starter contrast pack is in `disambiguation.tsv`: 20 `ready` cards
-across 10 pairs, balanced as 10 `i/í` answers and 10 `y/ý` answers. The
+The current starter contrast pack is in `disambiguation.tsv`: 28 `ready` cards
+across 14 pairs, balanced as 14 `i/í` answers and 14 `y/ý` answers. The
 `by` / `bi` pair is also in `disambiguation.tsv` with `review` status.
 
 The current ordinary simple-list data is split across the per-letter files in
-`simple/`: 388 cards, with 188 `y/ý` selected-word rows and 200 `i/í` control
-rows. They are loaded by default alongside the 20 ready contrast cards. The
-app has a hidden `?cards=ambiguous` review mode that loads only those 20 ready
+`simple/`: 384 cards, with 184 `y/ý` selected-word rows and 200 `i/í` control
+rows. They are loaded by default alongside the 28 ready contrast cards. The
+app has a hidden `?cards=ambiguous` review mode that loads only those 28 ready
 contrast cards while picture and context work is revisited; `review` rows stay
 excluded in both modes.
 
@@ -50,9 +50,14 @@ keby
 býk
 ```
 
-Blank lines and lines starting with `#` are ignored by the validator. Use the
-rich `disambiguation.tsv` format instead of these plain lists whenever a word
-needs a sentence, picture, status, source, note, contrast pair, or other
+An explicitly needed clue for an otherwise unpaired word may follow a
+` | ` delimiter, for example `ryť | Krtko ryje v zemi.`. This is the narrow
+exception; use `disambiguation.tsv` when a word has a real spelling contrast
+or needs any other per-row metadata.
+
+Blank lines and lines starting with `#` are ignored by the validator. Except
+for that narrow clue form, use the rich `disambiguation.tsv` format whenever a
+word needs a sentence, picture, status, source, note, contrast pair, or other
 per-row metadata.
 
 ## `disambiguation.tsv`
@@ -98,6 +103,7 @@ picture metadata, whether ready pairs include both answer groups, whether
 simple-list words also appear in the disambiguation file, duplicate simple
 surfaces, per-letter simple-list balance, and whether each simple row contains
 the expected `i/í` or `y/ý` after its file letter. It expects the simple lists
-to use sectioned word-only files under `simple/`. It also checks that
+to use sectioned word files under `simple/`, with at most an optional short
+clue after ` | `. It also checks that
 `web/data/disambiguation.tsv` matches `data/words/disambiguation.tsv`, because
 the PWA ships from `web/`.

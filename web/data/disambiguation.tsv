@@ -3,6 +3,14 @@ b-byt-y	starter-context	byt-bit	b	byť	y	biť	true	sentence	none	Chcem {target} 
 b-bit-i	starter-context	byt-bit	b	biť	i	byť	true	sentence	this_side_only	Srdce začne {target} rýchlo.	heart beating	https://slovnik.juls.savba.sk/?w=bi%C5%A5	ready	to beat
 b-dobyt-y	starter-context	dobyt-dobit	b	dobyť	y	dobiť	true	sentence	this_side_only	Rytier chce {target} hrad.	knight at a castle gate	https://slovnik.juls.savba.sk/?w=doby%C5%A5	ready	castle conquest
 b-dobit-i	starter-context	dobyt-dobit	b	dobiť	i	dobyť	true	sentence	this_side_only	Treba {target} baterku v telefóne.	phone battery charging	https://slovnik.juls.savba.sk/?w=dobi%C5%A5	ready	battery charging
+b-dobyjat-y	starter-context	dobyjat-dobijat	b	dobýjať	y	dobíjať	true	sentence	none	V hre chceme {target} pevnosť.		https://slovnik.juls.savba.sk/?w=dob%C3%BDja%C5%A5	ready	to conquer repeatedly
+b-dobijat-i	starter-context	dobyjat-dobijat	b	dobíjať	i	dobýjať	true	sentence	this_side_only	Chcem {target} baterku v telefóne.	phone battery charging	https://slovnik.juls.savba.sk/?w=dob%C3%ADja%C5%A5	ready	to recharge repeatedly
+b-vyskat-y	starter-context	vyskat-viskat	v	výskať	y	vískať	true	sentence	none	Deti od radosti začnú {target}.		https://slovnik.juls.savba.sk/?w=v%C3%BDska%C5%A5	ready	to squeal with joy
+b-viskat-i	starter-context	vyskat-viskat	v	vískať	i	výskať	true	sentence	this_side_only	Mama chce dcére {target} vlasy.	mother checking a child's hair	https://slovnik.juls.savba.sk/?w=v%C3%ADska%C5%A5	ready	to groom hair
+b-zavyjat-y	starter-context	zavyjat-zavijat	v	zavýjať	y	zavíjať	true	sentence	none	Vlk začne {target} na mesiac.		https://slovnik.juls.savba.sk/?w=zav%C3%BDja%C5%A5	ready	to start howling
+b-zavijat-i	starter-context	zavyjat-zavijat	v	zavíjať	i	zavýjať	true	sentence	this_side_only	Sestra chce {target} bábätko do deky.	baby wrapped in a blanket	https://slovnik.juls.savba.sk/?w=zav%C3%ADja%C5%A5	ready	to wrap
+r-rym-y	starter-context	rym-rim	r	rým	y	Rím	true	sentence	none	V básni hľadám {target}.		https://slovnik.juls.savba.sk/?w=r%C3%BDm	ready	poetry rhyme
+r-rim-i	starter-context	rym-rim	r	Rím	i	rým	true	sentence	this_side_only	{target} je hlavné mesto Talianska.	Rome skyline and Colosseum	https://slovnik.juls.savba.sk/?w=R%C3%ADm	ready	capital city of Italy
 b-by-y	contrast-review	by-bi	b	by	y	bi	true	sentence	none	Bodaj {target} bolo zajtra pekne.		manual-review	review	conditional particle
 b-bi-i	contrast-review	by-bi	b	bi	i	by	true	sentence	none	Pri hre na bubon: {target} do bubna jemne.		manual-review	review	imperative of biť; needs teacher review
 m-my-y	starter-context	my-mi	m	my	y	mi	true	sentence	none	{target} ideme na výlet.		https://sk.wikipedia.org/wiki/Vybran%C3%A9_slov%C3%A1	ready	pronoun we

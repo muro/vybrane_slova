@@ -105,13 +105,14 @@
     const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
 
     for (const rawLine of lines) {
-      const surface = rawLine.trim();
-      if (!surface || surface.startsWith('#')) continue;
-      const section = surface.match(/^\[([iy])\]$/);
+      const entry = rawLine.trim();
+      if (!entry || entry.startsWith('#')) continue;
+      const section = entry.match(/^\[([iy])\]$/);
       if (section) {
         answerGroup = section[1];
         continue;
       }
+      const [surface, sentence = ''] = entry.split(/\s+\|\s+/, 2);
       if (!answerGroup || !SIMPLE_ANSWER_GROUPS.has(answerGroup)) {
         throw new Error(`Simple word ${surface} is missing an [i] or [y] section`);
       }
@@ -127,7 +128,7 @@
         needs_disambiguation: 'false',
         disambiguation_mode: 'none',
         picture_role: 'none',
-        sentence: '',
+        sentence,
         status: 'ready',
       });
     }

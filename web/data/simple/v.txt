@@ -27,7 +27,6 @@ vy
 vykať
 vydra
 vyhňa
-výskať
 výskot
 vysoký
 výška
@@ -35,7 +34,6 @@ výšina
 Vyšehrad
 vyše
 vyť
-zavýjať
 vyžla
 zvýšiť sa
 zvyšovať

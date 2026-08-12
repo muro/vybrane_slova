@@ -113,20 +113,20 @@ function parseWordList(file, defaults) {
   let answerGroup = null;
   for (let i = 0; i < lines.length; i++) {
     const lineNo = i + 1;
-    const surface = lines[i].trim();
-    if (!surface || surface.startsWith('#')) continue;
-    const section = surface.match(/^\[(.+)\]$/);
+    const entry = lines[i].trim();
+    if (!entry || entry.startsWith('#')) continue;
+    const section = entry.match(/^\[(.+)\]$/);
     if (section) {
       answerGroup = section[1];
       if (!ALLOWED.answer_group.has(answerGroup)) {
-        error(file, lineNo, `unknown simple-list section: ${surface}`);
+        error(file, lineNo, `unknown simple-list section: ${entry}`);
         answerGroup = null;
       } else {
         seenSections.add(answerGroup);
       }
       continue;
     }
-    if (surface.includes('\t')) {
+    if (entry.includes('\t')) {
       error(file, lineNo, 'simple word lists must contain one word or phrase per line, not TSV cells');
       continue;
     }
@@ -134,10 +134,16 @@ function parseWordList(file, defaults) {
       error(file, lineNo, 'word must appear under an [i] or [y] section');
       continue;
     }
+    const [surface, sentence = ''] = entry.split(/\s+\|\s+/, 2);
+    if (!surface) {
+      error(file, lineNo, 'simple word must appear before an optional clue');
+      continue;
+    }
     rows.push({
       ...defaults,
       answer_group: answerGroup,
       surface,
+      sentence,
       __file: file,
       __line: lineNo,
     });

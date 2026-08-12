@@ -80,11 +80,11 @@ async function run() {
   const simpleCards = Engine.loadSimpleCards(simpleLists);
 
   test('parses the disambiguation TSV', () => {
-    equal(rows.length, 22, 'row count');
+    equal(rows.length, 30, 'row count');
   });
 
   test('loads only ready cards by default', () => {
-    equal(readyCards.length, 20, 'ready count');
+    equal(readyCards.length, 28, 'ready count');
     assert(!readyCards.some(card => card.status !== 'ready'), 'non-ready card loaded');
   });
 
@@ -94,10 +94,10 @@ async function run() {
   });
 
   test('loads the complete simple-word pool', () => {
-    equal(simpleCards.length, 388, 'simple card count');
+    equal(simpleCards.length, 384, 'simple card count');
     const counts = Engine.answerCounts(simpleCards);
     equal(counts.i, 200, 'simple i answer count');
-    equal(counts.y, 188, 'simple y answer count');
+    equal(counts.y, 184, 'simple y answer count');
   });
 
   test('masks the letter after the selected-word consonant', () => {
@@ -108,12 +108,15 @@ async function run() {
     const fish = simpleCards.find(card => card.surface === 'ryba');
     equal(fish.masked_surface, 'r_ba', 'ryba target mask');
     equal(fish.answer_group, 'y', 'ryba answer group');
+    const mole = simpleCards.find(card => card.surface === 'ryť');
+    equal(mole.masked_surface, 'r_ť', 'ryť target mask');
+    equal(mole.prompt_sentence, 'Krtko ryje v zemi.', 'ryť clue');
   });
 
   test('keeps ready answers balanced', () => {
     const counts = Engine.answerCounts(readyCards);
-    equal(counts.i, 10, 'i answer count');
-    equal(counts.y, 10, 'y answer count');
+    equal(counts.i, 14, 'i answer count');
+    equal(counts.y, 14, 'y answer count');
   });
 
   test('masks the target letter in context', () => {
@@ -121,6 +124,31 @@ async function run() {
     equal(vyr.masked_surface, 'v_r', 'masked surface');
     equal(vyr.prompt_sentence, 'Na strome sedí veľký v_r.', 'prompt sentence');
     equal(vyr.full_sentence, 'Na strome sedí veľký výr.', 'full sentence');
+  });
+
+  test('keeps charging and conquering in separate context cards', () => {
+    const recharge = readyCards.find(card => card.surface === 'dobíjať');
+    const conquer = readyCards.find(card => card.surface === 'dobýjať');
+    equal(recharge.prompt_sentence, 'Chcem dob_jať baterku v telefóne.', 'recharge prompt');
+    equal(conquer.prompt_sentence, 'V hre chceme dob_jať pevnosť.', 'conquer prompt');
+    equal(recharge.answer_group, 'i', 'recharge answer');
+    equal(conquer.answer_group, 'y', 'conquer answer');
+  });
+
+  test('moves other real spelling contrasts into context cards', () => {
+    const squeal = readyCards.find(card => card.surface === 'výskať');
+    const groom = readyCards.find(card => card.surface === 'vískať');
+    const howl = readyCards.find(card => card.surface === 'zavýjať');
+    const wrap = readyCards.find(card => card.surface === 'zavíjať');
+    const rhyme = readyCards.find(card => card.surface === 'rým');
+    const rome = readyCards.find(card => card.surface === 'Rím');
+    equal(squeal.answer_group, 'y', 'squeal answer');
+    equal(groom.answer_group, 'i', 'groom answer');
+    equal(howl.answer_group, 'y', 'howl answer');
+    equal(wrap.answer_group, 'i', 'wrap answer');
+    equal(rhyme.answer_group, 'y', 'rhyme answer');
+    equal(rome.answer_group, 'i', 'Rome answer');
+    assert(!simpleCards.some(card => ['výskať', 'zavýjať', 'rým'].includes(card.surface)), 'ambiguous cards stay out of simple lists');
   });
 
   test('keeps the cheese prompt grammatical without revealing its answer', () => {
