@@ -114,8 +114,10 @@ explicitly asks for one.
 - **Lessons are data.** Model lessons with stable string keys. Stored progress
   should survive lesson reordering; renaming keys requires a migration.
 - **Versioned storage.** Use namespaced keys such as
-  `vybrane-slova.progress.v1`, `vybrane-slova.settings.v1`, and
-  `vybrane-slova.lesson`.
+  `vybrane-slova.progress.v1`, `vybrane-slova.settings.v1`,
+  `vybrane-slova.profiles.v1`, and `vybrane-slova.lesson`. Per-profile
+  progress and settings append the profile id to the base key; without a
+  profile the base key is used.
 - **Installable PWA shell.** Use relative manifest paths, committed icons, a
   small service worker that precaches the app shell, and a cache name that is
   bumped when cached assets change.

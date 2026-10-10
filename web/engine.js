@@ -30,7 +30,14 @@
     progress: 'vybrane-slova.progress.v1',
     settings: 'vybrane-slova.settings.v1',
     lesson: 'vybrane-slova.lesson',
+    profiles: 'vybrane-slova.profiles.v1',
   };
+
+  const PROFILES_VERSION = 1;
+  const PROFILE_NAME_MAX_LETTERS = 16;
+  // Data that belongs to one child. Without profiles the base keys are used,
+  // so practice from before profiles existed stays where it was.
+  const PROFILE_DATA_KEYS = [STORAGE_KEYS.progress, STORAGE_KEYS.settings];
 
   function parseTsv(text) {
     const cleanText = text.replace(/^\uFEFF/, '');
@@ -204,8 +211,12 @@
     }
   }
 
-  function loadProgress(storage) {
-    const saved = readJson(storage, STORAGE_KEYS.progress);
+  function profileStorageKey(baseKey, profileId = null) {
+    return profileId ? `${baseKey}.${profileId}` : baseKey;
+  }
+
+  function loadProgress(storage, profileId = null) {
+    const saved = readJson(storage, profileStorageKey(STORAGE_KEYS.progress, profileId));
     if (!saved || saved.version !== STORAGE_VERSION || typeof saved.cards !== 'object') {
       return defaultProgress();
     }
@@ -216,10 +227,10 @@
     };
   }
 
-  function saveProgress(progress, storage) {
+  function saveProgress(progress, storage, profileId = null) {
     if (!storage) return progress;
     try {
-      storage.setItem(STORAGE_KEYS.progress, JSON.stringify(progress));
+      storage.setItem(profileStorageKey(STORAGE_KEYS.progress, profileId), JSON.stringify(progress));
     } catch (_error) {
       return progress;
     }
@@ -244,6 +255,121 @@
     };
   }
 
+  // Mastery needs a few correct answers and a good hit rate, so one lucky drag
+  // is not "known" and one early mistake does not block a word for good.
+  const MASTERY_MAX_LEVEL = 4;
+  const MASTERY_CORRECT_TARGET = 3;
+
+  function masteryLevel(cardProgress) {
+    if (!cardProgress || !cardProgress.seen) return 0;
+    const accuracy = cardProgress.correct / cardProgress.seen;
+    const practice = Math.min(cardProgress.correct, MASTERY_CORRECT_TARGET) / MASTERY_CORRECT_TARGET;
+    return Math.round(accuracy * practice * MASTERY_MAX_LEVEL);
+  }
+
+  // Children type their own names, so tidy rather than reject: collapse
+  // stray spaces, capitalize the first letter, and cap the length by letters
+  // so Slovak diacritics count once.
+  function normalizeProfileName(name) {
+    const letters = Array.from(String(name ?? '').replace(/\s+/g, ' ').trim()).slice(0, PROFILE_NAME_MAX_LETTERS);
+    if (letters.length) letters[0] = letters[0].toLocaleUpperCase('sk');
+    return letters.join('').trim();
+  }
+
+  function defaultProfiles() {
+    return { version: PROFILES_VERSION, activeId: null, profiles: [] };
+  }
+
+  function loadProfiles(storage, avatarKeys) {
+    const saved = readJson(storage, STORAGE_KEYS.profiles);
+    if (!saved || saved.version !== PROFILES_VERSION || !Array.isArray(saved.profiles)) return defaultProfiles();
+    const knownAvatars = new Set(avatarKeys);
+    const seenIds = new Set();
+    const profiles = [];
+    for (const profile of saved.profiles) {
+      if (!profile || typeof profile.id !== 'string' || !profile.id || seenIds.has(profile.id)) continue;
+      seenIds.add(profile.id);
+      profiles.push({
+        id: profile.id,
+        name: normalizeProfileName(profile.name),
+        avatar: knownAvatars.has(profile.avatar) ? profile.avatar : avatarKeys[0],
+      });
+    }
+    const activeId = seenIds.has(saved.activeId) ? saved.activeId : (profiles[0]?.id ?? null);
+    return { version: PROFILES_VERSION, activeId, profiles };
+  }
+
+  function saveProfiles(profiles, storage) {
+    if (!storage) return profiles;
+    try {
+      storage.setItem(STORAGE_KEYS.profiles, JSON.stringify(profiles));
+    } catch (_error) {
+      return profiles;
+    }
+    return profiles;
+  }
+
+  function activeProfile(profiles) {
+    return profiles.profiles.find(profile => profile.id === profiles.activeId) || null;
+  }
+
+  function addProfile(profiles, { name, avatar }, now = Date.now()) {
+    const base = `p${now.toString(36)}`;
+    let id = base;
+    for (let suffix = 2; profiles.profiles.some(profile => profile.id === id); suffix++) {
+      id = `${base}${suffix}`;
+    }
+    return {
+      ...profiles,
+      activeId: id,
+      profiles: [...profiles.profiles, { id, name: normalizeProfileName(name), avatar }],
+    };
+  }
+
+  function updateProfile(profiles, id, { name, avatar }) {
+    return {
+      ...profiles,
+      profiles: profiles.profiles.map(profile => (
+        profile.id === id ? { ...profile, name: normalizeProfileName(name), avatar } : profile
+      )),
+    };
+  }
+
+  function selectProfile(profiles, id) {
+    return profiles.profiles.some(profile => profile.id === id) ? { ...profiles, activeId: id } : profiles;
+  }
+
+  function removeProfile(profiles, id) {
+    const remaining = profiles.profiles.filter(profile => profile.id !== id);
+    const activeId = profiles.activeId === id ? (remaining[0]?.id ?? null) : profiles.activeId;
+    return { ...profiles, activeId, profiles: remaining };
+  }
+
+  // The first profile inherits whatever was practiced before profiles existed.
+  function adoptGuestData(storage, profileId) {
+    if (!storage) return;
+    try {
+      for (const baseKey of PROFILE_DATA_KEYS) {
+        const guestData = storage.getItem(baseKey);
+        const profileKey = profileStorageKey(baseKey, profileId);
+        if (guestData === null || storage.getItem(profileKey) !== null) continue;
+        storage.setItem(profileKey, guestData);
+        storage.removeItem(baseKey);
+      }
+    } catch (_error) {
+      // A profile without its earlier practice is still usable.
+    }
+  }
+
+  function removeProfileData(storage, profileId) {
+    if (!storage || !profileId) return;
+    try {
+      PROFILE_DATA_KEYS.forEach(baseKey => storage.removeItem(profileStorageKey(baseKey, profileId)));
+    } catch (_error) {
+      // Leftover data for a removed profile is harmless.
+    }
+  }
+
   return {
     STORAGE_KEYS,
     parseTsv,
@@ -259,5 +385,18 @@
     loadProgress,
     saveProgress,
     recordAnswer,
+    MASTERY_MAX_LEVEL,
+    masteryLevel,
+    profileStorageKey,
+    normalizeProfileName,
+    loadProfiles,
+    saveProfiles,
+    activeProfile,
+    addProfile,
+    updateProfile,
+    selectProfile,
+    removeProfile,
+    adoptGuestData,
+    removeProfileData,
   };
 });

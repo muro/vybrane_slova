@@ -91,6 +91,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     min-height: 40px;
   }
 
@@ -111,11 +112,14 @@
     min-width: 0;
   }
 
+  /* Seven letters share the top bar with the profile and about buttons, so
+     they shrink to the space left over on narrow phones. */
   .letter-filter-button {
-    width: clamp(30px, 9vw, 40px);
-    min-width: 30px;
-    height: clamp(30px, 9vw, 40px);
-    min-height: 30px;
+    --letter-size: clamp(26px, calc((100vw - 138px) / 7), 40px);
+    width: var(--letter-size);
+    min-width: 26px;
+    height: var(--letter-size);
+    min-height: 26px;
     padding: 0;
     border-radius: 50%;
     font: inherit;
@@ -698,23 +702,24 @@
     opacity: 0;
   }
 
-  .about-overlay {
+  .sheet-overlay {
     position: fixed;
     inset: 0;
     z-index: 20;
-    padding: 24px;
+    padding: calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
     display: grid;
     place-items: center;
+    overflow-y: auto;
     background: rgba(58, 43, 22, 0.3);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
   }
 
-  .about-overlay[hidden] {
+  .sheet-overlay[hidden] {
     display: none;
   }
 
-  .about-sheet {
+  .sheet {
     position: relative;
     width: min(340px, 100%);
     padding: 30px 24px 24px;
@@ -724,7 +729,7 @@
     text-align: center;
   }
 
-  .about-sheet h2 {
+  .sheet h2 {
     margin: 0;
     padding: 0 24px;
     font-size: 22px;
@@ -732,27 +737,36 @@
     letter-spacing: 0;
   }
 
-  .about-sheet p {
+  .sheet p {
     margin: 14px 0 0;
     color: var(--muted);
     font-size: 15px;
     line-height: 1.4;
   }
 
-  .about-sheet a {
+  .sheet a {
     color: var(--blue-strong);
     font-weight: 800;
     text-decoration: none;
   }
 
-  .support-link {
+  .support-link,
+  .primary-button {
     display: inline-block;
     margin-top: 22px;
     padding: 11px 20px;
+    border: 0;
     border-radius: 999px;
     background: var(--blue-strong);
     color: #fff !important;
     box-shadow: 0 8px 18px rgba(37, 99, 184, 0.18);
+  }
+
+  .primary-button {
+    min-width: 140px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
   }
 
   .privacy-note {
@@ -774,11 +788,293 @@
     cursor: pointer;
   }
 
-  .sheet-close:focus-visible {
+  .sheet-close:focus-visible,
+  .profile-button:focus-visible,
+  .profile-choice:focus-visible,
+  .profile-edit:focus-visible,
+  .avatar-option:focus-visible,
+  .primary-button:focus-visible,
+  .secondary-button:focus-visible,
+  .mastery-tile:focus-visible,
+  .text-button:focus-visible {
     outline: 3px solid rgba(37, 99, 184, 0.28);
     outline-offset: 2px;
     border-radius: 8px;
   }
+
+  .topbar-actions {
+    display: flex;
+    flex: none;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .pixel-avatar {
+    display: block;
+    width: 76%;
+    height: 76%;
+  }
+
+  .avatar-badge {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+
+  .profile-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--hairline);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .profile-sheet {
+    width: min(380px, 100%);
+  }
+
+  .profile-list {
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 12px 10px;
+  }
+
+  .profile-item {
+    position: relative;
+  }
+
+  .profile-choice {
+    width: 100%;
+    padding: 10px 4px 8px;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    background: rgba(42, 37, 29, 0.04);
+    color: var(--ink);
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .profile-choice[aria-pressed="true"] {
+    border-color: var(--blue-strong);
+    background: rgba(37, 99, 184, 0.08);
+  }
+
+  .profile-choice .avatar-badge {
+    width: 60px;
+  }
+
+  .profile-name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .profile-add .avatar-badge {
+    border: 2px dashed rgba(123, 112, 96, 0.45);
+    color: var(--muted);
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  .profile-edit {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--hairline);
+    border-radius: 50%;
+    background: var(--card);
+    color: var(--muted);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .profile-edit svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .avatar-picker {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .avatar-option {
+    padding: 0;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 140ms ease, border-color 140ms ease;
+  }
+
+  .avatar-option[aria-checked="true"] {
+    border-color: var(--blue-strong);
+    box-shadow: 0 6px 14px -6px rgba(37, 99, 184, 0.6);
+    transform: scale(1.08);
+  }
+
+  .name-field {
+    margin-top: 20px;
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 800;
+    text-align: left;
+  }
+
+  /* Children type their own names, so the field is big and forgiving. */
+  .name-field input {
+    width: 100%;
+    min-height: 54px;
+    padding: 8px 14px;
+    border: 2px solid rgba(42, 37, 29, 0.14);
+    border-radius: 16px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .name-field input::placeholder {
+    color: rgba(123, 112, 96, 0.55);
+  }
+
+  .name-field input:focus {
+    outline: none;
+    border-color: var(--blue-strong);
+  }
+
+  .form-secondary {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .text-button {
+    padding: 8px 6px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .text-button.danger {
+    color: var(--rose-strong);
+  }
+
+  .text-button[hidden] {
+    display: none;
+  }
+
+  .secondary-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: 2px solid rgba(37, 99, 184, 0.25);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--blue-strong);
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  /* Word mastery runs from dark blue (not known yet) to gold (known well). */
+  .mastery-0 { --tile: #1d3b74; }
+  .mastery-1 { --tile: #33619e; }
+  .mastery-2 { --tile: #7d9cc0; }
+  .mastery-3 { --tile: #e9cf86; }
+  .mastery-4 { --tile: #e0a526; }
+
+  .stats-letters {
+    margin-top: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .mastery-grid {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
+    gap: 4px;
+  }
+
+  .mastery-tile {
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: var(--tile);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    cursor: pointer;
+  }
+
+  .mastery-tile[aria-pressed="true"] {
+    outline: 3px solid var(--ink);
+    outline-offset: 1px;
+  }
+
+  .mastery-legend {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .mastery-legend i {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: var(--tile);
+  }
+
+  .mastery-legend span {
+    margin: 0 4px;
+  }
+
+  /* The tapped word sits above the grid so it stays in view on short phones. */
+  .sheet .stats-word {
+    min-height: 3.6em;
+    margin-top: 12px;
+    display: grid;
+    align-content: center;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .stats-word strong {
+    display: block;
+    color: var(--ink);
+    font-size: 30px;
+    line-height: 1.15;
+  }
+
+  .stats-word .answer-i { color: var(--blue-strong); }
+
+  .stats-word .answer-y { color: var(--gold-strong); }
 
   @media (max-width: 760px) {
     .app {
@@ -812,7 +1108,10 @@
 <main class="app">
   <header class="topbar" aria-label="Nastavenia">
     <div class="letter-filter" id="letter-filter" role="group" aria-label="Vybrať písmená"></div>
-    <button class="chrome-button" type="button" id="about-open" aria-label="O aplikácii">?</button>
+    <div class="topbar-actions">
+      <button class="profile-button" type="button" id="profile-open" aria-haspopup="dialog"></button>
+      <button class="chrome-button" type="button" id="about-open" aria-label="O aplikácii">?</button>
+    </div>
   </header>
 
   <section class="board" aria-label="Triedenie kartičiek">
@@ -833,8 +1132,8 @@
     <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
   </section>
 </main>
-<div class="about-overlay" id="about-overlay" hidden>
-  <section class="about-sheet" role="dialog" aria-modal="true" aria-labelledby="about-title">
+<div class="sheet-overlay" id="about-overlay" hidden>
+  <section class="sheet" id="about-sheet" role="dialog" aria-modal="true" aria-labelledby="about-title">
     <button class="sheet-close" type="button" id="about-close" aria-label="Zavrieť">×</button>
     <h2 id="about-title">Vybrané slová</h2>
     <a class="support-link" href="mailto:vybrane-slova@aidistillery.dev?subject=Vybrane%20slova%20feedback">Pripomienky</a>
@@ -842,10 +1141,47 @@
     <p class="privacy-note">Aplikácia nezbiera osobné údaje</p>
   </section>
 </div>
+<div class="sheet-overlay" id="profile-overlay" hidden>
+  <section class="sheet profile-sheet" id="profile-sheet" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+    <button class="sheet-close" type="button" id="profile-close" aria-label="Zavrieť">×</button>
+    <h2 id="profile-title">Kto cvičí?</h2>
+    <div id="profile-picker">
+      <ul class="profile-list" id="profile-list"></ul>
+      <button class="secondary-button" type="button" id="stats-open">Moje slová</button>
+    </div>
+    <div id="word-stats" hidden>
+      <div class="letter-filter stats-letters" id="stats-letters" role="group" aria-label="Písmeno"></div>
+      <p class="stats-word" id="stats-word" aria-live="polite">Ťukni na štvorček.</p>
+      <div class="mastery-grid" id="mastery-grid"></div>
+      <div class="mastery-legend" aria-hidden="true">
+        <span>nové</span>
+        <i class="mastery-0"></i><i class="mastery-1"></i><i class="mastery-2"></i><i class="mastery-3"></i><i class="mastery-4"></i>
+        <span>viem</span>
+      </div>
+      <div class="form-secondary">
+        <button class="text-button" type="button" id="stats-back">Späť</button>
+      </div>
+    </div>
+    <form id="profile-form" autocomplete="off" hidden>
+      <div class="avatar-picker" id="avatar-picker" role="radiogroup" aria-label="Zvieratko"></div>
+      <label class="name-field">
+        <span>Ako sa voláš?</span>
+        <input id="profile-name" type="text" maxlength="16" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done">
+      </label>
+      <button class="primary-button" type="submit">Hotovo</button>
+      <div class="form-secondary">
+        <button class="text-button" type="button" id="profile-back">Späť</button>
+        <button class="text-button danger" type="button" id="profile-delete">Zmazať</button>
+      </div>
+    </form>
+  </section>
+</div>
 
 <script src="./engine.js"></script>
+<script src="./avatars.js"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
+const Avatars = window.VybraneSlovaAvatars;
 const WRONG_STRIP_DELAY_MS = 1020;
 const WRONG_OUTGOING_LIFETIME_MS = 2000;
 const HIDDEN_AMBIGUOUS_ONLY = new URLSearchParams(window.location.search).get('cards') === 'ambiguous';
@@ -866,7 +1202,25 @@ const elements = {
   aboutOpen: document.querySelector('#about-open'),
   aboutClose: document.querySelector('#about-close'),
   aboutOverlay: document.querySelector('#about-overlay'),
-  aboutSheet: document.querySelector('.about-sheet'),
+  aboutSheet: document.querySelector('#about-sheet'),
+  profileOpen: document.querySelector('#profile-open'),
+  profileClose: document.querySelector('#profile-close'),
+  profileOverlay: document.querySelector('#profile-overlay'),
+  profileSheet: document.querySelector('#profile-sheet'),
+  profileTitle: document.querySelector('#profile-title'),
+  profileList: document.querySelector('#profile-list'),
+  profileForm: document.querySelector('#profile-form'),
+  avatarPicker: document.querySelector('#avatar-picker'),
+  profileName: document.querySelector('#profile-name'),
+  profileBack: document.querySelector('#profile-back'),
+  profileDelete: document.querySelector('#profile-delete'),
+  profilePicker: document.querySelector('#profile-picker'),
+  statsOpen: document.querySelector('#stats-open'),
+  wordStats: document.querySelector('#word-stats'),
+  statsLetters: document.querySelector('#stats-letters'),
+  masteryGrid: document.querySelector('#mastery-grid'),
+  statsWord: document.querySelector('#stats-word'),
+  statsBack: document.querySelector('#stats-back'),
   flowerGarden: document.querySelector('#flower-garden'),
 };
 
@@ -886,10 +1240,10 @@ const FLOWER_PETALS = { b: 5, m: 6, p: 4, r: 8, s: 6, v: 5, z: 7 };
 const FLOWER_CANDIDATES = 42;
 const FLOWER_TOP_CHOICES = 5;
 
-function loadSettings(storage) {
+function loadSettings(storage, profileId) {
   if (!storage) return { selectedLetters: null };
   try {
-    const raw = storage.getItem(Engine.STORAGE_KEYS.settings);
+    const raw = storage.getItem(Engine.profileStorageKey(Engine.STORAGE_KEYS.settings, profileId));
     const saved = raw ? JSON.parse(raw) : {};
     const selectedLetters = Array.isArray(saved.selectedLetters)
       ? saved.selectedLetters.filter(letter => typeof letter === 'string')
@@ -905,7 +1259,7 @@ function loadSettings(storage) {
 function saveSettings() {
   if (!appStorage) return;
   try {
-    appStorage.setItem(Engine.STORAGE_KEYS.settings, JSON.stringify({
+    appStorage.setItem(Engine.profileStorageKey(Engine.STORAGE_KEYS.settings, state.profiles.activeId), JSON.stringify({
       selectedLetters: state.selectedLetters,
     }));
   } catch (_error) {
@@ -913,15 +1267,16 @@ function saveSettings() {
   }
 }
 
-const settings = loadSettings(appStorage);
+const initialProfiles = Engine.loadProfiles(appStorage, Avatars.AVATAR_KEYS);
 
 const state = {
   cards: [],
   round: [],
   index: 0,
   locked: false,
-  selectedLetters: settings.selectedLetters,
-  progress: Engine.loadProgress(appStorage),
+  profiles: initialProfiles,
+  selectedLetters: loadSettings(appStorage, initialProfiles.activeId).selectedLetters,
+  progress: Engine.loadProgress(appStorage, initialProfiles.activeId),
 };
 
 const drag = {
@@ -1392,7 +1747,7 @@ function choose(answerGroup) {
   const isCorrect = Engine.checkAnswer(card, answerGroup);
 
   state.progress = Engine.recordAnswer(state.progress, card, isCorrect);
-  Engine.saveProgress(state.progress, appStorage);
+  Engine.saveProgress(state.progress, appStorage, state.profiles.activeId);
   addBackgroundFlower(card, isCorrect);
 
   // The outgoing card is the one place that reveals the correction. Keeping
@@ -1667,6 +2022,294 @@ function onTouchCancel(event) {
   event.preventDefault();
 }
 
+// Profiles let several children share one device. Each child keeps their own
+// progress and letter choice; the background flowers belong to whoever is
+// practicing now, so switching starts a fresh field.
+const PENCIL_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M11.2 2.2l2.6 2.6-8 8-3.3.7.7-3.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+const profileSheet = {
+  editingId: null,
+  avatar: Avatars.AVATAR_KEYS[0],
+  confirmingDelete: false,
+  statsLetter: null,
+};
+
+function profileDisplayName(profile) {
+  return profile.name || Engine.normalizeProfileName(Avatars.avatarByKey(profile.avatar).label);
+}
+
+function avatarBadge(avatar, tagName = 'span') {
+  const badge = document.createElement(tagName);
+  badge.className = 'avatar-badge';
+  badge.style.background = avatar.background;
+  badge.innerHTML = Avatars.avatarSvg(avatar);
+  return badge;
+}
+
+function renderProfileButton() {
+  const profile = Engine.activeProfile(state.profiles);
+  const avatar = profile ? Avatars.avatarByKey(profile.avatar) : Avatars.GUEST;
+  elements.profileOpen.innerHTML = Avatars.avatarSvg(avatar);
+  elements.profileOpen.style.background = avatar.background;
+  elements.profileOpen.setAttribute('aria-label', profile ? `Profil: ${profileDisplayName(profile)}` : 'Vybrať profil');
+}
+
+function applyActiveProfile() {
+  const profileId = state.profiles.activeId;
+  state.selectedLetters = loadSettings(appStorage, profileId).selectedLetters;
+  state.progress = Engine.loadProgress(appStorage, profileId);
+  elements.flowerGarden.textContent = '';
+  renderProfileButton();
+  if (!state.cards.length) return;
+  populateLetterFilter();
+  resetRound();
+  const profile = Engine.activeProfile(state.profiles);
+  if (profile && currentCard()) setFeedback(`Ahoj, ${profileDisplayName(profile)}!`, 'done');
+}
+
+function saveProfilesAndApply() {
+  Engine.saveProfiles(state.profiles, appStorage);
+  applyActiveProfile();
+}
+
+// The sheet swaps views in place. Each view's show function then moves focus
+// into it, so focus never stays on a button that has just been hidden.
+function showProfileView(view, title) {
+  elements.profileTitle.textContent = title;
+  elements.profilePicker.hidden = view !== 'picker';
+  elements.profileForm.hidden = view !== 'form';
+  elements.wordStats.hidden = view !== 'stats';
+}
+
+function showProfilePicker() {
+  showProfileView('picker', 'Kto cvičí?');
+  elements.profileList.textContent = '';
+  for (const profile of state.profiles.profiles) {
+    const item = document.createElement('li');
+    item.className = 'profile-item';
+    const choice = document.createElement('button');
+    choice.className = 'profile-choice';
+    choice.type = 'button';
+    choice.dataset.profileId = profile.id;
+    choice.setAttribute('aria-pressed', String(profile.id === state.profiles.activeId));
+    const name = document.createElement('span');
+    name.className = 'profile-name';
+    name.textContent = profileDisplayName(profile);
+    choice.append(avatarBadge(Avatars.avatarByKey(profile.avatar)), name);
+    const edit = document.createElement('button');
+    edit.className = 'profile-edit';
+    edit.type = 'button';
+    edit.dataset.editId = profile.id;
+    edit.setAttribute('aria-label', `Upraviť ${profileDisplayName(profile)}`);
+    edit.innerHTML = PENCIL_ICON;
+    item.append(choice, edit);
+    elements.profileList.append(item);
+  }
+
+  const addItem = document.createElement('li');
+  const add = document.createElement('button');
+  add.className = 'profile-choice profile-add';
+  add.type = 'button';
+  add.dataset.add = 'true';
+  const plus = document.createElement('span');
+  plus.className = 'avatar-badge';
+  plus.textContent = '+';
+  const label = document.createElement('span');
+  label.className = 'profile-name';
+  label.textContent = 'Pridať';
+  add.append(plus, label);
+  addItem.append(add);
+  elements.profileList.append(addItem);
+  (elements.profileList.querySelector('.profile-choice[aria-pressed="true"]') || add).focus();
+}
+
+// A radio group is one tab stop; arrow keys move the choice.
+function setFormAvatar(key) {
+  profileSheet.avatar = key;
+  elements.avatarPicker.querySelectorAll('.avatar-option').forEach(option => {
+    const checked = option.dataset.avatar === key;
+    option.setAttribute('aria-checked', String(checked));
+    option.tabIndex = checked ? 0 : -1;
+  });
+  elements.profileName.placeholder = Engine.normalizeProfileName(Avatars.avatarByKey(key).label);
+}
+
+// Pictures come first and the name field is not focused automatically, so
+// a phone keyboard never covers the animals before a child has picked one.
+function showProfileForm(profileId = null) {
+  const profile = state.profiles.profiles.find(item => item.id === profileId) || null;
+  const usedAvatars = new Set(state.profiles.profiles.map(item => item.avatar));
+  profileSheet.editingId = profile ? profile.id : null;
+  profileSheet.confirmingDelete = false;
+  showProfileView('form', profile ? 'Upraviť profil' : 'Vyber si zvieratko');
+  elements.profileName.value = profile ? profile.name : '';
+  elements.profileDelete.hidden = !profile;
+  elements.profileDelete.textContent = 'Zmazať';
+  setFormAvatar(profile ? profile.avatar : (Avatars.AVATAR_KEYS.find(key => !usedAvatars.has(key)) || Avatars.AVATAR_KEYS[0]));
+  elements.avatarPicker.querySelector('[aria-checked="true"]').focus();
+}
+
+function onAvatarPickerKeyDown(event) {
+  const steps = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+  if (!(event.key in steps)) return;
+  event.preventDefault();
+  const keys = Avatars.AVATAR_KEYS;
+  const next = keys[(keys.indexOf(profileSheet.avatar) + steps[event.key] + keys.length) % keys.length];
+  setFormAvatar(next);
+  elements.avatarPicker.querySelector(`[data-avatar="${next}"]`).focus();
+}
+
+function populateAvatarPicker() {
+  for (const avatar of Avatars.AVATARS) {
+    const button = avatarBadge(avatar, 'button');
+    button.type = 'button';
+    button.classList.add('avatar-option');
+    button.dataset.avatar = avatar.key;
+    button.setAttribute('role', 'radio');
+    button.setAttribute('aria-label', avatar.label);
+    elements.avatarPicker.append(button);
+  }
+}
+
+function submitProfileForm(event) {
+  event.preventDefault();
+  const values = { name: elements.profileName.value, avatar: profileSheet.avatar };
+  elements.profileName.blur();
+  if (profileSheet.editingId) {
+    state.profiles = Engine.updateProfile(state.profiles, profileSheet.editingId, values);
+    Engine.saveProfiles(state.profiles, appStorage);
+    renderProfileButton();
+    showProfilePicker();
+    return;
+  }
+
+  const isFirstProfile = state.profiles.profiles.length === 0;
+  state.profiles = Engine.addProfile(state.profiles, values);
+  if (isFirstProfile) Engine.adoptGuestData(appStorage, state.profiles.activeId);
+  closeProfiles();
+  saveProfilesAndApply();
+}
+
+// Removing a profile also removes that child's practice, so it takes a
+// second, explicit tap.
+function deleteEditedProfile() {
+  if (!profileSheet.confirmingDelete) {
+    profileSheet.confirmingDelete = true;
+    elements.profileDelete.textContent = 'Naozaj zmazať?';
+    return;
+  }
+  const removedId = profileSheet.editingId;
+  const wasActive = removedId === state.profiles.activeId;
+  state.profiles = Engine.removeProfile(state.profiles, removedId);
+  Engine.removeProfileData(appStorage, removedId);
+  if (wasActive) {
+    saveProfilesAndApply();
+  } else {
+    Engine.saveProfiles(state.profiles, appStorage);
+  }
+  showProfilePicker();
+}
+
+function chooseProfile(profileId) {
+  closeProfiles();
+  if (profileId === state.profiles.activeId) return;
+  state.profiles = Engine.selectProfile(state.profiles, profileId);
+  saveProfilesAndApply();
+}
+
+function statsLetters() {
+  const available = new Set(state.cards.map(card => card.selected_letter));
+  return LETTER_ORDER.filter(letter => available.has(letter));
+}
+
+function showWordStats() {
+  const profile = Engine.activeProfile(state.profiles);
+  showProfileView('stats', profile ? `Slová: ${profileDisplayName(profile)}` : 'Moje slová');
+  const letters = statsLetters();
+  if (!letters.includes(profileSheet.statsLetter)) profileSheet.statsLetter = letters[0] || null;
+  elements.statsLetters.textContent = '';
+  for (const letter of letters) {
+    const button = document.createElement('button');
+    button.className = 'letter-filter-button';
+    button.type = 'button';
+    button.dataset.letter = letter;
+    button.textContent = letter;
+    elements.statsLetters.append(button);
+  }
+  renderMasteryGrid();
+  (elements.statsLetters.querySelector('[aria-pressed="true"]') || elements.statsBack).focus();
+}
+
+function renderMasteryGrid() {
+  const letter = profileSheet.statsLetter;
+  elements.statsLetters.querySelectorAll('.letter-filter-button').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.letter === letter));
+  });
+  elements.statsWord.textContent = letter ? 'Ťukni na štvorček.' : 'Slová sa ešte načítavajú.';
+  elements.masteryGrid.textContent = '';
+  const cards = Engine.filterCardsByLetters(state.cards, [letter])
+    .slice()
+    .sort((left, right) => left.surface.localeCompare(right.surface, 'sk'));
+  for (const card of cards) {
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = `mastery-tile mastery-${Engine.masteryLevel(state.progress.cards[card.id])}`;
+    tile.dataset.cardId = card.id;
+    tile.setAttribute('aria-pressed', 'false');
+    tile.setAttribute('aria-label', card.surface);
+    elements.masteryGrid.append(tile);
+  }
+}
+
+function showStatsWord(cardId) {
+  const card = state.cards.find(item => item.id === cardId);
+  if (!card) return;
+  elements.masteryGrid.querySelectorAll('.mastery-tile').forEach(tile => {
+    tile.setAttribute('aria-pressed', String(tile.dataset.cardId === cardId));
+  });
+
+  const record = state.progress.cards[card.id];
+  const word = document.createElement('strong');
+  const maskIndex = card.masked_surface.indexOf('_');
+  const letter = document.createElement('span');
+  letter.className = `answer-${card.answer_group}`;
+  letter.textContent = card.surface[maskIndex] || '';
+  word.append(card.surface.slice(0, maskIndex), letter, card.surface.slice(maskIndex + 1));
+  const detail = record ? `správne ${record.correct} z ${record.seen}` : 'ešte neprišlo';
+  elements.statsWord.textContent = '';
+  // Contrast words such as výr / vír need their sentence to make sense.
+  elements.statsWord.append(word, card.full_sentence !== card.surface ? `${card.full_sentence} · ${detail}` : detail);
+}
+
+function openProfiles() {
+  elements.profileOverlay.hidden = false;
+  if (state.profiles.profiles.length) {
+    showProfilePicker();
+  } else {
+    showProfileForm();
+  }
+}
+
+function closeProfiles() {
+  elements.profileOverlay.hidden = true;
+  elements.profileOpen.focus();
+}
+
+function onProfileListClick(event) {
+  const edit = event.target.closest('[data-edit-id]');
+  if (edit) {
+    showProfileForm(edit.dataset.editId);
+    return;
+  }
+  const choice = event.target.closest('.profile-choice');
+  if (!choice) return;
+  if (choice.dataset.add) {
+    showProfileForm();
+  } else {
+    chooseProfile(choice.dataset.profileId);
+  }
+}
+
 function openAbout() {
   elements.aboutOverlay.hidden = false;
   elements.aboutClose.focus();
@@ -1677,10 +2320,10 @@ function closeAbout() {
   elements.aboutOpen.focus();
 }
 
-function onAboutKeyDown(event) {
-  if (event.key === 'Escape' && !elements.aboutOverlay.hidden) {
-    closeAbout();
-  }
+function onSheetKeyDown(event) {
+  if (event.key !== 'Escape') return;
+  if (!elements.aboutOverlay.hidden) closeAbout();
+  if (!elements.profileOverlay.hidden) closeProfiles();
 }
 
 function resetRound() {
@@ -1738,7 +2381,32 @@ elements.aboutOpen.addEventListener('click', openAbout);
 elements.aboutClose.addEventListener('click', closeAbout);
 elements.aboutOverlay.addEventListener('click', closeAbout);
 elements.aboutSheet.addEventListener('click', event => event.stopPropagation());
-window.addEventListener('keydown', onAboutKeyDown);
+window.addEventListener('keydown', onSheetKeyDown);
+elements.profileOpen.addEventListener('click', openProfiles);
+elements.profileClose.addEventListener('click', closeProfiles);
+elements.profileOverlay.addEventListener('click', closeProfiles);
+elements.profileSheet.addEventListener('click', event => event.stopPropagation());
+elements.profileList.addEventListener('click', onProfileListClick);
+elements.avatarPicker.addEventListener('keydown', onAvatarPickerKeyDown);
+elements.avatarPicker.addEventListener('click', event => {
+  const option = event.target.closest('.avatar-option');
+  if (option) setFormAvatar(option.dataset.avatar);
+});
+elements.profileForm.addEventListener('submit', submitProfileForm);
+elements.profileBack.addEventListener('click', showProfilePicker);
+elements.profileDelete.addEventListener('click', deleteEditedProfile);
+elements.statsOpen.addEventListener('click', showWordStats);
+elements.statsBack.addEventListener('click', showProfilePicker);
+elements.statsLetters.addEventListener('click', event => {
+  const button = event.target.closest('.letter-filter-button');
+  if (!button) return;
+  profileSheet.statsLetter = button.dataset.letter;
+  renderMasteryGrid();
+});
+elements.masteryGrid.addEventListener('click', event => {
+  const tile = event.target.closest('.mastery-tile');
+  if (tile) showStatsWord(tile.dataset.cardId);
+});
 elements.card.addEventListener('pointerdown', onPointerDown);
 window.addEventListener('pointermove', onPointerMove);
 window.addEventListener('pointerup', onPointerUp);
@@ -1757,6 +2425,8 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+populateAvatarPicker();
+renderProfileButton();
 start();
 </script>
 </body>

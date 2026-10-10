@@ -371,7 +371,7 @@
       </div>
       <div class="panel">
         <h3>Minimal chrome</h3>
-        <p>The header should contain only circular letter toggles, defaulting to all letters selected and allowing several letters at once, plus an about button for feedback and project links.</p>
+        <p>The header should contain only circular letter toggles, defaulting to all letters selected and allowing several letters at once, plus the current profile's avatar and an about button for feedback and project links. The letter toggles shrink on narrow phones so all three fit on one line.</p>
       </div>
       <div class="panel">
         <h3>Feedback</h3>
@@ -398,6 +398,15 @@
       <li>Advance through the round without a visible counter or score; future progression can be reconsidered after the practice flow is established.</li>
     </ol>
     <p>Keep routine progress indicators out of the main screen. The background flower print is an atmospheric trace of the current visit rather than a score, and the main screen stays centered on the card.</p>
+  </section>
+
+  <section>
+    <h2>Profiles</h2>
+    <p>Several children can share one device. Each profile has a name and a pixel-art animal head (elephant, gorilla, peacock, flamingo, lion, panda, fox, owl, frog, penguin) drawn as 16&times;16 grids in <code>web/avatars.js</code>. The avatar button in the header opens a "Kto cvičí?" sheet for choosing, adding, and editing profiles. Profiles are optional: until one exists the app plays as a guest, and the first profile takes over the guest's earlier practice.</p>
+    <p>Children type their own names, so the form is forgiving rather than strict. The animal grid comes first and the name field is not focused automatically, so a phone keyboard never covers the pictures. The field is large, autocorrect and spellcheck are off, and Enter finishes. The engine trims stray spaces, capitalizes the first letter, and caps names at 16 letters. An empty name falls back to the animal's name, so there are no error messages. Deleting a profile removes that child's practice and takes a second, explicit tap.</p>
+    <p>Progress and letter selection are stored per profile, under the base storage key with the profile id appended. Switching profiles starts a fresh round and a fresh flower field and greets the child in the feedback line.</p>
+    <h3>Word mastery</h3>
+    <p>The profile sheet has a "Moje slová" view: letter tabs and a grid with one tile per word for that letter, ordered alphabetically, without showing the words. Tiles run from dark blue (not known yet) to gold (known well) over five levels. Tapping a tile shows the word with its answer letter in its answer colour, the context sentence for contrast words, and how many of its answers were correct. Mastery needs both repeated correct answers and a good hit rate (<code>masteryLevel</code> in the engine): one correct answer is level 1, three correct out of three is full mastery, and an early mistake is earned back with practice. This view lives in the profile sheet, never on the main screen.</p>
   </section>
 
   <section>
@@ -521,7 +530,7 @@
         </tr>
         <tr>
           <th>Namespaced storage</th>
-          <td>Use versioned localStorage keys such as <code>vybrane-slova.progress.v1</code>, <code>vybrane-slova.settings.v1</code>, and <code>vybrane-slova.lesson</code>. Plan migrations up front so word-set changes do not strand old progress.</td>
+          <td>Use versioned localStorage keys such as <code>vybrane-slova.progress.v1</code>, <code>vybrane-slova.settings.v1</code>, <code>vybrane-slova.profiles.v1</code>, and <code>vybrane-slova.lesson</code>. Per-profile data appends the profile id, for example <code>vybrane-slova.progress.v1.&lt;id&gt;</code>. Plan migrations up front so word-set changes do not strand old progress.</td>
         </tr>
         <tr>
           <th>Offline about sheet</th>

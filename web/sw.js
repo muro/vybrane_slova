@@ -1,8 +1,9 @@
-const CACHE_NAME = 'vybrane-slova-v55';
+const CACHE_NAME = 'vybrane-slova-v57';
 const APP_SHELL = [
   './',
   './index.html',
   './engine.js',
+  './avatars.js',
   './data/disambiguation.tsv',
   './data/simple/b.txt',
   './data/simple/m.txt',

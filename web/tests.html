@@ -35,8 +35,10 @@
 <ol id="results"></ol>
 
 <script src="./engine.js"></script>
+<script src="./avatars.js"></script>
 <script>
 const Engine = window.VybraneSlovaEngine;
+const Avatars = window.VybraneSlovaAvatars;
 const results = document.querySelector('#results');
 const summary = document.querySelector('#summary');
 const tests = [];
@@ -63,6 +65,9 @@ function makeStorage() {
     },
     setItem(key, value) {
       map.set(key, String(value));
+    },
+    removeItem(key) {
+      map.delete(key);
     },
   };
 }
@@ -209,6 +214,128 @@ async function run() {
     equal(saved.totalAnswered, 1, 'total answered after failed save');
     equal(saved.totalCorrect, 0, 'total correct after failed save');
     equal(saved.cards[card.id].seen, 1, 'card seen after failed save');
+  });
+
+  test('draws every avatar as a 16x16 pixel head', () => {
+    equal(new Set(Avatars.AVATAR_KEYS).size, Avatars.AVATARS.length, 'unique avatar keys');
+    for (const key of ['elephant', 'gorilla', 'peacock', 'flamingo']) {
+      assert(Avatars.avatarByKey(key), `missing ${key}`);
+    }
+    for (const avatar of [...Avatars.AVATARS, Avatars.GUEST]) {
+      assert(avatar.label, `${avatar.key} label`);
+      equal(avatar.rows.length, 16, `${avatar.key} row count`);
+      for (const row of avatar.rows) {
+        equal(row.length, 16, `${avatar.key} row width`);
+        assert(Array.from(row).every(char => char === '.' || avatar.palette[char]), `${avatar.key} uses unknown colour in ${row}`);
+      }
+      assert(Avatars.avatarSvg(avatar).includes('<rect'), `${avatar.key} renders pixels`);
+    }
+  });
+
+  test('starts without profiles', () => {
+    const profiles = Engine.loadProfiles(makeStorage(), Avatars.AVATAR_KEYS);
+    equal(profiles.profiles.length, 0, 'profile count');
+    equal(profiles.activeId, null, 'active profile');
+    equal(Engine.activeProfile(profiles), null, 'no active profile');
+  });
+
+  test('tidies names typed by children', () => {
+    equal(Engine.normalizeProfileName('  mia   sofia '), 'Mia sofia', 'trims, collapses, capitalizes');
+    equal(Engine.normalizeProfileName('ľubo'), 'Ľubo', 'capitalizes Slovak letters');
+    equal(Engine.normalizeProfileName('Maximiliánko Veľký'), 'Maximiliánko Veľ', 'limits length by letters');
+    equal(Engine.normalizeProfileName(null), '', 'missing name');
+  });
+
+  test('adds, edits, selects, and removes profiles', () => {
+    let profiles = Engine.loadProfiles(makeStorage(), Avatars.AVATAR_KEYS);
+    profiles = Engine.addProfile(profiles, { name: ' ema ', avatar: 'flamingo' }, 1000);
+    const ema = Engine.activeProfile(profiles);
+    equal(ema.name, 'Ema', 'first name');
+    equal(ema.avatar, 'flamingo', 'first avatar');
+    profiles = Engine.addProfile(profiles, { name: 'Jakub', avatar: 'gorilla' }, 1000);
+    const jakub = Engine.activeProfile(profiles);
+    assert(jakub.id !== ema.id, 'ids stay unique for the same timestamp');
+    profiles = Engine.selectProfile(profiles, ema.id);
+    equal(profiles.activeId, ema.id, 'selected profile');
+    profiles = Engine.selectProfile(profiles, 'missing');
+    equal(profiles.activeId, ema.id, 'unknown profile is ignored');
+    profiles = Engine.updateProfile(profiles, jakub.id, { name: 'kubo', avatar: 'lion' });
+    equal(profiles.profiles[1].name, 'Kubo', 'edited name');
+    equal(profiles.profiles[1].avatar, 'lion', 'edited avatar');
+    profiles = Engine.removeProfile(profiles, ema.id);
+    equal(profiles.profiles.length, 1, 'remaining profiles');
+    equal(profiles.activeId, jakub.id, 'removing the active profile selects another');
+    profiles = Engine.removeProfile(profiles, jakub.id);
+    equal(profiles.activeId, null, 'removing the last profile returns to guest');
+  });
+
+  test('stores profiles and repairs unknown values', () => {
+    const storage = makeStorage();
+    let profiles = Engine.addProfile(Engine.loadProfiles(storage, Avatars.AVATAR_KEYS), { name: 'Ema', avatar: 'peacock' }, 1);
+    Engine.saveProfiles(profiles, storage);
+    const saved = Engine.loadProfiles(storage, Avatars.AVATAR_KEYS);
+    equal(saved.profiles[0].name, 'Ema', 'saved name');
+    equal(saved.activeId, profiles.activeId, 'saved active profile');
+
+    storage.setItem(Engine.STORAGE_KEYS.profiles, JSON.stringify({
+      version: 1,
+      activeId: 'gone',
+      profiles: [{ id: 'a', name: 'Ema', avatar: 'dragon' }, { id: 'a', name: 'Copy', avatar: 'fox' }, null],
+    }));
+    const repaired = Engine.loadProfiles(storage, Avatars.AVATAR_KEYS);
+    equal(repaired.profiles.length, 1, 'drops duplicate and broken profiles');
+    equal(repaired.profiles[0].avatar, Avatars.AVATAR_KEYS[0], 'unknown avatar falls back');
+    equal(repaired.activeId, 'a', 'missing active profile falls back');
+  });
+
+  test('keeps progress separate for each profile', () => {
+    const storage = makeStorage();
+    const card = readyCards[0];
+    Engine.saveProgress(Engine.recordAnswer(Engine.loadProgress(storage, 'p1'), card, true, 1), storage, 'p1');
+    equal(Engine.loadProgress(storage, 'p1').totalAnswered, 1, 'profile progress');
+    equal(Engine.loadProgress(storage, 'p2').totalAnswered, 0, 'other profile progress');
+    equal(Engine.loadProgress(storage).totalAnswered, 0, 'guest progress');
+  });
+
+  test('the first profile keeps practice done before profiles existed', () => {
+    const storage = makeStorage();
+    const card = readyCards[0];
+    Engine.saveProgress(Engine.recordAnswer(Engine.loadProgress(storage), card, true, 1), storage);
+    storage.setItem(Engine.STORAGE_KEYS.settings, JSON.stringify({ selectedLetters: ['b'] }));
+    Engine.adoptGuestData(storage, 'p1');
+    equal(Engine.loadProgress(storage, 'p1').totalAnswered, 1, 'adopted progress');
+    equal(Engine.loadProgress(storage).totalAnswered, 0, 'guest progress moved');
+    equal(storage.getItem(Engine.profileStorageKey(Engine.STORAGE_KEYS.settings, 'p1')), '{"selectedLetters":["b"]}', 'adopted settings');
+    Engine.removeProfileData(storage, 'p1');
+    equal(Engine.loadProgress(storage, 'p1').totalAnswered, 0, 'removed progress');
+    equal(storage.getItem(Engine.profileStorageKey(Engine.STORAGE_KEYS.settings, 'p1')), null, 'removed settings');
+  });
+
+  test('never overwrites a profile or removes guest practice by accident', () => {
+    const storage = makeStorage();
+    const card = readyCards[0];
+    Engine.saveProgress(Engine.recordAnswer(Engine.loadProgress(storage), card, true, 1), storage);
+    let own = Engine.recordAnswer(Engine.loadProgress(storage, 'p1'), card, false, 2);
+    own = Engine.recordAnswer(own, card, false, 3);
+    Engine.saveProgress(own, storage, 'p1');
+    Engine.adoptGuestData(storage, 'p1');
+    equal(Engine.loadProgress(storage, 'p1').totalAnswered, 2, 'profile keeps its own progress');
+    equal(Engine.loadProgress(storage).totalAnswered, 1, 'guest progress stays when not adopted');
+    Engine.removeProfileData(storage, null);
+    equal(Engine.loadProgress(storage).totalAnswered, 1, 'removing without a profile leaves guest progress');
+  });
+
+  test('grows word mastery with repeated correct answers', () => {
+    const card = readyCards[0];
+    const answer = (progress, results) => results.reduce((next, isCorrect, index) => Engine.recordAnswer(next, card, isCorrect, index), progress);
+    const level = results => Engine.masteryLevel(answer(Engine.defaultProgress(), results).cards[card.id]);
+    equal(Engine.masteryLevel(undefined), 0, 'unseen word');
+    equal(level([false]), 0, 'only mistakes');
+    equal(level([true]), 1, 'one correct answer');
+    equal(level([true, true]), 3, 'two correct answers');
+    equal(level([true, true, true]), Engine.MASTERY_MAX_LEVEL, 'three correct answers');
+    equal(level([false, true, true, true]), 3, 'an early mistake still counts');
+    equal(level([false, true, true, true, true, true, true, true]), Engine.MASTERY_MAX_LEVEL, 'practice earns mastery back');
   });
 
   let passed = 0;
