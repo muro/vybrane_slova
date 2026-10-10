@@ -216,48 +216,25 @@
     color: rgba(161, 72, 70, var(--flower-opacity, 0.18));
   }
 
-  .folk-flower__petal {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: var(--petal-width, 20%);
-    height: var(--petal-height, 38%);
-    border: 1.4px solid currentColor;
-    border-radius: 60% 60% 48% 48%;
-    transform-origin: 50% 100%;
-    transform: translate(-50%, -100%) rotate(var(--petal-angle));
+  .folk-flower svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
 
-  .folk-flower__core {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 18%;
-    aspect-ratio: 1;
-    border: 1.4px solid currentColor;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
+  .folk-flower svg * {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
   }
 
-  .folk-flower--b { --petal-width: 24%; --petal-height: 36%; }
-  .folk-flower--m { --petal-width: 17%; --petal-height: 42%; }
-  .folk-flower--p { --petal-width: 23%; --petal-height: 35%; }
-  .folk-flower--r { --petal-width: 13%; --petal-height: 44%; }
-  .folk-flower--s { --petal-width: 20%; --petal-height: 31%; }
-  .folk-flower--v { --petal-width: 16%; --petal-height: 40%; }
-  .folk-flower--z { --petal-width: 21%; --petal-height: 33%; }
-
-  .folk-flower--p .folk-flower__petal,
-  .folk-flower--v .folk-flower__petal {
-    border-radius: 100% 0 100% 0;
-  }
-
-  .folk-flower--s .folk-flower__petal {
-    border-radius: 2px;
-  }
-
-  .folk-flower--r .folk-flower__petal {
-    border-radius: 999px 999px 28% 28%;
+  .folk-flower svg .flower-dot {
+    fill: currentColor;
+    stroke: none;
   }
 
   @keyframes flower-pop {
@@ -1236,7 +1213,108 @@ function getStorage() {
 
 const appStorage = getStorage();
 const LETTER_ORDER = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
-const FLOWER_PETALS = { b: 5, m: 6, p: 4, r: 8, s: 6, v: 5, z: 7 };
+// Each selected consonant prints a family of folk flowers as thin line
+// drawings in a 100x100 box. Petals are drawn pointing up from the centre and
+// rotated; every flower is round, so it can land at any angle.
+function flowerRing(count, petal, offset = 0) {
+  return Array.from({ length: count }, (_, index) => (
+    `<g transform="rotate(${offset + index * 360 / count} 50 50)">${petal}</g>`
+  )).join('');
+}
+
+function flowerDots(count, radius, size, offset = 0) {
+  return flowerRing(count, `<circle class="flower-dot" cx="50" cy="${50 - radius}" r="${size}"/>`, offset);
+}
+
+const FOLK_FLOWERS = {
+  b: [
+    // Rosette: round petals, a ring of small inner petals, and a dotted halo.
+    flowerRing(6, '<path d="M50 40 C40 34 38 16 50 10 C62 16 60 34 50 40 Z"/>')
+      + flowerRing(6, '<path d="M50 43 C47 41 47 38 50 35 C53 38 53 41 50 43 Z"/>', 30)
+      + '<circle cx="50" cy="50" r="4.5"/>' + flowerDots(12, 46, 1.3, 15),
+    // Layered rosette: each petal holds a smaller petal.
+    flowerRing(5, '<path d="M50 42 C38 36 36 14 50 8 C64 14 62 36 50 42 Z"/><path d="M50 37 C44 33 43 22 50 17 C57 22 56 33 50 37 Z"/>')
+      + '<circle cx="50" cy="50" r="5"/><circle class="flower-dot" cx="50" cy="50" r="1.6"/>',
+    // Lace rosette: round petals inside a scalloped edge.
+    flowerRing(12, '<path d="M39.65 11.36 Q50 2 60.35 11.36"/>')
+      + flowerRing(6, '<path d="M50 41 C42 37 40 25 50 19 C60 25 58 37 50 41 Z"/>')
+      + flowerDots(6, 30, 1.3, 30) + '<circle cx="50" cy="50" r="5"/>',
+  ],
+  m: [
+    // Forget-me-not: five broad round petals with short lines at the centre.
+    flowerRing(5, '<path d="M50 44 C38 42 33 26 41 17 C45 13 55 13 59 17 C67 26 62 42 50 44 Z"/><path d="M50 43 L50 37"/>')
+      + '<circle cx="50" cy="50" r="6"/>',
+    // Poppy: four wide wavy petals, a seed head with a ring of dots.
+    flowerRing(4, '<path d="M50 42 C36 40 26 28 30 16 C36 10 44 14 50 10 C56 14 64 10 70 16 C74 28 64 40 50 42 Z"/>')
+      + flowerRing(8, '<path d="M50 42 L50 37"/>') + flowerDots(8, 15, 1.3, 22.5)
+      + '<circle cx="50" cy="50" r="8"/>',
+    // Chamomile: many short round-tipped petals around a dotted centre.
+    flowerRing(18, '<path d="M48.2 37 L48.2 21.5 A1.8 1.8 0 0 1 51.8 21.5 L51.8 37"/>')
+      + '<circle cx="50" cy="50" r="12"/>' + flowerDots(7, 7, 1.2) + '<circle class="flower-dot" cx="50" cy="50" r="1.4"/>',
+  ],
+  p: [
+    // Heart flower: four heart petals with dots between them.
+    flowerRing(4, '<path d="M50 42 C42 36 32 26 37 17 C41 11 48 13 50 19 C52 13 59 11 63 17 C68 26 58 36 50 42 Z"/>')
+      + flowerDots(4, 22, 1.6, 45)
+      + '<circle cx="50" cy="50" r="5.5"/><circle class="flower-dot" cx="50" cy="50" r="1.6"/>',
+    // Quatrefoil: four overlapping round lobes with dots outside.
+    flowerRing(4, '<circle cx="50" cy="34" r="15"/>')
+      + flowerDots(4, 40, 1.6, 45) + '<circle cx="50" cy="50" r="6"/><circle class="flower-dot" cx="50" cy="50" r="1.6"/>',
+    // Heart ring: small hearts pointing at the centre, with a dotted halo.
+    flowerRing(6, '<path d="M50 34 C44 30 40 25 42 20 C44 16 48 17 50 20 C52 17 56 16 58 20 C60 25 56 30 50 34 Z"/>')
+      + flowerDots(6, 44, 1.3, 30) + '<circle cx="50" cy="50" r="9"/><circle class="flower-dot" cx="50" cy="50" r="1.6"/>',
+  ],
+  r: [
+    // Daisy: many slim petals around a double ring.
+    flowerRing(14, '<path d="M50 40 C47 30 47 15 50 8 C53 15 53 30 50 40 Z"/>')
+      + '<circle cx="50" cy="50" r="8"/><circle cx="50" cy="50" r="4"/>',
+    // Sunflower: two offset rings of pointed petals and a seeded centre.
+    flowerRing(16, '<path d="M50 35 C47 27 47 16 50 8 C53 16 53 27 50 35 Z"/>')
+      + flowerRing(16, '<path d="M50 35 C48 30 48 24 50 19 C52 24 52 30 50 35 Z"/>', 11.25)
+      + '<circle cx="50" cy="50" r="15"/>' + flowerDots(10, 10, 1.1) + flowerDots(5, 5, 1.1, 36)
+      + '<circle class="flower-dot" cx="50" cy="50" r="1.1"/>',
+    // Dahlia: three rings of rounded petals that shrink toward the centre.
+    flowerRing(12, '<path d="M50 26 C45 22 44 12 50 8 C56 12 55 22 50 26 Z"/>')
+      + flowerRing(10, '<path d="M50 36 C46 33 45 25 50 21 C55 25 54 33 50 36 Z"/>', 18)
+      + flowerRing(6, '<path d="M50 44 C47.5 42 47 37 50 34 C53 37 52.5 42 50 44 Z"/>', 30),
+  ],
+  s: [
+    // Carnation: five fan petals with scalloped tips.
+    flowerRing(5, '<path d="M50 42 C40 38 33 28 34 17 Q38 13 42 17 Q46 11 50 15 Q54 11 58 17 Q62 13 66 17 C67 28 60 38 50 42 Z"/><path d="M50 40 L50 24"/>')
+      + '<circle cx="50" cy="50" r="6"/>',
+    // Cornflower: eight fringed trumpet petals.
+    flowerRing(8, '<path d="M50 42 L45 19 L41 13 L45.5 14.5 L47.5 9 L50 13.5 L52.5 9 L54.5 14.5 L59 13 L55 19 Z"/>')
+      + flowerDots(8, 11, 1.3, 22.5) + '<circle cx="50" cy="50" r="6"/>',
+    // Iris from above: three broad veined petals and three narrow ones.
+    flowerRing(3, '<path d="M50 44 C34 38 30 18 44 10 Q50 15 56 10 C70 18 66 38 50 44 Z"/><circle class="flower-dot" cx="50" cy="34" r="1.3"/><circle class="flower-dot" cx="50" cy="28" r="1.3"/><circle class="flower-dot" cx="50" cy="22" r="1.3"/>')
+      + flowerRing(3, '<path d="M50 44 C46 36 46 26 50 20 C54 26 54 36 50 44 Z"/>', 60)
+      + '<circle cx="50" cy="50" r="4"/>',
+  ],
+  v: [
+    // Star flower: veined pointed petals with short petals between them.
+    flowerRing(6, '<path d="M50 41 C45 32 45 20 50 7 C55 20 55 32 50 41 Z"/><path d="M50 37 L50 20"/>')
+      + flowerRing(6, '<path d="M50 42 C47 38 46 33 50 28 C54 33 53 38 50 42 Z"/>', 30)
+      + '<circle cx="50" cy="50" r="4"/>',
+    // Edelweiss: woolly dotted petals around a cluster of small buds.
+    flowerRing(8, '<path d="M50 40 C44 32 44 18 50 9 C56 18 56 32 50 40 Z"/><circle class="flower-dot" cx="50" cy="31" r="1.1"/><circle class="flower-dot" cx="50" cy="23" r="1.1"/><circle class="flower-dot" cx="50" cy="16" r="1.1"/>')
+      + flowerRing(5, '<circle cx="50" cy="44.5" r="3"/>') + '<circle cx="50" cy="50" r="2.4"/>',
+    // Water lily: broad outer petals with narrow inner petals between them.
+    flowerRing(8, '<path d="M50 38 C41 30 42 16 50 8 C58 16 59 30 50 38 Z"/>')
+      + flowerRing(8, '<path d="M50 44 C47.5 41 47.5 36 50 32 C52.5 36 52.5 41 50 44 Z"/>', 22.5)
+      + '<circle cx="50" cy="50" r="5"/>',
+  ],
+  z: [
+    // Pinwheel: curved petals that all lean one way.
+    flowerRing(7, '<path d="M50 42 C42 38 36 24 44 10 C50 20 60 28 50 42 Z"/>')
+      + '<circle cx="50" cy="50" r="6"/>' + flowerDots(7, 30, 1.4, 22),
+    // Whirl: comma petals whose tips curl inward like a spiral.
+    flowerRing(6, '<path d="M50 43 C38 38 35 20 47 13 C56 9 62 19 56 24 C52 27 47 23 50 20"/>')
+      + '<circle cx="50" cy="50" r="5"/>' + flowerDots(6, 44, 1.3, 40),
+    // Leaf wreath: tilted veined leaves on a ring, dots inside.
+    flowerRing(8, '<g transform="rotate(28 50 28)"><path d="M50 28 C44 22 44 12 50 6 C56 12 56 22 50 28 Z"/><path d="M50 26 L50 11"/></g>')
+      + '<circle cx="50" cy="50" r="22"/>' + flowerDots(8, 13, 1.4, 22.5) + '<circle cx="50" cy="50" r="4"/>',
+  ],
+};
 const FLOWER_CANDIDATES = 42;
 const FLOWER_TOP_CHOICES = 5;
 
@@ -1422,9 +1500,10 @@ function chooseFlowerSpot() {
 
 function addBackgroundFlower(card, isCorrect) {
   const spot = chooseFlowerSpot();
-  const letter = FLOWER_PETALS[card.selected_letter] ? card.selected_letter : 'b';
+  const family = FOLK_FLOWERS[card.selected_letter] || FOLK_FLOWERS.b;
+  const shape = family[Math.floor(Math.random() * family.length)];
   const flower = document.createElement('div');
-  flower.className = `folk-flower folk-flower--${letter}${isCorrect ? '' : ' incorrect'}`;
+  flower.className = `folk-flower${isCorrect ? '' : ' incorrect'}`;
   flower.style.left = `${spot.left.toFixed(2)}%`;
   flower.style.top = `${spot.top.toFixed(2)}%`;
   flower.style.setProperty('--flower-size', `${spot.size}px`);
@@ -1434,17 +1513,7 @@ function addBackgroundFlower(card, isCorrect) {
   flower.dataset.opacity = String(isCorrect ? 0.31 : 0.19);
   flower.style.setProperty('--flower-opacity', flower.dataset.opacity);
 
-  const petals = FLOWER_PETALS[letter];
-  for (let index = 0; index < petals; index++) {
-    const petal = document.createElement('span');
-    petal.className = 'folk-flower__petal';
-    petal.style.setProperty('--petal-angle', `${index * (360 / petals)}deg`);
-    flower.append(petal);
-  }
-
-  const core = document.createElement('span');
-  core.className = 'folk-flower__core';
-  flower.append(core);
+  flower.innerHTML = `<svg viewBox="0 0 100 100" focusable="false">${shape}</svg>`;
 
   elements.flowerGarden.querySelectorAll('.folk-flower').forEach(existing => {
     const nextOpacity = Math.max(0.07, Number(existing.dataset.opacity) - 0.012);
