@@ -1144,7 +1144,7 @@
 <div class="sheet-overlay" id="profile-overlay" hidden>
   <section class="sheet profile-sheet" id="profile-sheet" role="dialog" aria-modal="true" aria-labelledby="profile-title">
     <button class="sheet-close" type="button" id="profile-close" aria-label="Zavrieť">×</button>
-    <h2 id="profile-title">Kto cvičí?</h2>
+    <h2 id="profile-title">Ahoj, kto si?</h2>
     <div id="profile-picker">
       <ul class="profile-list" id="profile-list"></ul>
       <button class="secondary-button" type="button" id="stats-open">Moje slová</button>
@@ -2082,7 +2082,7 @@ function showProfileView(view, title) {
 }
 
 function showProfilePicker() {
-  showProfileView('picker', 'Kto cvičí?');
+  showProfileView('picker', 'Ahoj, kto si?');
   elements.profileList.textContent = '';
   for (const profile of state.profiles.profiles) {
     const item = document.createElement('li');
