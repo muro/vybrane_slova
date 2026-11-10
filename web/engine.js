@@ -157,6 +157,28 @@
     }, { i: 0, y: 0 });
   }
 
+  function selectBasicCards(cards, membership) {
+    const selected = [];
+    const ids = new Set();
+    for (const [letter, groups] of Object.entries(membership)) {
+      for (const group of ['i', 'y']) {
+        const surfaces = groups[group];
+        if (!Array.isArray(surfaces) || !surfaces.length || surfaces.length > 20) {
+          throw new Error(`Invalid basic list for ${letter}/${group}`);
+        }
+        for (const surface of surfaces) {
+          const card = cards.find(item => item.selected_letter === letter &&
+            item.answer_group === group && item.surface === surface && item.status === 'ready');
+          if (!card || ids.has(card.id)) throw new Error(`Invalid basic reference: ${letter}/${group}/${surface}`);
+          ids.add(card.id);
+          selected.push(card);
+        }
+      }
+      if (groups.i.length < groups.y.length) throw new Error(`Unbalanced basic list for ${letter}`);
+    }
+    return selected;
+  }
+
   function filterCardsByLetters(cards, letters) {
     const selected = new Set(letters);
     return cards.filter(card => selected.has(card.selected_letter));
@@ -197,6 +219,7 @@
       totalAnswered: 0,
       totalCorrect: 0,
       cards: {},
+      days: {},
       updatedAt: null,
     };
   }
@@ -224,6 +247,7 @@
       ...defaultProgress(),
       ...saved,
       cards: saved.cards || {},
+      days: saved.days && typeof saved.days === 'object' ? saved.days : {},
     };
   }
 
@@ -239,8 +263,18 @@
 
   function recordAnswer(progress, card, isCorrect, now = Date.now()) {
     const previous = progress.cards[card.id] || { seen: 0, correct: 0, lastAnsweredAt: null };
+    const date = localDateKey(now);
+    const day = (progress.days || {})[date] || {};
+    const dailyCard = day[card.id] || { seen: 0, correct: 0 };
     return {
       ...progress,
+      days: {
+        ...progress.days,
+        [date]: { ...day, [card.id]: {
+          seen: dailyCard.seen + 1,
+          correct: dailyCard.correct + (isCorrect ? 1 : 0),
+        } },
+      },
       totalAnswered: progress.totalAnswered + 1,
       totalCorrect: progress.totalCorrect + (isCorrect ? 1 : 0),
       updatedAt: now,
@@ -370,6 +404,44 @@
     }
   }
 
+  function localDateKey(now) {
+    const date = new Date(now);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  function practiceOverview(progress, cards, now = Date.now()) {
+    const recentCards = {};
+    const totals = entries => Object.values(entries).reduce((sum, item) => ({
+      answered: sum.answered + item.seen, correct: sum.correct + item.correct,
+      words: sum.words + 1,
+    }), { answered: 0, correct: 0, words: 0 });
+    const days = Array.from({ length: 8 }, (_, offset) => {
+      // Calendar arithmetic also handles days with a daylight-saving time change.
+      const date = new Date(now);
+      date.setDate(date.getDate() - offset);
+      const key = localDateKey(date);
+      const entries = (progress.days || {})[key] || {};
+      for (const [id, item] of Object.entries(entries)) {
+        const previous = recentCards[id] || { seen: 0, correct: 0 };
+        recentCards[id] = { seen: previous.seen + item.seen, correct: previous.correct + item.correct };
+      }
+      return { date: key, ...totals(entries) };
+    });
+    const letters = {};
+    const needsPractice = [];
+    for (const card of cards) {
+      const item = recentCards[card.id];
+      if (!item) continue;
+      const letter = letters[card.selected_letter] ||= { answered: 0, correct: 0, words: 0 };
+      letter.answered += item.seen;
+      letter.correct += item.correct;
+      letter.words++;
+      if (item.correct < item.seen) needsPractice.push({ card, ...item });
+    }
+    needsPractice.sort((a, b) => (b.seen - b.correct) - (a.seen - a.correct) || a.correct / a.seen - b.correct / b.seen);
+    return { days, total: totals(recentCards), letters, needsPractice };
+  }
+
   return {
     STORAGE_KEYS,
     parseTsv,
@@ -377,6 +449,7 @@
     parseSimpleWordList,
     loadSimpleCards,
     answerCounts,
+    selectBasicCards,
     filterCardsByLetters,
     createRound,
     checkAnswer,
@@ -398,5 +471,7 @@
     removeProfile,
     adoptGuestData,
     removeProfileData,
+    localDateKey,
+    practiceOverview,
   };
 });

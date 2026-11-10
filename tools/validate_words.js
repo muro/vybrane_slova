@@ -349,14 +349,42 @@ function validateSimple(rows, disambiguationRows) {
 }
 
 function validateRuntimeCopy() {
-  const source = path.join(ROOT, DISAMBIGUATION_FILE);
-  const runtime = path.join(ROOT, RUNTIME_DISAMBIGUATION_FILE);
-  if (!fs.existsSync(runtime)) {
-    errors.push(`${RUNTIME_DISAMBIGUATION_FILE}: missing runtime data copy`);
-    return;
+  const copies = [
+    [DISAMBIGUATION_FILE, RUNTIME_DISAMBIGUATION_FILE],
+    ['data/words/basic.json', 'web/data/basic.json'],
+    ...LETTERS.map(letter => [`${SIMPLE_DIR}/${letter}.txt`, `web/data/simple/${letter}.txt`]),
+  ];
+  for (const [source, runtime] of copies) {
+    if (!fs.existsSync(path.join(ROOT, runtime))) {
+      errors.push(`${runtime}: missing runtime data copy`);
+    } else if (fs.readFileSync(path.join(ROOT, source), 'utf8') !== fs.readFileSync(path.join(ROOT, runtime), 'utf8')) {
+      errors.push(`${runtime}: must match ${source}`);
+    }
   }
-  if (fs.readFileSync(source, 'utf8') !== fs.readFileSync(runtime, 'utf8')) {
-    errors.push(`${RUNTIME_DISAMBIGUATION_FILE}: must match ${DISAMBIGUATION_FILE}`);
+}
+
+function validateBasic(simpleRows, disambiguationRows) {
+  const file = 'data/words/basic.json';
+  try {
+    const membership = JSON.parse(fs.readFileSync(path.join(ROOT, file), 'utf8'));
+    if (Object.keys(membership).sort().join(',') !== LETTERS.slice().sort().join(',')) {
+      errors.push(`${file}: must include exactly the seven selected consonants`);
+    }
+    for (const [letter, groups] of Object.entries(membership)) {
+      if (Object.keys(groups).sort().join(',') !== 'i,y') errors.push(`${file}: ${letter} must have only i and y lists`);
+    }
+    const engine = require('../web/engine.js');
+    const cards = [
+      ...simpleRows.map(row => ({ ...row, id: `simple:${row.selected_letter}:${row.answer_group}:${row.surface}`, status: 'ready' })),
+      ...disambiguationRows.filter(row => row.status === 'ready'),
+    ];
+    const basic = engine.selectBasicCards(cards, membership);
+    console.log(`Basic set: ${basic.length} cards; ${LETTERS.map(letter => {
+      const counts = engine.answerCounts(basic.filter(card => card.selected_letter === letter));
+      return `${letter}=i${counts.i}/y${counts.y}`;
+    }).join(', ')}.`);
+  } catch (error) {
+    errors.push(`${file}: ${error.message}`);
   }
 }
 
@@ -365,6 +393,7 @@ const simpleRows = parseSimpleFiles();
 
 validateDisambiguation(disambiguationRows);
 validateSimple(simpleRows, disambiguationRows);
+validateBasic(simpleRows, disambiguationRows);
 validateRuntimeCopy();
 
 const readyByPack = new Map();

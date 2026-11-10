@@ -338,6 +338,87 @@ async function run() {
     equal(level([false, true, true, true, true, true, true, true]), Engine.MASTERY_MAX_LEVEL, 'practice earns mastery back');
   });
 
+  test('basic membership preserves cards, context, limits and balance', async () => {
+    const membership = await fetch('./data/basic.json').then(response => response.json());
+    const all = [...simpleCards, ...readyCards];
+    const basic = Engine.selectBasicCards(all, membership);
+    equal(basic.length, 172, 'basic size');
+    for (const letter of simpleLetters) {
+      const counts = Engine.answerCounts(Engine.filterCardsByLetters(basic, [letter]));
+      assert(counts.i <= 20 && counts.y <= 20, 'basic limit exceeded');
+      assert(counts.i >= counts.y && counts.y > 0, 'basic balance');
+    }
+    const cheese = basic.find(card => card.surface === 'syr');
+    equal(cheese.id, readyCards.find(card => card.surface === 'syr').id, 'stable contrast ID');
+    assert(cheese.sentence.includes('{target}'), 'contrast context preserved');
+    assert(!basic.some(card => card.status !== 'ready'), 'basic enabled unreviewed card');
+    assert(all.length > basic.length, 'extended pool retained');
+    let rejected = false;
+    try { Engine.selectBasicCards(all, { b: { i: ['missing'], y: [] } }); }
+    catch (_error) { rejected = true; }
+    assert(rejected, 'unknown basic references must fail');
+  });
+
+  test('daily history separates repeated attempts, distinct words and local dates', () => {
+    const first = new Date(2026, 10, 9, 23, 59).getTime();
+    const next = new Date(2026, 10, 10, 0, 1).getTime();
+    let progress = Engine.recordAnswer(Engine.defaultProgress(), readyCards[0], false, first);
+    progress = Engine.recordAnswer(progress, readyCards[0], true, first);
+    progress = Engine.recordAnswer(progress, readyCards[1], true, next);
+    const report = Engine.practiceOverview(progress, readyCards, next);
+    equal(report.days.length, 8, 'today plus previous seven days');
+    equal(report.days[0].date, '2026-11-10', 'local day');
+    equal(report.days[0].answered, 1, 'today attempts');
+    equal(report.days[1].answered, 2, 'yesterday attempts');
+    equal(report.days[1].words, 1, 'yesterday distinct words');
+    equal(report.days[1].correct, 1, 'yesterday correct');
+    equal(report.total.words, 2, 'period distinct words');
+    equal(report.total.answered, 3, 'period attempts');
+    equal(report.letters.b.answered, 3, 'letter attempts');
+    equal(report.needsPractice[0].card.id, readyCards[0].id, 'word needing practice');
+    equal(report.days[2].answered, 0, 'empty day');
+    equal(Engine.defaultProgress().totalAnswered, 0, 'fresh progress is empty');
+  });
+
+  test('migration preserves totals without inventing daily history', () => {
+    const storage = makeStorage();
+    const old = { version: 1, totalAnswered: 8, totalCorrect: 6,
+      cards: { [readyCards[0].id]: { seen: 8, correct: 6, lastAnsweredAt: 1234 } }, updatedAt: 1234 };
+    storage.setItem(Engine.STORAGE_KEYS.progress, JSON.stringify(old));
+    const migrated = Engine.loadProgress(storage);
+    equal(migrated.totalAnswered, 8, 'old totals retained');
+    equal(Object.keys(migrated.days).length, 0, 'no fabricated daily data');
+    const now = new Date(2026, 0, 1, 12).getTime();
+    const updated = Engine.recordAnswer(migrated, readyCards[0], true, now);
+    Engine.saveProgress(updated, storage);
+    const restored = Engine.loadProgress(storage);
+    equal(restored.totalAnswered, 9, 'new answer added to old totals');
+    equal(Engine.practiceOverview(restored, readyCards, now).total.answered, 1, 'only new history reported');
+    const feb = new Date(2026, 1, 1, 12).getTime();
+    const empty = Engine.practiceOverview(restored, readyCards, feb);
+    equal(empty.total.answered, 0, 'old daily results excluded from recent period');
+    equal(empty.days[1].date, '2026-01-31', 'month boundary');
+    equal(Engine.practiceOverview(Engine.defaultProgress(), readyCards, now).days[1].date,
+      '2025-12-31', 'year boundary');
+  });
+
+  test('daily history follows profile migration, isolation and removal', () => {
+    const storage = makeStorage();
+    const now = new Date(2026, 10, 10, 12).getTime();
+    const card = readyCards[0];
+    const guest = Engine.recordAnswer(Engine.defaultProgress(), card, true, now);
+    Engine.saveProgress(guest, storage);
+    Engine.adoptGuestData(storage, 'first');
+    equal(Engine.practiceOverview(Engine.loadProgress(storage, 'first'), readyCards, now).total.answered, 1, 'guest daily history adopted');
+    equal(Engine.practiceOverview(Engine.loadProgress(storage, 'second'), readyCards, now).total.answered, 0, 'second child starts empty');
+    Engine.saveProgress(Engine.recordAnswer(Engine.loadProgress(storage, 'second'), card, false, now), storage, 'second');
+    equal(Engine.practiceOverview(Engine.loadProgress(storage, 'first'), readyCards, now).total.correct, 1, 'first child unchanged');
+    equal(Engine.practiceOverview(Engine.loadProgress(storage, 'second'), readyCards, now).total.correct, 0, 'second child separate');
+    Engine.removeProfileData(storage, 'second');
+    equal(Engine.practiceOverview(Engine.loadProgress(storage, 'second'), readyCards, now).total.answered, 0, 'removed history is empty');
+    equal(Engine.loadProgress(storage, 'first').totalAnswered, 1, 'other child retained');
+  });
+
   let passed = 0;
   for (const item of tests) {
     const li = document.createElement('li');

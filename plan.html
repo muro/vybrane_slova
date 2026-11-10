@@ -371,7 +371,7 @@
       </div>
       <div class="panel">
         <h3>Minimal chrome</h3>
-        <p>The header should contain only circular letter toggles, defaulting to all letters selected and allowing several letters at once, plus the current profile's avatar and an about button for feedback and project links. The letter toggles shrink on narrow phones so all three fit on one line.</p>
+        <p>The header should contain circular letter toggles, defaulting to all letters selected and allowing several letters at once, the current profile’s avatar, a small chart-outline button for the parent practice overview, and an about button for feedback and project links. Keep the overview button beside the about button, with the accessible name and tooltip “Prehľad precvičovania”. It opens a separate view rather than adding scores to the practice screen.</p>
       </div>
       <div class="panel">
         <h3>Feedback</h3>
@@ -398,6 +398,11 @@
       <li>Advance through the round without a visible counter or score; future progression can be reconsidered after the practice flow is established.</li>
     </ol>
     <p>Keep routine progress indicators out of the main screen. The background flower print is an atmospheric trace of the current visit rather than a score, and the main screen stays centered on the card.</p>
+
+    <h3>Parent practice overview</h3>
+    <p>The header chart button opens “Prehľad precvičovania”, with a clear close action that returns to the current card. Show today and the previous seven calendar days: answer attempts, distinct words practiced, correct answers, and accuracy. Distinguish repeated attempts from distinct words. Show results by selected consonant and words that need more practice; describe these as practice results rather than claiming that a word is mastered from a single correct answer. Empty days should be neutral, without lost-streak messages or pressure.</p>
+    <p>A “Zoznam slov” link near the top opens <code>web/words.html</code> separately, leaving the current practice card in place. Parents can browse basic or extended words by consonant and answer group, search without needing accents, and read the same sentence clues used by the cards. Basic words are marked inside the extended list. Browsing does not change practice settings or progress; the page reads the same shipped data and is precached for offline use.</p>
+    <p>Record daily results using the device’s local calendar date when an answer is submitted, and save them alongside the existing per-word totals. Preserve existing totals during migration; daily history starts with the new feature because the current totals cannot reconstruct previous days. No retrospective daily estimates. The first version works offline on the same device and browser, with one learner per profile history. Each child profile has its own daily history and word-set choice. Viewing results from another device would require syncing. Keep the overview and its storage logic in the app-building track, with tests for date boundaries, repeated words, migration, and empty history.</p>
   </section>
 
   <section>
@@ -411,7 +416,7 @@
 
   <section>
     <h2>Content Model</h2>
-    <p>Use contrast pairs first. Skip unpaired selected words in the first version, because the app should teach the choice between two meaningful spellings, not only ask for memorized isolated words.</p>
+    <p>Use familiar school-practice words in the basic set, including both ordinary words and meaningful spelling contrasts. Retain broader coverage in the extended set. Contrast cards need a clear sentence or picture so the child can choose the intended spelling.</p>
 
     <h3>Picture-friendly starter pairs</h3>
     <table class="reuse-table">
@@ -448,9 +453,26 @@
 
     <h3>Current count</h3>
     <p>The documented starter set currently has <strong>14 contrast pairs</strong>, or <strong>28 surface-form cards</strong>: 6 picture-friendly pairs (12 cards) and 8 context-first pairs (16 cards). Because each pair has one <code>y/ý</code> form and one <code>i/í</code> form, the current set is balanced at 14 <code>y/ý</code> cards and 14 <code>i/í</code> cards.</p>
-    <p>The ordinary non-disambiguation list is split into compact per-letter plain word lists with <strong>382 cards</strong>: 179 <code>y/ý</code> selected-word rows and 203 <code>i/í</code> control rows. The default lesson pool combines them with the <strong>28 ready ambiguous cards</strong>, for <strong>410 cards</strong>. Simple cards normally show only the masked word with the short prompt “Vyber správne písmeno.”; an explicitly useful clue for an otherwise unpaired word may appear beneath it. Words with a real spelling contrast or picture need stay in the rich disambiguation list. The two <code>by</code> / <code>bi</code> review rows remain excluded.</p>
+    <p>The ordinary non-disambiguation list is split into compact per-letter plain word lists with <strong>382 cards</strong>: 179 <code>y/ý</code> selected-word rows and 203 <code>i/í</code> control rows. The extended lesson pool combines them with the <strong>28 ready ambiguous cards</strong>, for <strong>410 cards</strong>. Simple cards normally show only the masked word with the short prompt “Vyber správne písmeno.”; an explicitly useful clue for an otherwise unpaired word may appear beneath it. Words with a real spelling contrast or picture need stay in the rich disambiguation list. The two <code>by</code> / <code>bi</code> review rows remain excluded.</p>
     <p>A hidden review flag, <code>?cards=ambiguous</code>, loads only the 28 current ready ambiguous cards. It is deliberately not part of the child-facing interface, so the picture/context set can be revisited without changing the normal lesson controls.</p>
     <p>Future packs must include enough <code>i/í</code> cards that children cannot learn "this app usually wants y". Prefer balanced packs, or packs with more <code>i/í</code> controls than selected-word <code>y/ý</code> cards when adding unpaired drill content.</p>
+
+    <h3>Basic and extended sets</h3>
+    <p>“Základné” is the default set with 172 cards (86 answers of each group); “Rozšírené” retains the full 410-card pool. Select the set in the parent overview. Explicit membership lives in <code>data/words/basic.json</code>, with a shipped copy under <code>web/data/</code>, and reuses existing card IDs and context. The basic set has at most 20 <code>i/í</code> cards and at most 20 <code>y/ý</code> cards per selected consonant, including context-dependent cards. Twenty is a ceiling, not a quota: smaller school lists should lead to smaller basic sets. Each consonant should have at least as many <code>i/í</code> controls as <code>y/ý</code> cards. Choose familiar words for ages 7–10 and avoid filling the basic set with many derivatives of the same word.</p>
+    <p>Use common school practice lists as a sizing guide, not as a measured frequency ranking. The <a href="https://www.viemeposlovensky.sk/book/cvicenia-vybrane-slova">Vieme po slovensky basic list</a> has the counts below; the <a href="https://www.pravopisne.sk/vybrane-slova-b-l-m-p-r-s-v-z/">broader Pravopisne.sk list</a> includes more related words. These sources guide a separate content review rather than automatically enabling every listed word.</p>
+    <table class="reuse-table">
+      <thead><tr><th>Selected consonant</th><th>Vieme po slovensky basic y/ý entries</th><th>Proposed basic y/ý size</th></tr></thead>
+      <tbody>
+        <tr><td>B</td><td>15</td><td>15–20</td></tr>
+        <tr><td>M</td><td>15</td><td>About 15</td></tr>
+        <tr><td>P</td><td>7</td><td>7–10</td></tr>
+        <tr><td>R</td><td>27</td><td>Up to 20</td></tr>
+        <tr><td>S</td><td>9</td><td>9–12</td></tr>
+        <tr><td>V</td><td>10</td><td>10–15</td></tr>
+        <tr><td>Z</td><td>2</td><td>2–7</td></tr>
+      </tbody>
+    </table>
+    <p>The size ranges are product targets, pending review of the actual words. Choose a similar number of familiar <code>i/í</code> controls per consonant. Keep basic-set membership explicit in reviewable data, separate from the full lists and from app code. Reuse stable card IDs so switching sets preserves progress, retain required sentences or pictures, and continue excluding unreviewed rows. The word-list track owns membership and validator checks for the limits, balance, and valid references; the app-building track owns set selection, loading, and persistence.</p>
 
     <h3>Form scope</h3>
     <p>For the first full selected-word list, include only basic dictionary forms. Do not generate declensions, cases, plural forms, or conjugated verb forms as separate cards yet. The starter contrast cards may still use a specific surface form when the contrast itself is normally taught or understood that way, but broad coverage should start from base forms.</p>
@@ -458,6 +480,7 @@
 
     <h3>Excluded for v1</h3>
     <p>Skip uncommon or fringe contrasts such as <code>pýtať sa</code> / <code>pita</code>. The first version should use words a 7-10-year-old is likely to know or can understand from a simple sentence or picture.</p>
+    <p>Review child suitability separately from familiarity. The parent reviewed the potentially harsher or adult-related words and chose to retain the full vocabulary, including <code>trýzniť</code>, <code>brýzgať</code>, fighting-related nouns, <code>strieľať</code>, and wine-related words. Use ordinary educational meanings and gentle context; avoid graphic, sexual, shaming, or alcohol-promoting sentences and pictures. See <code>data/words/README.md</code> for the review scope and decision.</p>
 
     <h3>Reviewable source format</h3>
     <p>Create source lists that are easy to review in a spreadsheet or diff. Keep non-disambiguation words in plain word-list files under <code>data/words/simple/</code>, using filenames such as <code>b.txt</code>, <code>m.txt</code>, and <code>p.txt</code>. Each simple file uses <code>[i]</code> and <code>[y]</code> sections, with one word or short phrase per word line; the selected letter is inferred from the filename. A single contextual clue may follow an otherwise unpaired word after <code> | </code> when it makes that isolated card clearer.</p>
@@ -567,7 +590,8 @@
       <li><strong>Static PWA skeleton.</strong> Add <code>web/index.html</code>, <code>web/manifest.webmanifest</code>, <code>web/sw.js</code>, icons, and optional <code>web/preview.html</code>.</li>
       <li><strong>Word engine.</strong> Build <code>web/engine.js</code> with lesson data, answer checking, randomization, round scoring, and localStorage helpers.</li>
       <li><strong>Card UI.</strong> Build the centre tile, its short resisted-tug interaction and submit threshold, the in-card letter fill, and the completion animation.</li>
-      <li><strong>Feedback and progression.</strong> Add correct/incorrect feedback, round summaries, streaks, mastery tracking, and a gentle reset flow.</li>
+      <li><strong>Basic and extended sets.</strong> Review an explicit basic subset using common school lists and the per-consonant limits; preserve the extended lists, then add set selection without changing stable card IDs.</li>
+      <li><strong>Parent practice overview.</strong> Add daily history and the header chart button, with today and recent days, per-consonant results, words needing practice, migration of existing totals, and date-boundary tests. Keep scores out of the main practice screen.</li>
       <li><strong>Offline and install polish.</strong> Finish service-worker caching, icon generation, safe-area behavior, tests, and deployment notes.</li>
       <li><strong>Later morphology pack.</strong> After the base-form list is reviewed, add declined noun/adjective forms and conjugated verb forms as a separate content expansion with its own review pass and validator coverage.</li>
     </ol>

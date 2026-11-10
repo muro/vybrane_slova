@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4efe3">
+<title>Zoznam slov · Vybrané slová</title>
+<style>
+  @font-face { font-family: Nunito; src: url('./fonts/nunito-latin-ext.woff2') format('woff2'); font-weight: 200 1000; font-display: swap; }
+  @font-face { font-family: Nunito; src: url('./fonts/nunito-latin.woff2') format('woff2'); font-weight: 200 1000; font-display: swap; unicode-range: U+0000-00FF; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f4efe3; color: #302d26; font-family: Nunito, system-ui, sans-serif; line-height: 1.5; }
+  main { max-width: 920px; margin: auto; padding: 28px 18px 60px; }
+  a { color: #3268a3; font-weight: 800; }
+  h1 { margin: 22px 0 6px; font-size: clamp(28px, 5vw, 38px); }
+  .intro { margin: 0 0 22px; color: #686257; }
+  .sets { display: flex; gap: 8px; margin-bottom: 18px; }
+  button, input, select { font: inherit; }
+  .sets button { border: 1px solid #d8d0c3; border-radius: 999px; padding: 10px 20px; background: #fffdf7; color: #302d26; cursor: pointer; font-weight: 800; }
+  .sets button[aria-pressed="true"] { color: #fff; background: #3268a3; border-color: #3268a3; }
+  .filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 180px); gap: 14px; }
+  label { display: block; font-weight: 800; margin-bottom: 5px; }
+  input, select { width: 100%; border: 1px solid #d8d0c3; padding: 10px 12px; border-radius: 12px; background: #fffdf7; color: #302d26; }
+  :focus-visible { outline: 3px solid #3268a3; outline-offset: 3px; }
+  #word-count { color: #686257; margin: 16px 0 24px; }
+  .letter-section { margin: 24px 0; }
+  .letter-section h2 { font-size: 24px; margin: 0 0 10px; }
+  .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .group { background: #fffdf7; border: 1px solid #ded7ca; border-radius: 20px; padding: 18px; }
+  .group h3 { margin: 0 0 10px; font-size: 19px; }
+  .group h3 span { font-size: 14px; color: #686257; font-weight: 600; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { border-top: 1px solid #eee7da; padding: 9px 0; overflow-wrap: anywhere; }
+  li:first-child { border-top: 0; }
+  .surface { font-size: 18px; font-weight: 800; }
+  .context { font-size: 14px; color: #686257; margin: 4px 0 0; }
+  .basic-tag { display: inline-block; margin-left: 7px; padding: 1px 7px; border-radius: 999px; font-size: 11px; background: #eaf1f8; color: #3268a3; }
+  .empty { color: #686257; }
+  @media (max-width: 520px) {
+    .groups { grid-template-columns: 1fr; }
+    .filters { grid-template-columns: minmax(0, 1fr) 120px; gap: 10px; }
+    main { padding: 20px 14px 40px; }
+    .sets button { padding: 10px 15px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a href="./index.html">← Precvičovanie</a>
+  <h1>Zoznam slov</h1>
+  <p class="intro">Základné slová sú aj v rozšírenom zozname. Pri slovách s kontextom nájdete aj vetu z kartičky.</p>
+  <div class="sets" role="group" aria-label="Zoznam slov">
+    <button type="button" data-set="basic" aria-pressed="true">Základné</button>
+    <button type="button" data-set="extended" aria-pressed="false">Rozšírené</button>
+  </div>
+  <div class="filters">
+    <div><label for="word-search">Hľadať slovo</label><input type="search" id="word-search" placeholder="napr. ryba" autocomplete="off"></div>
+    <div><label for="letter">Po písmene</label><select id="letter">
+      <option value="">Všetky</option><option value="b">B</option><option value="m">M</option><option value="p">P</option><option value="r">R</option><option value="s">S</option><option value="v">V</option><option value="z">Z</option>
+    </select></div>
+  </div>
+  <p id="word-count" role="status">Načítavam slová…</p>
+  <div id="word-lists"></div>
+</main>
+<script src="./engine.js"></script>
+<script>
+const Engine = window.VybraneSlovaEngine;
+const letters = ['b', 'm', 'p', 'r', 's', 'v', 'z'];
+const params = new URLSearchParams(location.search);
+let selectedSet = params.get('set') === 'extended' ? 'extended' : 'basic';
+let allCards = [];
+let basicCards = [];
+let basicIds = new Set();
+const search = document.querySelector('#word-search');
+const letter = document.querySelector('#letter');
+const lists = document.querySelector('#word-lists');
+const count = document.querySelector('#word-count');
+if (letters.includes(params.get('letter'))) letter.value = params.get('letter');
+search.value = params.get('q') || '';
+const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('sk');
+
+function render() {
+  document.querySelectorAll('[data-set]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.set === selectedSet));
+  });
+  const pool = selectedSet === 'extended' ? allCards : basicCards;
+  const query = normalize(search.value.trim());
+  const visible = pool.filter(card => (!letter.value || card.selected_letter === letter.value) && normalize(card.surface).includes(query));
+  count.textContent = `${selectedSet === 'extended' ? 'Rozšírené' : 'Základné'}: ${pool.length} slov. Zobrazených: ${visible.length}.`;
+  lists.replaceChildren();
+  for (const consonant of letters) {
+    const cards = visible.filter(card => card.selected_letter === consonant);
+    if (!cards.length) continue;
+    const section = document.createElement('section');
+    section.className = 'letter-section';
+    const heading = document.createElement('h2');
+    heading.textContent = `Po ${consonant.toUpperCase()}`;
+    const groups = document.createElement('div');
+    groups.className = 'groups';
+    for (const answer of ['i', 'y']) {
+      const words = cards.filter(card => card.answer_group === answer).sort((a, b) => a.surface.localeCompare(b.surface, 'sk'));
+      const group = document.createElement('div');
+      group.className = 'group';
+      const title = document.createElement('h3');
+      title.textContent = answer === 'i' ? 'i / í ' : 'y / ý ';
+      const number = document.createElement('span');
+      number.textContent = `(${words.length})`;
+      title.append(number);
+      const list = document.createElement('ul');
+      for (const card of words) {
+        const item = document.createElement('li');
+        item.dataset.cardId = card.id;
+        const word = document.createElement('span');
+        word.className = 'surface';
+        word.textContent = card.surface;
+        item.append(word);
+        if (selectedSet === 'extended' && basicIds.has(card.id)) {
+          const tag = document.createElement('span');
+          tag.className = 'basic-tag';
+          tag.textContent = 'základné';
+          item.append(tag);
+        }
+        if (card.sentence) {
+          const context = document.createElement('p');
+          context.className = 'context';
+          context.textContent = card.sentence.replace('{target}', card.surface);
+          item.append(context);
+        }
+        list.append(item);
+      }
+      group.append(title, list);
+      groups.append(group);
+    }
+    section.append(heading, groups);
+    lists.append(section);
+  }
+  if (!visible.length) {
+    const empty = document.createElement('p');
+    empty.className = 'empty';
+    empty.textContent = 'Žiadne slová pre tento výber.';
+    lists.append(empty);
+  }
+}
+
+function update() {
+  const next = new URLSearchParams({ set: selectedSet });
+  if (letter.value) next.set('letter', letter.value);
+  if (search.value.trim()) next.set('q', search.value.trim());
+  history.replaceState(null, '', `?${next}`);
+  render();
+}
+
+document.querySelectorAll('[data-set]').forEach(button => button.addEventListener('click', () => {
+  selectedSet = button.dataset.set;
+  update();
+}));
+letter.addEventListener('change', update);
+search.addEventListener('input', update);
+
+async function start() {
+  try {
+    const fetchText = async path => {
+      const response = await fetch(path);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.text();
+    };
+    const [membership, tsv, ...simpleLists] = await Promise.all([
+      fetchText('./data/basic.json'), fetchText('./data/disambiguation.tsv'),
+      ...letters.map(consonant => fetchText(`./data/simple/${consonant}.txt`)),
+    ]);
+    allCards = [...Engine.loadDisambiguationCards(tsv), ...Engine.loadSimpleCards(Object.fromEntries(
+      letters.map((consonant, index) => [consonant, simpleLists[index]])
+    ))];
+    basicCards = Engine.selectBasicCards(allCards, JSON.parse(membership));
+    basicIds = new Set(basicCards.map(card => card.id));
+    render();
+  } catch (_error) {
+    count.textContent = 'Slová sa nenačítali. Skúste stránku obnoviť.';
+  }
+}
+
+start();
+</script>
+</body>
+</html>

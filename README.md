@@ -5,8 +5,11 @@ aplikacia na trenovanie vybranych slov
 
 Reviewable word-card data lives in `data/words/`. Simple non-disambiguation
 words are in plain per-letter word-list files under `simple/`; words that need context or
-picture disambiguation are in `disambiguation.tsv`. The app loads 382 simple
-cards and 28 ready contrast cards by default. The hidden review URL
+picture disambiguation are in `disambiguation.tsv`. The app defaults to a
+172-card basic set, selected explicitly in `data/words/basic.json`. Each
+letter has equal numbers of i/í and y/ý cards, with at most 20 of each.
+The parent overview's **Výber slov** selector switches to the extended set
+of 382 simple cards and 28 ready contrast cards. The hidden review URL
 `?cards=ambiguous` limits the pool to the 28 ready contrast cards; the 2
 review rows remain excluded. Run the validator after editing:
 
@@ -25,6 +28,20 @@ python3 -m http.server 8765 --directory web
 - App: `http://localhost:8765/index.html`
 - Tests: `http://localhost:8765/tests.html`
 - Phone preview: `http://localhost:8765/preview.html`
+- Word lists: `http://localhost:8765/words.html` (basic by default; choose
+  **Rozšírené** for the complete list)
+
+The chart icon beside the about button opens **Prehľad precvičovania**:
+today and the previous seven days, results by letter, and words needing more
+practice. Results and word-set choices stay in this browser on this device,
+separately for each child profile.
+Existing totals are preserved, but daily history starts with this version;
+older totals cannot be reconstructed into individual days. Switching word
+sets keeps progress and the selected letters.
+
+The parent overview links to **Zoznam slov**, a separate page with both word
+sets, letter and search filters, and the actual card sentences. Browsing
+the lists does not change the practice settings or progress.
 
 ### Ambiguous-only review
 

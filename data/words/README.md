@@ -17,10 +17,54 @@ across 14 pairs, balanced as 14 `i/í` answers and 14 `y/ý` answers. The
 
 The current ordinary simple-list data is split across the per-letter files in
 `simple/`: 382 cards, with 179 `y/ý` selected-word rows and 203 `i/í` control
-rows. They are loaded by default alongside the 28 ready contrast cards. The
+rows. They are available in the extended set alongside the 28 ready contrast cards. The
 app has a hidden `?cards=ambiguous` review mode that loads only those 28 ready
 contrast cards while picture and context work is revisited; `review` rows stay
 excluded in both modes.
+
+## Basic membership
+
+`basic.json` selects existing cards by consonant, answer group, and exact
+surface. It does not duplicate sentences or other card metadata. The app
+loads these 172 cards by default, reusing their original IDs and context:
+B 15+15, M 15+15, P 9+9, R 20+20, S 10+10, V 12+12, Z 5+5 (i+y).
+The extended set retains all existing words. Both sets exclude review and
+candidate contrast rows.
+
+The sizes and y/ý choices were guided by the basic lists at
+[Vieme po slovensky](https://www.viemeposlovensky.sk/book/cvicenia-vybrane-slova)
+and the broader list at
+[Pravopisne.sk](https://www.pravopisne.sk/vybrane-slova-b-l-m-p-r-s-v-z/).
+This is a familiar school-practice subset, not a measured frequency ranking
+or a claim to cover every school's full list. Prefer common, concrete i/í
+controls. Keep uncommon words and additional derivatives in the extended set.
+
+The validator rejects unknown or unready references, duplicates, missing
+letters or answer groups, more than 20 cards per answer group per consonant,
+and fewer i/í controls than y/ý cards. It also checks the shipped basic,
+simple, and contrast data copies against their sources.
+
+## Parent review and child suitability
+
+The live word browser is `web/words.html`, linked near the top of the parent
+overview. It reads the same basic membership and full word data as practice,
+groups words by consonant and i/í or y/ý, shows their actual sentences, and
+marks basic entries when browsing the extended set. Search ignores accents.
+It includes only the enabled cards; the two review-only rows remain excluded.
+
+On 2026-11-10, all 410 active surfaces, their available sentence clues, and
+the 30 contrast rows' sentence and picture-prompt metadata were reviewed for
+ages 7–10. No profanity, sexual content, or graphic depictions were found.
+This is an editorial review, not an automatic safety certification.
+
+The parent explicitly chose to retain all vocabulary after discussing the
+strongest candidates for omission: `trýzniť` (torment), `brýzgať` (insult),
+`bitka`, `bitkár`, `bitkárka` (fighting), `strieľať` (shoot), and `víno`,
+`vínny` (wine). These are ordinary dictionary words rather than forbidden
+words. Their inclusion does not license violent, shaming, or alcohol-promoting
+sentences or pictures. The `biť` contrast already uses a beating heart, and
+`dobiť` uses charging a battery. Some other extended entries are uncommon or
+abstract; familiarity and spelling review remain separate from safety.
 
 ## `simple/*.txt`
 

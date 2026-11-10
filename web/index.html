@@ -91,9 +91,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
     min-height: 40px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
+
+  .chrome-button svg { width: 18px; height: 18px; }
 
   .chrome-button,
   .letter-filter-button {
@@ -109,13 +112,13 @@
     flex: 1;
     gap: 4px;
     align-items: center;
-    min-width: 0;
+    min-width: 208px;
   }
 
-  /* Seven letters share the top bar with the profile and about buttons, so
+  /* Seven letters share the top bar with the profile, overview and about buttons, so
      they shrink to the space left over on narrow phones. */
   .letter-filter-button {
-    --letter-size: clamp(26px, calc((100vw - 138px) / 7), 40px);
+    --letter-size: clamp(26px, calc((100vw - 186px) / 7), 40px);
     width: var(--letter-size);
     min-width: 26px;
     height: var(--letter-size);
@@ -780,6 +783,7 @@
   }
 
   .topbar-actions {
+    margin-left: auto;
     display: flex;
     flex: none;
     gap: 6px;
@@ -1053,6 +1057,47 @@
 
   .stats-word .answer-y { color: var(--gold-strong); }
 
+  .overview-sheet {
+    width: min(640px, 100%);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    padding: 30px 24px 24px;
+    text-align: left;
+    overscroll-behavior: contain;
+  }
+
+  .overview-sheet h2 { padding: 0 30px 0 0; }
+  .overview-sheet h3 { margin: 24px 0 10px; font-size: 18px; }
+  .overview-sheet p { letter-spacing: 0; }
+  .overview-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+  .overview-stat { padding: 12px 8px; border-radius: 14px; background: rgba(37, 99, 184, 0.07); text-align: center; }
+  .overview-stat strong { display: block; font-size: 28px; color: var(--ink); }
+  .overview-stat span { font-size: 13px; color: var(--muted); }
+  .overview-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .overview-table th, .overview-table td { padding: 9px 4px; border-bottom: 1px solid var(--hairline); text-align: right; }
+  .overview-table th:first-child, .overview-table td:first-child { text-align: left; }
+  .overview-table th { font-weight: 700; color: var(--muted); }
+  .overview-table tbody th { color: var(--ink); }
+  .practice-words { padding-left: 22px; margin: 0; }
+  .practice-words li { padding: 5px 0; }
+  .practice-words span { color: var(--muted); font-size: 14px; }
+  .practice-set { border-top: 1px solid var(--hairline); margin-top: 24px; padding-top: 18px; }
+  .practice-set label { font-weight: 800; display: block; margin-bottom: 8px; }
+  .practice-set select { width: 100%; font: inherit; padding: 10px; color: var(--ink); background: var(--card); border: 1px solid var(--hairline); border-radius: 10px; }
+  .overview-note { font-size: 13px !important; }
+
+  @media (max-width: 360px) {
+    .topbar { gap: 4px; }
+    .letter-filter { gap: 2px; }
+    .letter-filter-button { min-width: 28px; width: 28px; height: 32px; }
+    .chrome-button { min-width: 36px; padding: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    #overview-overlay { padding: 16px 10px; }
+    .overview-sheet { padding: 30px 16px 22px; }
+  }
+
   @media (max-width: 760px) {
     .app {
       padding-left: 10px;
@@ -1087,6 +1132,9 @@
     <div class="letter-filter" id="letter-filter" role="group" aria-label="Vybrať písmená"></div>
     <div class="topbar-actions">
       <button class="profile-button" type="button" id="profile-open" aria-haspopup="dialog"></button>
+      <button class="chrome-button" type="button" id="overview-open" aria-label="Prehľad precvičovania" title="Prehľad precvičovania">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 4v16h16M8 16v-4m5 4V6m5 10V9"/></svg>
+      </button>
       <button class="chrome-button" type="button" id="about-open" aria-label="O aplikácii">?</button>
     </div>
   </header>
@@ -1154,6 +1202,38 @@
   </section>
 </div>
 
+<div class="sheet-overlay" id="overview-overlay" hidden>
+  <section class="sheet overview-sheet" role="dialog" aria-modal="true" aria-labelledby="overview-title">
+    <button class="sheet-close" type="button" id="overview-close" aria-label="Zavrieť prehľad">×</button>
+    <h2 id="overview-title">Prehľad precvičovania</h2>
+    <p id="overview-learner"></p>
+    <p><a href="./words.html" target="_blank" rel="noopener noreferrer">Zoznam slov · základné aj rozšírené ↗</a></p>
+    <p>Dnes</p>
+    <div class="overview-stats" id="overview-today"></div>
+    <p class="overview-note" id="overview-today-detail"></p>
+    <h3>Dnes a predchádzajúcich 7 dní</h3>
+    <table class="overview-table">
+      <thead><tr><th scope="col">Deň</th><th scope="col">Slová</th><th scope="col">Odpovede</th><th scope="col">Správne</th></tr></thead>
+      <tbody id="overview-days"></tbody>
+    </table>
+    <p class="overview-note">Slová = rôzne precvičené slová. Odpovede zahŕňajú aj opakovania.</p>
+    <h3>Podľa písmen za tieto dni</h3>
+    <table class="overview-table">
+      <thead><tr><th scope="col">Písmeno</th><th scope="col">Slová</th><th scope="col">Odpovede</th><th scope="col">Správne</th></tr></thead>
+      <tbody id="overview-letters"></tbody>
+    </table>
+    <h3>Ešte precvičiť</h3>
+    <p class="overview-note">Slová s chybou za tieto dni, najviac 10. Čísla ukazujú správne odpovede zo všetkých pokusov.</p>
+    <ul class="practice-words" id="overview-words"></ul>
+    <p id="overview-empty"></p>
+    <div class="practice-set">
+      <label for="practice-set">Výber slov</label>
+      <select id="practice-set"><option value="basic">Základné</option><option value="extended">Rozšírené</option></select>
+      <p class="overview-note" id="practice-set-description"></p>
+    </div>
+    <p class="overview-note">Prehľad patrí aktuálne zvolenému profilu v tomto prehliadači. Údaje zostávajú na tomto zariadení. Denná história sa ukladá od tejto verzie aplikácie; staršie výsledky sa do dní nedajú spätne rozdeliť.</p>
+  </section>
+</div>
 <script src="./engine.js"></script>
 <script src="./avatars.js"></script>
 <script>
@@ -1199,6 +1279,10 @@ const elements = {
   statsWord: document.querySelector('#stats-word'),
   statsBack: document.querySelector('#stats-back'),
   flowerGarden: document.querySelector('#flower-garden'),
+  overviewOpen: document.querySelector('#overview-open'),
+  overviewClose: document.querySelector('#overview-close'),
+  overviewOverlay: document.querySelector('#overview-overlay'),
+  practiceSet: document.querySelector('#practice-set'),
 };
 
 let confettiTimer = null;
@@ -1319,7 +1403,7 @@ const FLOWER_CANDIDATES = 42;
 const FLOWER_TOP_CHOICES = 5;
 
 function loadSettings(storage, profileId) {
-  if (!storage) return { selectedLetters: null };
+  if (!storage) return { selectedLetters: null, wordSet: 'basic' };
   try {
     const raw = storage.getItem(Engine.profileStorageKey(Engine.STORAGE_KEYS.settings, profileId));
     const saved = raw ? JSON.parse(raw) : {};
@@ -1328,9 +1412,10 @@ function loadSettings(storage, profileId) {
       : null;
     return {
       selectedLetters,
+      wordSet: saved.wordSet === 'extended' ? 'extended' : 'basic',
     };
   } catch (_error) {
-    return { selectedLetters: null };
+    return { selectedLetters: null, wordSet: 'basic' };
   }
 }
 
@@ -1339,6 +1424,7 @@ function saveSettings() {
   try {
     appStorage.setItem(Engine.profileStorageKey(Engine.STORAGE_KEYS.settings, state.profiles.activeId), JSON.stringify({
       selectedLetters: state.selectedLetters,
+      wordSet: state.wordSet,
     }));
   } catch (_error) {
     // Practice should continue even if storage is unavailable.
@@ -1346,14 +1432,18 @@ function saveSettings() {
 }
 
 const initialProfiles = Engine.loadProfiles(appStorage, Avatars.AVATAR_KEYS);
+const initialSettings = loadSettings(appStorage, initialProfiles.activeId);
 
 const state = {
   cards: [],
+  allCards: [],
+  basicCards: [],
+  wordSet: initialSettings.wordSet,
   round: [],
   index: 0,
   locked: false,
   profiles: initialProfiles,
-  selectedLetters: loadSettings(appStorage, initialProfiles.activeId).selectedLetters,
+  selectedLetters: initialSettings.selectedLetters,
   progress: Engine.loadProgress(appStorage, initialProfiles.activeId),
 };
 
@@ -2125,7 +2215,14 @@ function renderProfileButton() {
 
 function applyActiveProfile() {
   const profileId = state.profiles.activeId;
-  state.selectedLetters = loadSettings(appStorage, profileId).selectedLetters;
+  const settings = loadSettings(appStorage, profileId);
+  state.selectedLetters = settings.selectedLetters;
+  state.wordSet = settings.wordSet;
+  if (state.allCards.length) {
+    state.cards = HIDDEN_AMBIGUOUS_ONLY
+      ? state.allCards.filter(card => card.needs_disambiguation === 'true')
+      : state.wordSet === 'extended' ? state.allCards : state.basicCards;
+  }
   state.progress = Engine.loadProgress(appStorage, profileId);
   elements.flowerGarden.textContent = '';
   renderProfileButton();
@@ -2351,6 +2448,8 @@ function showStatsWord(cardId) {
 }
 
 function openProfiles() {
+  cancelIntro();
+  document.querySelector('.app').inert = true;
   elements.profileOverlay.hidden = false;
   if (state.profiles.profiles.length) {
     showProfilePicker();
@@ -2361,6 +2460,7 @@ function openProfiles() {
 
 function closeProfiles() {
   elements.profileOverlay.hidden = true;
+  document.querySelector('.app').inert = false;
   elements.profileOpen.focus();
 }
 
@@ -2380,19 +2480,112 @@ function onProfileListClick(event) {
 }
 
 function openAbout() {
+  cancelIntro();
+  document.querySelector('.app').inert = true;
   elements.aboutOverlay.hidden = false;
   elements.aboutClose.focus();
 }
 
 function closeAbout() {
   elements.aboutOverlay.hidden = true;
+  document.querySelector('.app').inert = false;
   elements.aboutOpen.focus();
 }
 
 function onSheetKeyDown(event) {
-  if (event.key !== 'Escape') return;
-  if (!elements.aboutOverlay.hidden) closeAbout();
-  if (!elements.profileOverlay.hidden) closeProfiles();
+  const overlay = [elements.overviewOverlay, elements.aboutOverlay, elements.profileOverlay].find(item => !item.hidden);
+  if (!overlay) return;
+  if (event.key === 'Escape') {
+    if (overlay === elements.overviewOverlay) closeOverview();
+    else if (overlay === elements.profileOverlay) closeProfiles();
+    else closeAbout();
+  }
+  if (event.key === 'Tab') {
+    const controls = [...overlay.querySelectorAll('button, a, select, input')].filter(control => !control.disabled && control.tabIndex >= 0 && control.getClientRects().length);
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+}
+
+function renderOverview() {
+  const profile = Engine.activeProfile(state.profiles);
+  document.querySelector('#overview-learner').textContent = profile
+    ? `Prehľad pre: ${profileDisplayName(profile)}` : 'Precvičovanie bez profilu.';
+  const report = Engine.practiceOverview(state.progress, state.allCards);
+  const today = report.days[0];
+  const accuracy = item => item.answered ? `${Math.round(100 * item.correct / item.answered)} %` : '—';
+  const stats = document.querySelector('#overview-today');
+  stats.replaceChildren();
+  for (const [value, label] of [[today.words, 'Rôzne slová'], [today.answered, 'Odpovede'], [accuracy(today), 'Správne']]) {
+    const block = document.createElement('div');
+    block.className = 'overview-stat';
+    const number = document.createElement('strong');
+    number.textContent = value;
+    const caption = document.createElement('span');
+    caption.textContent = label;
+    block.append(number, caption);
+    stats.append(block);
+  }
+  document.querySelector('#overview-today-detail').textContent = today.answered
+    ? `Správne odpovede dnes: ${today.correct} z ${today.answered}.`
+    : 'Dnes ešte nie sú uložené žiadne odpovede.';
+  const fillTable = (selector, rows) => {
+    const body = document.querySelector(selector);
+    body.replaceChildren();
+    for (const [label, item] of rows) {
+      const row = document.createElement('tr');
+      for (const [index, value] of [label, item.words, item.answered, item.answered ? `${item.correct}/${item.answered} · ${accuracy(item)}` : '—'].entries()) {
+        const cell = document.createElement(index ? 'td' : 'th');
+        if (!index) cell.scope = 'row';
+        cell.textContent = value;
+        row.append(cell);
+      }
+      body.append(row);
+    }
+  };
+  fillTable('#overview-days', report.days.map((day, index) => [index === 0 ? 'Dnes' : index === 1 ? 'Včera' :
+    new Date(`${day.date}T12:00:00`).toLocaleDateString('sk', { day: 'numeric', month: 'numeric' }), day]));
+  fillTable('#overview-letters', LETTER_ORDER.map(letter => [letter.toUpperCase(), report.letters[letter] || { words: 0, answered: 0, correct: 0 }]));
+  const words = document.querySelector('#overview-words');
+  words.replaceChildren();
+  for (const item of report.needsPractice.slice(0, 10)) {
+    const row = document.createElement('li');
+    const word = document.createElement('strong');
+    word.textContent = item.card.surface;
+    const result = document.createElement('span');
+    result.textContent = ` · ${item.correct}/${item.seen}`;
+    row.append(word, result);
+    words.append(row);
+  }
+  document.querySelector('#overview-empty').textContent = report.needsPractice.length ? '' :
+    report.total.answered ? 'V týchto dňoch zatiaľ bez chyby.' : 'Po precvičovaní sa tu zobrazia slová, ku ktorým sa oplatí vrátiť.';
+  elements.practiceSet.value = state.wordSet;
+  elements.practiceSet.disabled = HIDDEN_AMBIGUOUS_ONLY || !state.allCards.length;
+  document.querySelector('#practice-set-description').textContent = HIDDEN_AMBIGUOUS_ONLY
+    ? 'Kontrolný režim: iba slová s kontextom.'
+    : `Základné: ${state.basicCards.length} slov, najviac 20 pre i/í a 20 pre y/ý na písmeno. Rozšírené: ${state.allCards.length} slov. Výsledky sa zachovajú pri zmene výberu.`;
+}
+
+function openOverview() {
+  cancelIntro();
+  renderOverview();
+  document.querySelector('.app').inert = true;
+  elements.overviewOverlay.hidden = false;
+  elements.overviewOverlay.querySelector('.overview-sheet').scrollTop = 0;
+  elements.overviewClose.focus();
+}
+
+function closeOverview() {
+  elements.overviewOverlay.hidden = true;
+  document.querySelector('.app').inert = false;
+  elements.overviewOpen.focus();
 }
 
 function resetRound() {
@@ -2412,7 +2605,8 @@ async function start() {
       if (!response.ok) throw new Error(`HTTP ${response.status} for ${path}`);
       return response.text();
     });
-    const [tsv, ...simpleLists] = await Promise.all([
+    const [basicText, tsv, ...simpleLists] = await Promise.all([
+      fetchText('./data/basic.json'),
       fetchText('./data/disambiguation.tsv'),
       ...LETTER_ORDER.map(letter => fetchText(`./data/simple/${letter}.txt`)),
     ]);
@@ -2420,7 +2614,9 @@ async function start() {
     const simpleCards = Engine.loadSimpleCards(Object.fromEntries(
       LETTER_ORDER.map((letter, index) => [letter, simpleLists[index]]),
     ));
-    state.cards = HIDDEN_AMBIGUOUS_ONLY ? ambiguousCards : [...ambiguousCards, ...simpleCards];
+    state.allCards = [...ambiguousCards, ...simpleCards];
+    state.basicCards = Engine.selectBasicCards(state.allCards, JSON.parse(basicText));
+    state.cards = HIDDEN_AMBIGUOUS_ONLY ? ambiguousCards : state.wordSet === 'extended' ? state.allCards : state.basicCards;
     populateLetterFilter();
     state.round = createCurrentRound();
     render();
@@ -2447,6 +2643,19 @@ elements.letterFilter.addEventListener('click', event => {
   resetRound();
 });
 elements.aboutOpen.addEventListener('click', openAbout);
+elements.overviewOpen.addEventListener('click', openOverview);
+elements.overviewClose.addEventListener('click', closeOverview);
+elements.overviewOverlay.addEventListener('click', event => {
+  if (event.target === elements.overviewOverlay) closeOverview();
+});
+elements.practiceSet.addEventListener('change', () => {
+  state.wordSet = elements.practiceSet.value;
+  state.cards = state.wordSet === 'extended' ? state.allCards : state.basicCards;
+  populateLetterFilter();
+  saveSettings();
+  resetRound();
+  renderOverview();
+});
 elements.aboutClose.addEventListener('click', closeAbout);
 elements.aboutOverlay.addEventListener('click', closeAbout);
 elements.aboutSheet.addEventListener('click', event => event.stopPropagation());

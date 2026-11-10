@@ -1,0 +1,30 @@
+{
+  "b": {
+    "i": ["biť", "dobiť", "bicykel", "biely", "bielizeň", "bitka", "mobil", "kabína", "krabica", "slabika", "obilie", "robiť", "obísť", "obidva", "bielko"],
+    "y": ["byť", "bývať", "bystrý", "byvol", "dobyť", "dobytok", "kobyla", "zbytočný", "bylina", "býk", "byt", "nábytok", "obyčajný", "bydlisko", "aby"]
+  },
+  "m": {
+    "i": ["mi", "milý", "mikina", "mikrofón", "minca", "minúta", "miska", "misa", "miesto", "miestnosť", "mier", "milovať", "mixér", "komín", "milión"],
+    "y": ["my", "mýli", "myslieť", "myšlienka", "myseľ", "myš", "mydlo", "umyť", "hmyz", "žmýkať", "zamykať", "šmýkať sa", "omyl", "zmysel", "priemysel"]
+  },
+  "p": {
+    "i": ["pichá", "písať", "písmeno", "píla", "piatok", "piesok", "piť", "piecť", "pirát"],
+    "y": ["pýcha", "pýtať sa", "pyšný", "pykať", "pýr", "pysk", "pytliak", "kopyto", "pyžamo"]
+  },
+  "r": {
+    "i": ["ríša", "Rím", "rieka", "riešiť", "riad", "riadiť", "riaditeľ", "ríbezľa", "kričať", "kríž", "krieda", "krídlo", "tri", "trieda", "tričko", "strihať", "striebro", "hríb", "ihrisko", "príroda"],
+    "y": ["ryba", "rýchly", "ryť", "rýpať", "hrýzť", "kryť", "skryť", "koryto", "korytnačka", "strýko", "ryčať", "ryža", "bryndza", "rys", "rysovať", "rytier", "rým", "ryha", "kryha", "rýľ"]
+  },
+  "s": {
+    "i": ["síra", "sivý", "sídlisko", "sila", "silný", "sirup", "sito", "nosiť", "prosiť", "musieť"],
+    "y": ["syčať", "sychravý", "sýkorka", "syn", "sypať", "syr", "syseľ", "sýty", "vysychať", "osýpky"]
+  },
+  "v": {
+    "i": ["vír", "vískať", "vidieť", "vidlička", "video", "vitamín", "vítať", "víťaz", "viac", "Vianoce", "vietor", "sviečka"],
+    "y": ["vy", "vydra", "vyhňa", "výr", "výskať", "vysoký", "vyť", "zvyk", "zvyšok", "výška", "zvyknúť", "vyžla"]
+  },
+  "z": {
+    "i": ["zima", "zips", "získať", "zívať", "vozík"],
+    "y": ["jazyk", "nazývať", "ozývať sa", "pozývať", "prezývať"]
+  }
+}
