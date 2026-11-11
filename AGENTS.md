@@ -121,7 +121,7 @@ explicitly asks for one.
 - **Installable PWA shell.** Use relative manifest paths, committed icons, a
   small service worker that precaches the app shell, and a cache name that is
   bumped when cached assets change.
-- **Dev-only preview.** A phone-frame `web/preview.html` is useful for visual
+- **Dev-only preview.** A phone-frame `dev/preview.html` is useful for visual
   checks, but it must not be part of the shipped app UI.
 
 ## Run / develop / test
@@ -134,13 +134,24 @@ Once the PWA skeleton exists, use the Clockwork-style local server:
 python3 -m http.server 8765 --directory web
 ```
 
+Tests and phone previews live in `dev/`, outside the deployment folder.
+Serve the repository root on a separate port to use them:
+
+```sh
+python3 -m http.server 8766
+# Tests: http://localhost:8766/dev/tests.html
+# Preview: http://localhost:8766/dev/preview.html
+```
+
+Publish only `web/`. It contains the app and its runtime assets.
+
 Expected URLs:
 
 - App: `http://localhost:8765/index.html`
-- Tests: `http://localhost:8765/tests.html`
-- Preview: `http://localhost:8765/preview.html`
+- Tests: `http://localhost:8766/dev/tests.html`
+- Preview: `http://localhost:8766/dev/preview.html`
 
-Use in-browser tests in `web/tests.html` for engine behavior. Keep the test
+Use in-browser tests in `dev/tests.html` for engine behavior. Keep the test
 page self-contained and easy to automate, with a visible summary in the DOM or
 document title.
 
@@ -150,7 +161,7 @@ layout that changed, especially on a phone-sized viewport.
 ## Testing rules
 
 - Use red-green-refactor for behavior changes when practical: add a failing
-  `web/tests.html` assertion first, make it pass with the smallest change, then
+  `dev/tests.html` assertion first, make it pass with the smallest change, then
   refactor.
 - Engine changes should be covered by tests for word data, accepted answers,
   lesson selection, scoring thresholds, localStorage migration, and reset.

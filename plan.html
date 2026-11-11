@@ -517,7 +517,7 @@
       <tbody>
         <tr>
           <th>One folder to ship</th>
-          <td>Put the runtime app in <code>web/</code> and make that folder the deployable website artifact. No npm install, no build step, no CDN dependency required for the first version.</td>
+          <td>Put the runtime app in <code>web/</code> and make that folder the deployable website artifact. Keep tests and phone previews in <code>dev/</code>, outside the deployment folder. No npm install, no build step, no CDN dependency required for the first version.</td>
         </tr>
         <tr>
           <th>Installable PWA shell</th>
@@ -587,7 +587,7 @@
   <section>
     <h2>Implementation Phases</h2>
     <ol class="phase-list">
-      <li><strong>Static PWA skeleton.</strong> Add <code>web/index.html</code>, <code>web/manifest.webmanifest</code>, <code>web/sw.js</code>, icons, and optional <code>web/preview.html</code>.</li>
+      <li><strong>Static PWA skeleton.</strong> Add <code>web/index.html</code>, <code>web/manifest.webmanifest</code>, <code>web/sw.js</code>, icons, and optional <code>dev/preview.html</code>.</li>
       <li><strong>Word engine.</strong> Build <code>web/engine.js</code> with lesson data, answer checking, randomization, round scoring, and localStorage helpers.</li>
       <li><strong>Card UI.</strong> Build the centre tile, its short resisted-tug interaction and submit threshold, the in-card letter fill, and the completion animation.</li>
       <li><strong>Basic and extended sets.</strong> Review an explicit basic subset using common school lists and the per-consonant limits; preserve the extended lists, then add set selection without changing stable card IDs.</li>

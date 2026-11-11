@@ -26,10 +26,21 @@ python3 -m http.server 8765 --directory web
 ```
 
 - App: `http://localhost:8765/index.html`
-- Tests: `http://localhost:8765/tests.html`
-- Phone preview: `http://localhost:8765/preview.html`
+- Tests: `http://localhost:8766/dev/tests.html`
+- Phone preview: `http://localhost:8766/dev/preview.html`
 - Word lists: `http://localhost:8765/words.html` (basic by default; choose
   **Rozšírené** for the complete list)
+
+Tests and phone previews live in `dev/`, outside the deployment folder.
+Serve the repository root on a separate port to use them:
+
+```sh
+python3 -m http.server 8766
+# Tests: http://localhost:8766/dev/tests.html
+# Preview: http://localhost:8766/dev/preview.html
+```
+
+Publish only `web/`. It contains the app and its runtime assets.
 
 The chart icon beside the about button opens **Prehľad precvičovania**:
 today and the previous seven days, results by letter, and words needing more
